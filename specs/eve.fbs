@@ -1,0 +1,149 @@
+namespace eve;
+
+enum ModifierDomain: int8 {
+    ItemID = 0,
+    ShipID = 1,
+    CharID = 2,
+    OtherID = 3,
+    StructureID = 4,
+    Target = 5,
+    TargetID = 6,
+}
+
+enum ModifierFunc: int8 {
+    ItemModifier = 0,
+    LocationGroupModifier = 1,
+    LocationModifier = 2,
+    LocationRequiredSkillModifier = 3,
+    OwnerRequiredSkillModifier = 4,
+    EffectStopper = 5,
+}
+
+enum ModifierOperation: int8 {
+    Unset = -2,
+    PreAssign = -1,
+    PreMul = 0,
+    PreDiv = 1,
+    ModAdd = 2,
+    ModSub = 3,
+    PostMul = 4,
+    PostDiv = 5,
+    PostPercent = 6,
+    PostAssign = 7,
+}
+
+enum EffectCategory: int8 {
+    Passive = 0,
+    Active = 1,
+    Target = 2,
+    Area = 3,
+    Online = 4,
+    Overload = 5,
+    Dungeon = 6,
+    System = 7,
+}
+
+struct Modifier {
+    domain: ModifierDomain;
+    func: ModifierFunc;
+    operation: ModifierOperation;
+    modified_attribute_id: int32;
+    modifying_attribute_id: int32;
+    group_id: int32;
+    skill_type_id: int32;
+}
+
+struct TypeDogmaAttribute {
+    attribute_id: int32;
+    value: float32;
+}
+
+struct TypeDogmaEffect {
+    effect_id: int32;
+    is_default: bool;
+}
+
+table Type {
+    id: int32 (key);
+    /// English. The other languages live in the Names file.
+    name: string (required);
+    group_id: int32;
+    category_id: int32;
+    published: bool;
+
+    faction_id: int32;
+    market_group_id: int32;
+    meta_group_id: int32;
+    race_id: int32;
+
+    capacity: float32 = null;
+    mass: float32 = null;
+    radius: float32 = null;
+    volume: float32 = null;
+
+    dogma_attributes: [TypeDogmaAttribute];
+    dogma_effects: [TypeDogmaEffect];
+}
+
+table Group {
+    id: int32 (key);
+    name: string (required);
+    category_id: int32;
+    published: bool;
+}
+
+table Category {
+    id: int32 (key);
+    name: string (required);
+    published: bool;
+}
+
+table DogmaAttribute {
+    id: int32 (key);
+    name: string (required);
+    display_name: string;
+    default_value: float32;
+    high_is_good: bool;
+    stackable: bool;
+    published: bool;
+    unit_id: int32;
+}
+
+table DogmaEffect {
+    id: int32 (key);
+    name: string (required);
+    display_name: string;
+    effect_category: EffectCategory;
+    published: bool;
+
+    electronic_chance: bool;
+    is_assistance: bool;
+    is_offensive: bool;
+    is_warp_safe: bool;
+    propulsion_chance: bool;
+    range_chance: bool;
+    disallow_auto_repeat: bool;
+
+    discharge_attribute_id: int32;
+    duration_attribute_id: int32;
+    falloff_attribute_id: int32;
+    fitting_usage_chance_attribute_id: int32;
+    range_attribute_id: int32;
+    resistance_attribute_id: int32;
+    tracking_speed_attribute_id: int32;
+
+    modifiers: [Modifier];
+}
+
+table Sde {
+    /// Build number of the SDE this was generated from.
+    build_number: int32;
+    types: [Type];
+    groups: [Group];
+    categories: [Category];
+    dogma_attributes: [DogmaAttribute];
+    dogma_effects: [DogmaEffect];
+}
+
+root_type Sde;
+file_identifier "ESF1";

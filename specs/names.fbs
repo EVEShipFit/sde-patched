@@ -1,0 +1,28 @@
+namespace eve;
+
+/// Name lookup, in a file of its own.
+///
+/// An EFT-fit can be written in any of the eight languages EVE supports, so a
+/// name has to be matchable back to a type. Showing a name is only ever done
+/// in English, and Sde.types carries that text; this file is only ever
+/// searched, never displayed. Splitting it off keeps it out of the download
+/// of anyone who never imports a fit.
+table Names {
+    /// Build number of the SDE this was generated from. Match it against
+    /// Sde.build_number; the type IDs below mean nothing otherwise.
+    build_number: int32;
+
+    /// Every name of every type, in every language, lowercased and sorted by
+    /// UTF-8 bytes. Lowercasing is per code point and locale-independent, so
+    /// that a fit does not have to match the case. The English name is in here
+    /// too, so a lookup never needs a second code path.
+    ///
+    /// Lowercase the name to look up and binary search this, then read
+    /// type_ids at the same index. A name that several types share gives
+    /// several entries in a row, so keep walking while the name matches.
+    names: [string] (required);
+    type_ids: [int32] (required);
+}
+
+root_type Names;
+file_identifier "ESFN";
