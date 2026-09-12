@@ -2,195 +2,187 @@ package patch
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
 
-// Selector picks the types an action works on. Handing several to On means
-// all of them have to hold; use Any for "one of these".
+// Selector is one node of a parsed expression: it says whether a type is in
+// or out.
 type Selector interface {
 	fmt.Stringer
 
-	prepare(*Context)
-	matches(*Context, *sde.Type) bool
+	// link looks the names inside up, now that the SDE is loaded.
+	link(*Context, source)
+	matches(*sde.Type) bool
 }
 
-// InCategory matches types whose category has one of these English names.
-func InCategory(names ...string) Selector {
-	return &idSelector{kind: "InCategory", names: names, at: here(1)}
+// callKind is one of the functions an expression can use.
+type callKind string
+
+const (
+	inCategory   callKind = "category"
+	inGroup      callKind = "group"
+	named        callKind = "name"
+	hasAttribute callKind = "attribute"
+	hasEffect    callKind = "effect"
+	isPublished  callKind = "published"
+)
+
+var callKinds = map[callKind]bool{
+	inCategory: true, inGroup: true, named: true,
+	hasAttribute: true, hasEffect: true, isPublished: true,
 }
 
-// InGroup matches types whose group has one of these English names.
-func InGroup(names ...string) Selector {
-	return &idSelector{kind: "InGroup", names: names, at: here(1)}
-}
-
-// Named matches types by their English name.
-func Named(names ...string) Selector {
-	return &idSelector{kind: "Named", names: names, at: here(1)}
-}
-
-// HasAttribute matches types that already carry the attribute.
-func HasAttribute(ref *AttributeRef) Selector {
-	return &hasAttribute{ref: ref}
-}
-
-// HasEffect matches types that already carry the effect.
-func HasEffect(ref *EffectRef) Selector {
-	return &hasEffect{ref: ref}
-}
-
-func IsPublished() Selector {
-	return &isPublished{}
-}
-
-// As gives a selector a name, so that "explain" shows that instead of the
-// whole nest of conditions.
-func As(name string, selector Selector) Selector {
-	return &named{name: name, selector: selector}
-}
-
-type named struct {
-	name     string
-	selector Selector
-}
-
-func (s *named) String() string                             { return s.name }
-func (s *named) prepare(ctx *Context)                       { s.selector.prepare(ctx) }
-func (s *named) matches(ctx *Context, entry *sde.Type) bool { return s.selector.matches(ctx, entry) }
-
-// All matches when every selector matches. On already does this for the
-// selectors you hand it; All is for nesting inside Any.
-func All(selectors ...Selector) Selector {
-	return &allOf{selectors: selectors}
-}
-
-// Any matches when at least one of the selectors matches.
-func Any(selectors ...Selector) Selector {
-	return &anyOf{selectors: selectors}
-}
-
-func Not(selector Selector) Selector {
-	return &not{selector: selector}
-}
-
-// idSelector covers the three name-based selectors; they only differ in what
-// they look the name up in.
-type idSelector struct {
-	kind  string
-	names []string
-	at    source
+// call is every function in one type; they only differ in what they look the
+// names up in and which field they compare.
+type call struct {
+	kind callKind
+	args []string
 
 	ids map[int32]bool
 }
 
-func (s *idSelector) String() string {
-	return fmt.Sprintf("%s(%q)", s.kind, strings.Join(s.names, `", "`))
+func newCall(name string, args []string, pos int) (Selector, error) {
+	kind := callKind(name)
+	if !callKinds[kind] {
+		return nil, fmt.Errorf("unknown function %q at position %d, want one of %s", name, pos+1, strings.Join(sortedKeys(callKinds), ", "))
+	}
+	if kind == isPublished && len(args) != 0 {
+		return nil, fmt.Errorf("%s() takes no names", name)
+	}
+	if kind != isPublished && len(args) == 0 {
+		return nil, fmt.Errorf("%s() needs at least one name", name)
+	}
+	return &call{kind: kind, args: args}, nil
 }
 
-func (s *idSelector) prepare(ctx *Context) {
+func (s *call) String() string {
+	quoted := make([]string, 0, len(s.args))
+	for _, arg := range s.args {
+		quoted = append(quoted, fmt.Sprintf("%q", arg))
+	}
+	return fmt.Sprintf("%s(%s)", s.kind, strings.Join(quoted, ", "))
+}
+
+func (s *call) link(ctx *Context, at source) {
 	s.ids = map[int32]bool{}
 
-	for _, name := range s.names {
+	for _, name := range s.args {
 		switch s.kind {
-		case "InCategory":
+		case inCategory:
 			entry, ok := ctx.categoryByName[name]
 			if !ok {
-				ctx.errorf(s.at, "no category named %q", name)
+				ctx.errorf(at, "no category named %q", name)
 				continue
 			}
 			s.ids[entry.Key] = true
-		case "InGroup":
+
+		case inGroup:
 			entries := ctx.groupsByName[name]
 			if len(entries) == 0 {
-				ctx.errorf(s.at, "no group named %q", name)
-				continue
+				ctx.errorf(at, "no group named %q", name)
 			}
 			for _, entry := range entries {
 				s.ids[entry.Key] = true
 			}
-		case "Named":
+
+		case named:
 			entries := ctx.typesByName[name]
 			if len(entries) == 0 {
-				ctx.errorf(s.at, "no type named %q", name)
-				continue
+				ctx.errorf(at, "no type named %q", name)
 			}
 			for _, entry := range entries {
 				s.ids[entry.Key] = true
 			}
+
+		case hasAttribute:
+			entry, ok := ctx.attributeByName[name]
+			if !ok {
+				ctx.errorf(at, "no dogma attribute named %q", name)
+				continue
+			}
+			s.ids[entry.Key] = true
+
+		case hasEffect:
+			entry, ok := ctx.effectByName[name]
+			if !ok {
+				ctx.errorf(at, "no dogma effect named %q", name)
+				continue
+			}
+			s.ids[entry.Key] = true
 		}
 	}
 }
 
-func (s *idSelector) matches(_ *Context, entry *sde.Type) bool {
+func (s *call) matches(entry *sde.Type) bool {
 	switch s.kind {
-	case "InCategory":
+	case inCategory:
 		return s.ids[entry.CategoryID]
-	case "InGroup":
+	case inGroup:
 		return s.ids[entry.GroupID]
-	default:
+	case named:
 		return s.ids[entry.Key]
-	}
-}
+	case isPublished:
+		return entry.Published
 
-type hasAttribute struct {
-	ref *AttributeRef
-}
-
-func (s *hasAttribute) String() string     { return fmt.Sprintf("HasAttribute(%q)", s.ref.name) }
-func (s *hasAttribute) prepare(_ *Context) {}
-func (s *hasAttribute) matches(_ *Context, entry *sde.Type) bool {
-	for _, attribute := range entry.DogmaAttributes {
-		if attribute.AttributeID == s.ref.id {
-			return true
+	case hasAttribute:
+		for _, attribute := range entry.DogmaAttributes {
+			if s.ids[attribute.AttributeID] {
+				return true
+			}
 		}
-	}
-	return false
-}
+		return false
 
-type hasEffect struct {
-	ref *EffectRef
-}
-
-func (s *hasEffect) String() string     { return fmt.Sprintf("HasEffect(%q)", s.ref.name) }
-func (s *hasEffect) prepare(_ *Context) {}
-func (s *hasEffect) matches(_ *Context, entry *sde.Type) bool {
-	for _, effect := range entry.DogmaEffects {
-		if effect.EffectID == s.ref.id {
-			return true
+	default:
+		for _, effect := range entry.DogmaEffects {
+			if s.ids[effect.EffectID] {
+				return true
+			}
 		}
+		return false
 	}
-	return false
 }
 
-type isPublished struct{}
+// ref is a bare word: the name of a selector declared elsewhere.
+type ref struct {
+	name   string
+	target *NamedSelector
+}
 
-func (s *isPublished) String() string                           { return "IsPublished()" }
-func (s *isPublished) prepare(_ *Context)                       {}
-func (s *isPublished) matches(_ *Context, entry *sde.Type) bool { return entry.Published }
+func (s *ref) String() string { return s.name }
+
+func (s *ref) link(ctx *Context, at source) {
+	target, ok := ctx.selectorByName[s.name]
+	if !ok {
+		ctx.errorf(at, "no selector named %q", s.name)
+		return
+	}
+	ctx.linkSelector(target)
+	s.target = target
+}
+
+func (s *ref) matches(entry *sde.Type) bool {
+	// Only nil when linking failed, and then Apply has already given up.
+	return s.target != nil && s.target.Match.tree.matches(entry)
+}
 
 type anyOf struct {
 	selectors []Selector
 }
 
-func (s *anyOf) String() string {
-	parts := make([]string, 0, len(s.selectors))
-	for _, selector := range s.selectors {
-		parts = append(parts, selector.String())
-	}
-	return "Any(" + strings.Join(parts, ", ") + ")"
-}
+func (s *anyOf) String() string { return join(s.selectors, " or ") }
 
-func (s *anyOf) prepare(ctx *Context) {
+func (s *anyOf) link(ctx *Context, at source) {
 	for _, selector := range s.selectors {
-		selector.prepare(ctx)
+		selector.link(ctx, at)
 	}
 }
 
-func (s *anyOf) matches(ctx *Context, entry *sde.Type) bool {
+func (s *anyOf) matches(entry *sde.Type) bool {
 	for _, selector := range s.selectors {
-		if selector.matches(ctx, entry) {
+		if selector.matches(entry) {
 			return true
 		}
 	}
@@ -201,23 +193,17 @@ type allOf struct {
 	selectors []Selector
 }
 
-func (s *allOf) String() string {
-	parts := make([]string, 0, len(s.selectors))
-	for _, selector := range s.selectors {
-		parts = append(parts, selector.String())
-	}
-	return "All(" + strings.Join(parts, ", ") + ")"
-}
+func (s *allOf) String() string { return join(s.selectors, " and ") }
 
-func (s *allOf) prepare(ctx *Context) {
+func (s *allOf) link(ctx *Context, at source) {
 	for _, selector := range s.selectors {
-		selector.prepare(ctx)
+		selector.link(ctx, at)
 	}
 }
 
-func (s *allOf) matches(ctx *Context, entry *sde.Type) bool {
+func (s *allOf) matches(entry *sde.Type) bool {
 	for _, selector := range s.selectors {
-		if !selector.matches(ctx, entry) {
+		if !selector.matches(entry) {
 			return false
 		}
 	}
@@ -228,8 +214,23 @@ type not struct {
 	selector Selector
 }
 
-func (s *not) String() string       { return "Not(" + s.selector.String() + ")" }
-func (s *not) prepare(ctx *Context) { s.selector.prepare(ctx) }
-func (s *not) matches(ctx *Context, entry *sde.Type) bool {
-	return !s.selector.matches(ctx, entry)
+func (s *not) String() string               { return "not " + s.selector.String() }
+func (s *not) link(ctx *Context, at source) { s.selector.link(ctx, at) }
+func (s *not) matches(entry *sde.Type) bool { return !s.selector.matches(entry) }
+
+func join(selectors []Selector, sep string) string {
+	parts := make([]string, 0, len(selectors))
+	for _, selector := range selectors {
+		parts = append(parts, selector.String())
+	}
+	return "(" + strings.Join(parts, sep) + ")"
+}
+
+func sortedKeys[K ~string, V any](m map[K]V) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, string(key))
+	}
+	sort.Strings(keys)
+	return keys
 }

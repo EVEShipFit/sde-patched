@@ -1,0 +1,10 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: moduleCyclesOnSpeed or moduleCyclesOnDuration
+    category: active
+    isWarpSafe: true
+    rules:
+      - {from: reloadTime}
+      - {div: chargeAmount}

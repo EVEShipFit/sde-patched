@@ -1,0 +1,12 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: hullRepairModule
+    category: active
+    isWarpSafe: true
+    rules:
+      - {from: thousand}
+      - {mul: structureDamageAmount}
+      - {div: duration}
+      - {add: hullRepairRate, domain: shipID}

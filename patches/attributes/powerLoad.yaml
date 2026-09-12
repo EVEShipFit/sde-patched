@@ -1,0 +1,6 @@
+effects:
+  - on: isModule
+    category: online
+    isWarpSafe: true
+    rules:
+      - {add: power, domain: shipID}

@@ -162,7 +162,7 @@ type DogmaEffect struct {
 	Modifiers                     []Modifier `json:"modifierInfo"`
 }
 
-// Data is everything we need from the SDE, and nothing else.
+// Data is the part of the SDE this tool uses.
 type Data struct {
 	BuildNumber     int32
 	Types           map[int32]*Type

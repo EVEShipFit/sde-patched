@@ -1,0 +1,14 @@
+# passiveShieldRechargeRate — shields recharge on their own; this is how
+# fast.
+
+new:
+  default: 2500
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {div: shieldRechargeRate}
+      - {mul: shieldCapacity}

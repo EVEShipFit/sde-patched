@@ -1,0 +1,134 @@
+/* Shared styles. Every colour is defined here. */
+
+:root {
+  --bg: #14161c;
+  --card: #1c1f27;
+  --card2: #242833;
+  --line: #333846;
+  --rule: #2a2f3a;
+  --edge: #414859;
+
+  --text: #eceef4;
+  --dim: #b4bac9;
+  --faint: #8d94a6;
+
+  --ok: #6ee7a8;
+  --info: #7cb5ff;
+  --warn: #f6c453;
+  --bad: #ff8a8a;
+  --ours: #c9a6ff;
+
+  /* The same five, as something to sit text on, and as text to sit on those. */
+  --ok-bg: rgba(110, 231, 168, .15);
+  --info-bg: rgba(124, 181, 255, .15);
+  --warn-bg: rgba(246, 196, 83, .16);
+  --bad-bg: rgba(255, 138, 138, .17);
+  --ours-bg: rgba(201, 166, 255, .16);
+  --ok-ink: #9df0c4;
+  --info-ink: #a9ccff;
+  --warn-ink: #ffd98a;
+  --bad-ink: #ffb3b3;
+  --ours-ink: #dcc4ff;
+  --on-ours: #201535;
+
+  /* How wide a page reads. A page that needs another width says so. */
+  --width: 1460px;
+
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+  font: 15px/1.6 var(--sans); -webkit-font-smoothing: antialiased;
+}
+a { color: var(--info); text-decoration: none; cursor: pointer; }
+a:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------------ chrome */
+
+header { position: sticky; top: 0; z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar { max-width: var(--width); margin: 0 auto; padding: 13px 26px; display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.brand { font: 700 18px/1.2 var(--sans); letter-spacing: -.01em; white-space: nowrap; }
+.brand small { display: block; font: 400 12px/1.4 var(--sans); color: var(--faint); margin-top: 1px; }
+.spacer { flex: 1; }
+
+main { max-width: var(--width); margin: 0 auto; padding: 24px 26px 100px; }
+
+/* ------------------------------------------------------------------ inputs */
+
+input, select, textarea {
+  background: var(--card); border: 1px solid var(--line); border-radius: 9px; color: var(--text);
+  padding: 8px 13px; font: 14px var(--sans);
+}
+input::placeholder { color: var(--faint); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ours); }
+input.search { min-width: 210px; }
+
+.toggles { display: flex; gap: 7px; }
+.toggles label {
+  font-size: 13px; color: var(--dim); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 14px; cursor: pointer; user-select: none; background: var(--card); white-space: nowrap;
+}
+.toggles label:hover { border-color: var(--edge); color: var(--text); }
+.toggles label.on { background: var(--ours); border-color: var(--ours); color: var(--on-ours); font-weight: 600; }
+
+button {
+  font: 600 13px var(--sans); padding: 7px 14px; border-radius: 9px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--card2); color: var(--text);
+}
+button:hover { border-color: var(--edge); }
+button.go { background: var(--ours); border-color: var(--ours); color: var(--on-ours); }
+button.bare { border-color: transparent; background: none; color: var(--dim); padding: 3px 7px; font-weight: 400; }
+button.bare:hover { color: var(--ours); }
+button.bare.danger:hover { color: var(--bad); }
+
+/* A search box with its answers hanging under it. */
+.finder { position: relative; flex: 1; min-width: 240px; }
+.finder input { width: 100%; }
+.hits {
+  position: absolute; top: calc(100% + 5px); left: 0; right: 0; z-index: 30; display: none;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .45); max-height: 60vh; overflow-y: auto;
+}
+.hits.show { display: block; }
+.hits div { padding: 7px 14px; cursor: pointer; display: flex; gap: 12px; }
+.hits div:hover, .hits div.on { background: var(--card2); }
+.hits div span { color: var(--faint); font-size: 12.5px; }
+.hits div b { flex: 1; font-weight: 500; }
+.hits .what {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--faint); min-width: 62px;
+}
+
+/* ------------------------------------------------------------------ pieces */
+
+.tag {
+  font-size: 12px; font-weight: 500; padding: 3px 9px; border-radius: 7px;
+  background: var(--card2); color: var(--dim); border: 1px solid var(--line);
+}
+.tag.ours { background: var(--ours-bg); color: var(--ours-ink); border-color: rgba(201, 166, 255, .3); }
+.tag.bad { background: var(--bad-bg); color: var(--bad-ink); border-color: rgba(255, 138, 138, .34); }
+
+.tinytag {
+  font-size: 11.5px; padding: 1px 7px; border-radius: 5px; margin-left: 7px;
+  background: var(--card2); color: var(--dim);
+}
+
+.dim { color: var(--faint); }
+.tiny { font-size: 12.5px; color: var(--faint); }
+.load { padding: 90px 20px; text-align: center; color: var(--dim); }
+.empty { padding: 80px 20px; text-align: center; color: var(--dim); }
+.empty p { max-width: 48ch; margin: 0 auto 10px; }
+
+table { border-collapse: collapse; width: 100%; }
+td, th { text-align: left; vertical-align: top; }
+
+#alarm {
+  padding: 12px 26px; background: var(--bad-bg); color: var(--bad-ink);
+  border-bottom: 1px solid rgba(255, 138, 138, .3); display: none;
+  white-space: pre-wrap; font-size: 13.5px;
+}
+#alarm.show { display: block; }

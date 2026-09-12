@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDE attributes</title>
+<link rel="stylesheet" href="/shared/base.css">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="brand">SDE<small id="build"></small></div>
+    <div class="finder">
+      <input id="find" placeholder="Search attributes and items&hellip;" autocomplete="off">
+      <div class="hits" id="hits"></div>
+    </div>
+    <span class="spacer"></span>
+    <div class="toggles" id="settings"></div>
+  </div>
+</header>
+
+<div id="alarm"></div>
+
+<div id="page">
+  <nav id="rail">
+    <div class="rail-find"><input id="railFind" placeholder="Filter" autocomplete="off"></div>
+    <div id="railList"></div>
+  </nav>
+  <main id="view"></main>
+</div>
+
+<script type="module" src="/shared/dom.js"></script>
+<script type="module" src="/views/attribute.js"></script>
+<script type="module" src="/views/item.js"></script>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

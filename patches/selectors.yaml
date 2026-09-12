@@ -1,0 +1,59 @@
+# The filters more than one attribute needs. Everything else in patches/ is
+# an attribute; this file is not.
+
+selectors:
+  - name: usesCapacitor
+    match: isModule and attribute("capacitorNeed")
+
+  - name: isShip
+    match: category("Ship")
+
+  - name: isModule
+    match: category("Module")
+
+  - name: isDrone
+    match: category("Drone")
+
+  - name: isCharge
+    match: category("Charge")
+
+  - name: hasDamageAttribute
+    description: carries a damage value of its own
+    match: attribute("emDamage", "explosiveDamage", "kineticDamage", "thermalDamage")
+
+  - name: dealsDamage
+    description: >-
+      deals damage; also covers turrets and missile launchers, which hold no
+      damage value of their own, as their charge does
+    match: hasDamageAttribute or effect("useMissiles", "turretFitted")
+
+  - name: damagingModule
+    description: a module that deals damage
+    match: isModule and dealsDamage
+
+  - name: damagingDrone
+    description: a drone that deals damage
+    match: isDrone and hasDamageAttribute
+
+  # Scan probe launchers have both, so prefer "speed": dividing by both would
+  # be wrong, even though their damage is meaningless anyway.
+  - name: moduleCyclesOnSpeed
+    description: a damaging module that cycles on speed
+    match: damagingModule and attribute("speed")
+
+  - name: moduleCyclesOnDuration
+    description: a damaging module that cycles on duration
+    match: damagingModule and attribute("duration") and not attribute("speed")
+
+  - name: cyclingDamageDealer
+    description: anything that deals damage in cycles
+    match: moduleCyclesOnSpeed or moduleCyclesOnDuration or damagingDrone
+
+  - name: armorRepairModule
+    match: isModule and attribute("armorDamageAmount") and attribute("duration") and effect("armorRepair")
+
+  - name: hullRepairModule
+    match: isModule and attribute("structureDamageAmount") and attribute("duration") and effect("structureRepair")
+
+  - name: shieldBoostModule
+    match: isModule and attribute("shieldBonus") and effect("shieldBoosting")

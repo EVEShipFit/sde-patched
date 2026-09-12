@@ -1,20 +1,13 @@
 package patch
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
-
-// Declarations live in package variables, so every test has to start clean.
-func reset() {
-	newAttributes = nil
-	newEffects = nil
-	lookups = nil
-	changes = nil
-	actions = nil
-}
 
 func testData() *sde.Data {
 	return &sde.Data{
@@ -48,37 +41,69 @@ func testData() *sde.Data {
 	}
 }
 
-func TestCreateAndApply(t *testing.T) {
-	reset()
+// tree is a patches directory: one file per attribute, plus the selectors
+// and effects files when a test needs them.
+type tree map[string]string
 
-	speed := NewAttribute("alignTime", AttributeDef{DefaultValue: 1.5, Stackable: true})
-	effect := NewEffect("alignTime", EffectDef{
-		Category: Passive,
-		Modifiers: []Modifier{
-			{Domain: ItemID, Func: ItemModifier, Operation: PostMul, Modified: speed, Modifying: Attribute("agility")},
-		},
-	})
-	action := ApplyEffect(effect).On(InCategory("Ship"), IsPublished())
+// load writes the tree to disk and reads it back, handing out IDs the way the
+// editor would so that a test never has to write one down.
+func load(t *testing.T, files tree) *Spec {
+	t.Helper()
+
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, AttributesDir), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for name, text := range files {
+		path := filepath.Join(dir, AttributesDir, name+".yaml")
+		if name == "selectors" || name == "effects" {
+			path = filepath.Join(dir, name+".yaml")
+		}
+		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	spec, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	spec.IDs.Record(spec)
+	return spec
+}
+
+func TestCreateAndApply(t *testing.T) {
+	spec := load(t, tree{"alignTime": `
+new:
+  default: 1.5
+
+effects:
+  - on: category("Ship") and published()
+    category: passive
+    rules:
+      - {mul: agility}
+`})
 
 	data := testData()
-	ctx, err := Apply(data)
+	ctx, err := Apply(spec, data)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if speed.ID() != -1 || effect.ID() != -1 {
-		t.Errorf("new IDs = %d / %d, want -1 / -1", speed.ID(), effect.ID())
-	}
 	if got := data.DogmaAttributes[-1].Name; got != "alignTime" {
-		t.Errorf("attribute name = %q", got)
+		t.Errorf("attribute -1 = %q, want alignTime", got)
 	}
 	if got := data.DogmaEffects[-1].Modifiers[0].ModifyingAttributeID; got != 70 {
 		t.Errorf("modifying attribute = %d, want 70 (agility)", got)
 	}
+	// A rule writes the attribute whose file it is in, and nothing else.
+	if got := data.DogmaEffects[-1].Modifiers[0].ModifiedAttributeID; got != -1 {
+		t.Errorf("modified attribute = %d, want -1 (alignTime)", got)
+	}
 
 	// Only the published ship; not the drone, not the unpublished one.
-	if got := action.matchedIDs(); len(got) != 1 || got[0] != 587 {
-		t.Errorf("matched = %v, want [587]", got)
+	if got := ctx.Applied["alignTime"]; len(got) != 1 || got[0] != 587 {
+		t.Errorf("applied to = %v, want [587]", got)
 	}
 	if got := data.Types[587].DogmaEffects; len(got) != 1 || got[0].EffectID != -1 {
 		t.Errorf("effects on Rifter = %v", got)
@@ -86,105 +111,248 @@ func TestCreateAndApply(t *testing.T) {
 	if len(data.Types[2456].DogmaEffects) != 0 {
 		t.Error("drone should not be touched")
 	}
-	if ctx.Data != data {
-		t.Error("context lost the data")
+}
+
+// An ID written down once is the ID that name keeps, whatever is added later.
+func TestIDsNeverMove(t *testing.T) {
+	files := tree{
+		"first":  "new: {}\n",
+		"second": "new: {}\n",
+	}
+	spec := load(t, files)
+	first, _ := spec.IDs.Attribute("first")
+	second, _ := spec.IDs.Attribute("second")
+	if first != -1 || second != -2 {
+		t.Fatalf("IDs = %d and %d, want -1 and -2", first, second)
+	}
+
+	if err := spec.IDs.Save(); err != nil {
+		t.Fatal(err)
+	}
+
+	// A third attribute sorting before both of them must not move either.
+	again := load(t, tree{"aardvark": "new: {}\n", "first": "new: {}\n", "second": "new: {}\n"})
+	again.IDs.Attributes["first"] = first
+	again.IDs.Attributes["second"] = second
+	if got, _ := again.IDs.Attribute("first"); got != -1 {
+		t.Errorf("first = %d, want -1", got)
+	}
+}
+
+// An attribute of CCP's is only filled in, and says so by having no "new".
+func TestWritingIntoOneOfCCPs(t *testing.T) {
+	spec := load(t, tree{"agility": `
+effects:
+  - on: category("Ship")
+    category: passive
+    rules:
+      - {mul: agility}
+`})
+
+	data := testData()
+	if _, err := Apply(spec, data); err != nil {
+		t.Fatal(err)
+	}
+	if got := data.DogmaEffects[-1].Modifiers[0].ModifiedAttributeID; got != 70 {
+		t.Errorf("modified attribute = %d, want 70 (CCP's agility)", got)
 	}
 }
 
 func TestSelectors(t *testing.T) {
-	reset()
+	spec := load(t, tree{
+		"selectors": `
+selectors:
+  - {name: isFrigate, match: group("Frigate")}
+  - {name: isHidden, match: isFrigate and not published()}
+`,
+		"a": "new: {}\neffects: [{on: isHidden, category: passive, rules: [{mul: agility}]}]\n",
+		"b": `new: {}
+effects: [{on: name("Rifter") or name("Hobgoblin II"), category: passive, rules: [{mul: agility}]}]
+`,
+		"c": `new: {}
+effects: [{on: attribute("agility"), category: passive, rules: [{mul: agility}]}]
+`,
+	})
 
-	effect := NewEffect("test", EffectDef{Category: Passive})
-	byGroup := ApplyEffect(effect).On(InGroup("Frigate"), Not(IsPublished()))
-	byName := ApplyEffect(NewEffect("test2", EffectDef{})).On(Any(Named("Rifter"), Named("Hobgoblin II")))
-	byAttribute := ApplyEffect(NewEffect("test3", EffectDef{})).On(HasAttribute(Attribute("agility")))
-
-	if _, err := Apply(testData()); err != nil {
+	ctx, err := Apply(spec, testData())
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	if got := byGroup.matchedIDs(); len(got) != 1 || got[0] != 999 {
-		t.Errorf("InGroup+Not(IsPublished) = %v, want [999]", got)
-	}
-	if got := byName.matchedIDs(); len(got) != 2 {
-		t.Errorf("Any(Named, Named) = %v, want 2 types", got)
-	}
-	if got := byAttribute.matchedIDs(); len(got) != 1 || got[0] != 587 {
-		t.Errorf("HasAttribute = %v, want [587]", got)
+	want := map[string][]int32{"a": {999}, "b": {587, 2456}, "c": {587}}
+	for name, expected := range want {
+		got := ctx.Applied[name]
+		if len(got) != len(expected) {
+			t.Errorf("%s applied to %v, want %v", name, got, expected)
+			continue
+		}
+		for j := range got {
+			if got[j] != expected[j] {
+				t.Errorf("%s applied to %v, want %v", name, got, expected)
+				break
+			}
+		}
 	}
 }
 
-func TestChangeEffect(t *testing.T) {
-	reset()
+// Changing what one of CCP's attributes is, and adding rules to one of its
+// effects, both belong in the attribute's own file.
+func TestChange(t *testing.T) {
+	spec := load(t, tree{
+		"effects": "changes:\n  - {effect: online, category: online}\n",
+		"agility": `
+change:
+  default: 2
+  highIsGood: true
 
-	ChangeEffect(Effect("online")).SetCategory(Online)
+addTo:
+  - effect: online
+    rules:
+      - {mul: agility}
+`,
+	})
 
 	data := testData()
-	if _, err := Apply(data); err != nil {
+	if _, err := Apply(spec, data); err != nil {
 		t.Fatal(err)
 	}
+
 	if got := data.DogmaEffects[16].EffectCategoryID; got != 4 {
 		t.Errorf("online category = %d, want 4", got)
+	}
+	if got := data.DogmaAttributes[70]; got.DefaultValue != 2 || !got.HighIsGood {
+		t.Errorf("agility = %+v, want default 2 and highIsGood", got)
+	}
+	if got := data.DogmaEffects[16].Modifiers; len(got) != 1 || got[0].ModifiedAttributeID != 70 {
+		t.Errorf("rules on online = %v, want one writing agility", got)
 	}
 }
 
 func TestErrors(t *testing.T) {
 	tests := []struct {
-		name    string
-		declare func()
-		want    string
+		name  string
+		files tree
+		want  string
 	}{
 		{
-			name:    "unknown attribute",
-			declare: func() { NewEffect("x", EffectDef{Modifiers: []Modifier{{Modifying: Attribute("nope")}}}) },
-			want:    `no dogma attribute named "nope"`,
+			name:  "unknown attribute",
+			files: tree{"x": "new: {}\neffects: [{on: published(), category: passive, rules: [{mul: nope}]}]\n"},
+			want:  `no dogma attribute named "nope"`,
 		},
 		{
-			name:    "unknown category",
-			declare: func() { ApplyEffect(NewEffect("x", EffectDef{})).On(InCategory("Nope")) },
-			want:    `no category named "Nope"`,
+			name:  "unknown category",
+			files: tree{"x": `new: {}` + "\n" + `effects: [{on: category("Nope"), category: passive, rules: [{mul: agility}]}]` + "\n"},
+			want:  `no category named "Nope"`,
 		},
 		{
-			name:    "no selectors",
-			declare: func() { ApplyEffect(NewEffect("x", EffectDef{})) },
-			want:    "no selectors",
+			name:  "unknown effect category",
+			files: tree{"x": "new: {}\neffects: [{on: published(), category: sideways, rules: [{mul: agility}]}]\n"},
+			want:  `unknown effect category "sideways"`,
 		},
 		{
-			name:    "no matches",
-			declare: func() { ApplyEffect(NewEffect("x", EffectDef{})).On(InCategory("Ship"), InCategory("Drone")) },
-			want:    "matches no types",
+			name:  "unknown selector",
+			files: tree{"x": "new: {}\neffects: [{on: whatIsThis, category: passive, rules: [{mul: agility}]}]\n"},
+			want:  `no selector named "whatIsThis"`,
 		},
 		{
-			name:    "duplicate name",
-			declare: func() { NewAttribute("agility", AttributeDef{}) },
-			want:    `dogma attribute "agility" already exists`,
-		},
-		{
-			name: "effect applied twice",
-			declare: func() {
-				effect := NewEffect("x", EffectDef{})
-				ApplyEffect(effect).On(InCategory("Ship"))
-				ApplyEffect(effect).On(InCategory("Ship"))
+			name: "selector loop",
+			files: tree{
+				"selectors": "selectors: [{name: a, match: b}, {name: b, match: a}]\n",
+				"x":         "new: {}\neffects: [{on: a, category: passive, rules: [{mul: agility}]}]\n",
 			},
-			want: "already has effect",
+			want: "refers back to itself",
+		},
+		{
+			name:  "no matches",
+			files: tree{"x": `new: {}` + "\n" + `effects: [{on: category("Ship") and category("Drone"), category: passive, rules: [{mul: agility}]}]` + "\n"},
+			want:  "matches no types",
+		},
+		{
+			name:  "a new attribute CCP already has",
+			files: tree{"agility": "new: {}\n"},
+			want:  `dogma attribute "agility" already exists`,
+		},
+		{
+			name:  "an attribute nobody has",
+			files: tree{"nothingLikeThis": "effects: [{on: published(), category: passive, rules: [{mul: agility}]}]\n"},
+			want:  `no dogma attribute named "nothingLikeThis"`,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			reset()
-			test.declare()
-
-			_, err := Apply(testData())
+			_, err := Apply(load(t, test.files), testData())
 			if err == nil {
 				t.Fatal("expected an error")
 			}
 			if !strings.Contains(err.Error(), test.want) {
 				t.Errorf("error = %q, want it to mention %q", err, test.want)
 			}
-			if !strings.Contains(err.Error(), "apply_test.go:") {
+			if !strings.Contains(err.Error(), "patches/") {
 				t.Errorf("error = %q, want it to point at the declaring line", err)
 			}
 		})
+	}
+}
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		name  string
+		files tree
+		want  string
+	}{
+		{
+			name:  "two verbs",
+			files: tree{"effects": `actions: [{removeEffect: a, setAttribute: b, on: published()}]` + "\n"},
+			want:  "exactly one of removeEffect",
+		},
+		{
+			name:  "no verb",
+			files: tree{"effects": "actions: [{on: published()}]\n"},
+			want:  "exactly one of removeEffect",
+		},
+		{
+			name:  "both new and change",
+			files: tree{"x": "new: {}\nchange: {default: 1}\n"},
+			want:  "it is one or the other",
+		},
+		{
+			name:  "two effects, one name",
+			files: tree{"x": "effects:\n  - {on: published(), category: passive, rules: [{mul: agility}]}\n  - {on: published(), category: passive, rules: [{div: agility}]}\n"},
+			want:  "needs a name of its own",
+		},
+		{
+			name:  "no category",
+			files: tree{"x": "effects: [{on: published(), rules: [{mul: agility}]}]\n"},
+			want:  "needs a category",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := load(t, test.files).Validate()
+			if err == nil {
+				t.Fatal("expected an error")
+			}
+			if !strings.Contains(err.Error(), test.want) {
+				t.Errorf("error = %q, want it to mention %q", err, test.want)
+			}
+		})
+	}
+}
+
+// An unknown key is almost always a typo, so loading has to fail.
+func TestUnknownKey(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, AttributesDir), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, AttributesDir, "a.yaml"), []byte("new: {wobble: 3}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := Load(dir)
+	if err == nil || !strings.Contains(err.Error(), "wobble") {
+		t.Errorf("error = %v, want it to mention the unknown key", err)
 	}
 }

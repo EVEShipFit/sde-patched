@@ -121,8 +121,7 @@ func WriteNames(data *sde.Data, filename string) error {
 func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
 	offsets := make([]flatbuffers.UOffsetT, 0, len(data.Types))
 
-	// Plenty of types carry the exact same dogma; a vector written once can be
-	// pointed at by all of them.
+	// Many types carry identical dogma, so identical vectors are shared.
 	attributeVectors := map[string]flatbuffers.UOffsetT{}
 	effectVectors := map[string]flatbuffers.UOffsetT{}
 

@@ -1,0 +1,21 @@
+# chargeAmount — how many charges fit in a module.
+
+new:
+  default: 1
+  highIsGood: true
+
+effects:
+  # Only modules that can actually hold a charge.
+  - name: chargeAmount
+    on: isModule and attribute("chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5")
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {from: capacity}
+
+  - name: chargeAmount2
+    on: isCharge
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {div: volume, domain: otherID}

@@ -1,0 +1,12 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: armorEmDamageEffectiveResonance}
+      - {add: armorExplosiveDamageEffectiveResonance}
+      - {add: armorKineticDamageEffectiveResonance}
+      - {add: armorThermalDamageEffectiveResonance}

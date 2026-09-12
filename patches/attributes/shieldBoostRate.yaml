@@ -1,0 +1,12 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: shieldBoostModule
+    category: active
+    isWarpSafe: true
+    rules:
+      - {from: thousand}
+      - {mul: shieldBonus}
+      - {div: duration}
+      - {add: shieldBoostRate, domain: shipID}

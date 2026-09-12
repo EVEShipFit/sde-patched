@@ -1,0 +1,17 @@
+# ehp — shield, armor and hull are hitpoints in the dogma data. What a user
+# wants to see is effective hitpoints, which take resistances into account.
+# The three layers work the same way, they only differ in which attributes
+# the SDE holds their resistances in. effectiveResonance is the resistance
+# left after the damage profile is applied; the repair patches need it too.
+
+new:
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: shieldEhp}
+      - {add: armorEhp}
+      - {add: hullEhp}

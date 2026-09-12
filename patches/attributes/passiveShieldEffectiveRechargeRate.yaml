@@ -1,0 +1,12 @@
+new:
+  default: 2500
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {div: shieldRechargeRate}
+      - {mul: shieldCapacity}
+      - {div: shieldDamageEffectiveResonance}

@@ -1,0 +1,32 @@
+new:
+  highIsGood: false
+
+effects:
+  # Modules keep their cycle time in one of four different attributes.
+  - name: cycleTime
+    on: usesCapacitor and attribute("duration")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: duration}
+
+  - name: cycleTime2
+    on: usesCapacitor and attribute("durationHighisGood")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: durationHighisGood}
+
+  - name: cycleTime3
+    on: usesCapacitor and attribute("speed")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: speed}
+
+  - name: cycleTime4
+    on: usesCapacitor and attribute("moduleReactivationDelay")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: moduleReactivationDelay}

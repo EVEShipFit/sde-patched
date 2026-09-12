@@ -60,7 +60,7 @@ func testData() *sde.Data {
 	}
 }
 
-// lookupName is what a consumer of the file has to write: lowercase, then a
+// lookupName searches the file the way a consumer would: lowercase, then a
 // binary search.
 func lookupName(root *eve.Names, name string) int32 {
 	wanted := strings.ToLower(name)

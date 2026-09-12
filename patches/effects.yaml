@@ -1,0 +1,7 @@
+# Effects of CCP's that need changing in a way no single attribute owns.
+# Everything else lives with the attribute it is about.
+
+changes:
+  # The SDE puts "online" in the "active" category. The EVE client does some
+  # magic here; for a dogma-engine it simply belongs in "online".
+  - {effect: online, category: online}

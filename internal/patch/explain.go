@@ -8,70 +8,90 @@ import (
 
 const explainLimit = 20
 
-// Patches lists the name of every patch that declared something.
+// Patches lists everything that can be explained: one name per attribute, and
+// the two files that are not an attribute.
 func (ctx *Context) Patches() []string {
-	seen := map[string]bool{}
-	for _, ref := range newAttributes {
-		seen[ref.at.patchName()] = true
+	names := make([]string, 0, len(ctx.Spec.Attributes)+2)
+	for _, attribute := range ctx.Spec.Attributes {
+		names = append(names, attribute.Name)
 	}
-	for _, ref := range newEffects {
-		seen[ref.at.patchName()] = true
+	if len(ctx.Spec.Selectors) > 0 {
+		names = append(names, "selectors")
 	}
-	for _, item := range ctx.Changes {
-		seen[item.source().patchName()] = true
-	}
-	for _, item := range ctx.Actions {
-		seen[item.source().patchName()] = true
-	}
-
-	names := make([]string, 0, len(seen))
-	for name := range seen {
-		names = append(names, name)
+	if len(ctx.Spec.Changes) > 0 || len(ctx.Spec.Actions) > 0 {
+		names = append(names, "effects")
 	}
 	sort.Strings(names)
 	return names
 }
 
-// Explain writes what a single patch declared and what it matched.
+// Explain writes what one file declared and what it matched.
 func (ctx *Context) Explain(w io.Writer, name string, full bool) error {
-	found := false
-	for _, patch := range ctx.Patches() {
-		if patch == name {
-			found = true
-		}
-	}
-	if !found {
-		return fmt.Errorf("no patch named %q", name)
+	switch name {
+	case "selectors":
+		return ctx.explainSelectors(w)
+	case "effects":
+		return ctx.explainEffects(w)
 	}
 
-	fmt.Fprintf(w, "%s\n\n", name)
-
-	for _, ref := range newAttributes {
-		if ref.at.patchName() == name {
-			fmt.Fprintf(w, "  new attribute  %6d  %s\n", ref.id, ref.name)
+	for _, attribute := range ctx.Spec.Attributes {
+		if attribute.Name == name {
+			return ctx.explainAttribute(w, attribute, full)
 		}
 	}
-	for _, ref := range newEffects {
-		if ref.at.patchName() == name {
-			fmt.Fprintf(w, "  new effect     %6d  %s\n", ref.id, ref.name)
-		}
+	return fmt.Errorf("nothing named %q", name)
+}
+
+func (ctx *Context) explainAttribute(w io.Writer, attribute *Attribute, full bool) error {
+	fmt.Fprintf(w, "%s\n\n", attribute.Name)
+
+	entry := ctx.attributeByName[attribute.Name]
+	switch {
+	case entry == nil:
+		fmt.Fprintf(w, "  no such dogma attribute\n")
+	case attribute.New != nil:
+		fmt.Fprintf(w, "  new attribute  %6d  default %g\n", entry.Key, entry.DefaultValue)
+	case attribute.Change != nil:
+		fmt.Fprintf(w, "  CCP's          %6d  changed, default %g\n", entry.Key, entry.DefaultValue)
+	default:
+		fmt.Fprintf(w, "  CCP's          %6d  only filled in\n", entry.Key)
 	}
 
-	for _, item := range ctx.Changes {
-		if item.source().patchName() != name {
-			continue
+	for _, effect := range attribute.Effects {
+		matched := ctx.Applied[effect.EffectName()]
+		fmt.Fprintf(w, "\n  %s\n    on %s\n    %d types\n", effect.at, effect.On.Text, len(matched))
+		for _, rule := range effect.Rules {
+			fmt.Fprintf(w, "      %s %s\n", rule.Op, rule.By)
 		}
-		fmt.Fprintf(w, "\n  %s\n    %s\n", item.source(), item)
-	}
-
-	for _, item := range ctx.Actions {
-		if item.source().patchName() != name {
-			continue
-		}
-
-		matched := item.matchedIDs()
-		fmt.Fprintf(w, "\n  %s\n    %s\n    %d types\n", item.source(), item, len(matched))
 		ctx.writeTypes(w, matched, full)
+	}
+
+	for _, added := range attribute.AddTo {
+		fmt.Fprintf(w, "\n  %s\n    %s\n", added.at, added)
+	}
+	return nil
+}
+
+func (ctx *Context) explainSelectors(w io.Writer) error {
+	fmt.Fprintf(w, "selectors\n\n")
+	for _, selector := range ctx.Spec.Selectors {
+		matched, err := ctx.Match(selector.Match.Text)
+		if err != nil {
+			fmt.Fprintf(w, "  %-28s %s\n", selector.Name, err)
+			continue
+		}
+		fmt.Fprintf(w, "  %-28s %7d types  %s\n", selector.Name, len(matched), selector.Match.Text)
+	}
+	return nil
+}
+
+func (ctx *Context) explainEffects(w io.Writer) error {
+	fmt.Fprintf(w, "effects\n\n")
+	for _, change := range ctx.Spec.Changes {
+		fmt.Fprintf(w, "  %s\n    %s\n", change.at, change)
+	}
+	for i, action := range ctx.Spec.Actions {
+		fmt.Fprintf(w, "  %s\n    %s\n    %d types\n", action.at, action, len(ctx.Matched[i]))
 	}
 	return nil
 }
@@ -90,7 +110,7 @@ func (ctx *Context) writeTypes(w io.Writer, matched []int32, full bool) {
 	}
 }
 
-// ExplainType writes every patch that touched a single type.
+// ExplainType writes every attribute a patch works out on a single type.
 func (ctx *Context) ExplainType(w io.Writer, name string) error {
 	entries := ctx.typesByName[name]
 	if len(entries) == 0 {
@@ -103,12 +123,19 @@ func (ctx *Context) ExplainType(w io.Writer, name string) error {
 		fmt.Fprintf(w, "%s (type %d, group %q, category %q)\n\n", entry.Name.En, entry.Key, group.Name.En, category.Name.En)
 
 		hits := 0
-		for _, item := range ctx.Actions {
-			if !contains(item.matchedIDs(), entry.Key) {
+		for _, effect := range ctx.Spec.Effects() {
+			if !contains(ctx.Applied[effect.EffectName()], entry.Key) {
 				continue
 			}
 			hits++
-			fmt.Fprintf(w, "  %-24s %s\n    %s\n", item.source().patchName(), item.source(), item)
+			fmt.Fprintf(w, "  %-32s %s\n    on %s\n", effect.Attribute, effect.at, effect.On.Text)
+		}
+		for i, action := range ctx.Spec.Actions {
+			if !contains(ctx.Matched[i], entry.Key) {
+				continue
+			}
+			hits++
+			fmt.Fprintf(w, "  %-32s %s\n    %s\n", action.at.patchName(), action.at, action)
 		}
 		if hits == 0 {
 			fmt.Fprintf(w, "  no patch touches this type\n")

@@ -1,0 +1,19 @@
+# capacitorPeakRecharge — capacitor information the EVE client works out
+# itself. - capacitorPeakRecharge is the recharge in GJ/s at its peak. -
+# capacitorPeakLoad is the drain in GJ if every module runs at once. -
+# capacitorPeakDelta is the difference between the two.
+
+new:
+  default: 2.5
+  highIsGood: true
+
+effects:
+  # Peak recharge is 5.0 / 2.0 * capacitorCapacity / rechargeRate. Not done
+  # with dogma, as it needs simulation. The dogma-engine fills it in.
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {mul: capacitorCapacity}
+      - {div: rechargeRate}
+      - {mul: thousand}

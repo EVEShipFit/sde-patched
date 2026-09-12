@@ -1,0 +1,11 @@
+# damageAlpha — alpha strike: the damage of every gun firing at once.
+
+new:
+  highIsGood: true
+
+effects:
+  - on: damagingModule
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: damageVolley, domain: shipID}

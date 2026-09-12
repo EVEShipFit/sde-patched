@@ -1,0 +1,11 @@
+# droneCapacityLoad — how much of the drone bay is in use.
+
+new:
+  highIsGood: true
+
+effects:
+  - on: isDrone
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: volume, domain: shipID}

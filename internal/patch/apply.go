@@ -8,90 +8,39 @@ import (
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
 
-// Everything declared by the patches package lands in these, in whatever order
-// Go initialises the variables. Apply sorts them by file and line, so the
-// result never depends on that order.
-var (
-	newAttributes []*AttributeRef
-	newEffects    []*EffectRef
-	lookups       []resolvable
-	changes       []change
-	actions       []action
-)
-
 // Context is the SDE plus the bookkeeping needed to explain what happened.
 type Context struct {
 	Data *sde.Data
+	Spec *Spec
 
-	Changes []change
-	Actions []action
+	// Matched holds the type IDs each action hit, in the same order as
+	// Spec.Actions. Applied is the same for each effect, by name.
+	Matched [][]int32
+	Applied map[string][]int32
 
 	attributeByName map[string]*sde.DogmaAttribute
 	effectByName    map[string]*sde.DogmaEffect
 	categoryByName  map[string]*sde.Category
 	groupsByName    map[string][]*sde.Group
 	typesByName     map[string][]*sde.Type
+	selectorByName  map[string]*NamedSelector
 
 	sortedTypes []*sde.Type
 	errs        []error
 }
 
+// linkState guards against a selector that names itself, directly or through
+// others.
+type linkState int
+
+const (
+	unlinked linkState = iota
+	linking
+	linked
+)
+
 func (ctx *Context) errorf(at source, format string, args ...any) {
 	ctx.errs = append(ctx.errs, fmt.Errorf("%s: %s", at, fmt.Sprintf(format, args...)))
-}
-
-// Apply runs every declared patch against the data, in place.
-func Apply(data *sde.Data) (*Context, error) {
-	ctx := &Context{Data: data, Changes: changes, Actions: actions}
-	ctx.index()
-
-	ctx.create()
-	for _, ref := range lookups {
-		ref.resolve(ctx)
-	}
-	ctx.fillModifiers()
-
-	// Stop here on unresolved names; applying anything now would only pile
-	// confusing errors on top of clear ones.
-	if err := ctx.err(); err != nil {
-		return ctx, err
-	}
-
-	sort.SliceStable(ctx.Changes, func(i, j int) bool { return before(ctx.Changes[i].source(), ctx.Changes[j].source()) })
-	sort.SliceStable(ctx.Actions, func(i, j int) bool { return before(ctx.Actions[i].source(), ctx.Actions[j].source()) })
-
-	for _, item := range ctx.Changes {
-		item.apply(ctx)
-	}
-
-	for _, item := range ctx.Actions {
-		if len(item.selection()) == 0 {
-			ctx.errorf(item.source(), "%s: no selectors, which would hit every type", item)
-			continue
-		}
-
-		for _, selector := range item.selection() {
-			selector.prepare(ctx)
-		}
-
-		matched := ctx.match(item.selection())
-		item.setMatched(ids(matched))
-
-		if len(matched) == 0 {
-			ctx.errorf(item.source(), "%s: matches no types", item)
-			continue
-		}
-		item.apply(ctx, matched)
-	}
-
-	return ctx, ctx.err()
-}
-
-func before(a, b source) bool {
-	if a.file != b.file {
-		return a.file < b.file
-	}
-	return a.line < b.line
 }
 
 func (ctx *Context) err() error {
@@ -101,12 +50,70 @@ func (ctx *Context) err() error {
 	return errors.Join(ctx.errs...)
 }
 
+// Apply runs every patch against the data, in place.
+func Apply(spec *Spec, data *sde.Data) (*Context, error) {
+	spec.sort()
+
+	ctx := &Context{
+		Data: data, Spec: spec,
+		Matched: make([][]int32, len(spec.Actions)),
+		Applied: map[string][]int32{},
+	}
+	ctx.index()
+
+	ctx.create()
+	ctx.fillRules()
+	ctx.link()
+
+	// Stop on unresolved names; applying would only add follow-on errors.
+	if err := ctx.err(); err != nil {
+		return ctx, err
+	}
+
+	for _, change := range spec.Changes {
+		ctx.change(change)
+	}
+	for _, attribute := range spec.Attributes {
+		if attribute.Change != nil {
+			ctx.changeAttribute(attribute)
+		}
+	}
+	for _, added := range spec.AddTos() {
+		ctx.addTo(added)
+	}
+
+	for _, effect := range spec.Effects() {
+		matched := ctx.matching(effect.On)
+		ctx.Applied[effect.EffectName()] = ids(matched)
+
+		if len(matched) == 0 {
+			ctx.errorf(effect.at, "effect %q matches no types", effect.EffectName())
+			continue
+		}
+		ctx.applyEffect(effect, matched)
+	}
+
+	for i, action := range spec.Actions {
+		matched := ctx.match(action)
+		ctx.Matched[i] = ids(matched)
+
+		if len(matched) == 0 {
+			ctx.errorf(action.at, "%s: matches no types", action)
+			continue
+		}
+		ctx.act(action, matched)
+	}
+
+	return ctx, ctx.err()
+}
+
 func (ctx *Context) index() {
 	ctx.attributeByName = map[string]*sde.DogmaAttribute{}
 	ctx.effectByName = map[string]*sde.DogmaEffect{}
 	ctx.categoryByName = map[string]*sde.Category{}
 	ctx.groupsByName = map[string][]*sde.Group{}
 	ctx.typesByName = map[string][]*sde.Type{}
+	ctx.selectorByName = map[string]*NamedSelector{}
 
 	for _, entry := range ctx.Data.DogmaAttributes {
 		ctx.attributeByName[entry.Name] = entry
@@ -123,6 +130,13 @@ func (ctx *Context) index() {
 	for _, entry := range ctx.Data.Types {
 		ctx.typesByName[entry.Name.En] = append(ctx.typesByName[entry.Name.En], entry)
 	}
+	for _, selector := range ctx.Spec.Selectors {
+		if _, exists := ctx.selectorByName[selector.Name]; exists {
+			ctx.errorf(selector.at, "there is already a selector named %q", selector.Name)
+			continue
+		}
+		ctx.selectorByName[selector.Name] = selector
+	}
 
 	ctx.sortedTypes = make([]*sde.Type, 0, len(ctx.Data.Types))
 	for _, entry := range ctx.Data.Types {
@@ -131,137 +145,234 @@ func (ctx *Context) index() {
 	sort.Slice(ctx.sortedTypes, func(i, j int) bool { return ctx.sortedTypes[i].Key < ctx.sortedTypes[j].Key })
 }
 
-// create adds all new attributes and effects. IDs are handed out in file and
-// line order, and are negative: that makes it obvious they are not CCP's.
+// create adds every new attribute and effect, with the IDs from ids.yaml.
 func (ctx *Context) create() {
-	sort.SliceStable(newAttributes, func(i, j int) bool { return before(newAttributes[i].at, newAttributes[j].at) })
-	sort.SliceStable(newEffects, func(i, j int) bool { return before(newEffects[i].at, newEffects[j].at) })
-
-	nextID := int32(-1)
-	for _, ref := range newAttributes {
-		if _, exists := ctx.attributeByName[ref.name]; exists {
-			ctx.errorf(ref.at, "dogma attribute %q already exists", ref.name)
+	for _, attribute := range ctx.Spec.Attributes {
+		if attribute.New == nil {
+			if _, exists := ctx.attributeByName[attribute.Name]; !exists {
+				ctx.errorf(attribute.at, "no dogma attribute named %q; say \"new:\" to add one", attribute.Name)
+			}
+			continue
+		}
+		if _, exists := ctx.attributeByName[attribute.Name]; exists {
+			ctx.errorf(attribute.at, "dogma attribute %q already exists; say \"change:\" to edit it", attribute.Name)
 			continue
 		}
 
-		ref.id = ref.def.ID
-		if ref.id == 0 {
-			ref.id = nextID
-			nextID--
+		id, known := ctx.Spec.IDs.Attribute(attribute.Name)
+		if !known {
+			ctx.errorf(attribute.at, "attribute %q has no ID yet; run \"sde-patched ids\"", attribute.Name)
+			continue
 		}
-		if _, exists := ctx.Data.DogmaAttributes[ref.id]; exists {
-			ctx.errorf(ref.at, "dogma attribute ID %d is already taken", ref.id)
+		if _, taken := ctx.Data.DogmaAttributes[id]; taken {
+			ctx.errorf(attribute.at, "dogma attribute ID %d is already taken", id)
 			continue
 		}
 
 		entry := &sde.DogmaAttribute{
-			Key:          ref.id,
-			Name:         ref.name,
-			DefaultValue: ref.def.DefaultValue,
-			HighIsGood:   ref.def.HighIsGood,
-			Stackable:    ref.def.Stackable,
-			Published:    ref.def.Published,
-			UnitID:       ref.def.UnitID,
+			Key:          id,
+			Name:         attribute.Name,
+			DefaultValue: value(attribute.New.Default),
+			HighIsGood:   no(attribute.New.HighIsGood),
+			Stackable:    yes(attribute.New.Stackable),
+			Published:    yes(attribute.New.Published),
+			UnitID:       attribute.New.UnitID,
 		}
-		entry.DisplayName.En = ref.def.DisplayName
-		ctx.Data.DogmaAttributes[ref.id] = entry
-		ctx.attributeByName[ref.name] = entry
+		entry.DisplayName.En = attribute.New.DisplayName
+		ctx.Data.DogmaAttributes[id] = entry
+		ctx.attributeByName[attribute.Name] = entry
 	}
 
-	nextID = int32(-1)
-	for _, ref := range newEffects {
-		if _, exists := ctx.effectByName[ref.name]; exists {
-			ctx.errorf(ref.at, "dogma effect %q already exists", ref.name)
+	for _, effect := range ctx.Spec.Effects() {
+		name := effect.EffectName()
+		if _, exists := ctx.effectByName[name]; exists {
+			ctx.errorf(effect.at, "dogma effect %q already exists; use \"addTo\" to add rules to it", name)
 			continue
 		}
 
-		ref.id = ref.def.ID
-		if ref.id == 0 {
-			ref.id = nextID
-			nextID--
+		category, err := lookupEnum(effectCategories, "effect category", effect.Category)
+		if err != nil {
+			ctx.errorf(effect.at, "%s", err)
+			continue
 		}
-		if _, exists := ctx.Data.DogmaEffects[ref.id]; exists {
-			ctx.errorf(ref.at, "dogma effect ID %d is already taken", ref.id)
+
+		id, known := ctx.Spec.IDs.Effect(name)
+		if !known {
+			ctx.errorf(effect.at, "effect %q has no ID yet; run \"sde-patched ids\"", name)
+			continue
+		}
+		if _, taken := ctx.Data.DogmaEffects[id]; taken {
+			ctx.errorf(effect.at, "dogma effect ID %d is already taken", id)
 			continue
 		}
 
 		entry := &sde.DogmaEffect{
-			Key:              ref.id,
-			Name:             ref.name,
-			EffectCategoryID: int32(ref.def.Category),
-			Published:        ref.def.Published,
-			ElectronicChance: ref.def.ElectronicChance,
-			IsAssistance:     ref.def.IsAssistance,
-			IsOffensive:      ref.def.IsOffensive,
-			IsWarpSafe:       ref.def.IsWarpSafe,
-			PropulsionChance: ref.def.PropulsionChance,
-			RangeChance:      ref.def.RangeChance,
+			Key:              id,
+			Name:             name,
+			EffectCategoryID: int32(category),
+			Published:        effect.Published,
+			ElectronicChance: effect.ElectronicChance,
+			IsAssistance:     effect.IsAssistance,
+			IsOffensive:      effect.IsOffensive,
+			IsWarpSafe:       effect.IsWarpSafe,
+			PropulsionChance: effect.PropulsionChance,
+			RangeChance:      effect.RangeChance,
 		}
-		entry.DisplayName.En = ref.def.DisplayName
-		ctx.Data.DogmaEffects[ref.id] = entry
-		ctx.effectByName[ref.name] = entry
+		entry.DisplayName.En = effect.DisplayName
+		ctx.Data.DogmaEffects[id] = entry
+		ctx.effectByName[name] = entry
 	}
 }
 
-// fillModifiers runs after every reference is resolved, as modifiers point at
-// attributes, groups and skills by name.
-func (ctx *Context) fillModifiers() {
-	for _, ref := range newEffects {
-		entry, ok := ctx.Data.DogmaEffects[ref.id]
+// fillRules runs after create, as a rule can read an attribute another file
+// has only just added.
+func (ctx *Context) fillRules() {
+	for _, effect := range ctx.Spec.Effects() {
+		entry, ok := ctx.effectByName[effect.EffectName()]
 		if !ok {
 			continue
 		}
 
-		entry.DischargeAttributeID = attributeID(ref.def.DischargeAttribute)
-		entry.DurationAttributeID = attributeID(ref.def.DurationAttribute)
-		entry.FalloffAttributeID = attributeID(ref.def.FalloffAttribute)
-		entry.FittingUsageChanceAttributeID = attributeID(ref.def.FittingUsageChanceAttribute)
-		entry.RangeAttributeID = attributeID(ref.def.RangeAttribute)
-		entry.ResistanceAttributeID = attributeID(ref.def.ResistanceAttribute)
-		entry.TrackingSpeedAttributeID = attributeID(ref.def.TrackingSpeedAttribute)
+		entry.DischargeAttributeID = ctx.attributeID(effect.at, effect.DischargeAttribute)
+		entry.DurationAttributeID = ctx.attributeID(effect.at, effect.DurationAttribute)
+		entry.FalloffAttributeID = ctx.attributeID(effect.at, effect.FalloffAttribute)
+		entry.FittingUsageChanceAttributeID = ctx.attributeID(effect.at, effect.FittingUsageChanceAttribute)
+		entry.RangeAttributeID = ctx.attributeID(effect.at, effect.RangeAttribute)
+		entry.ResistanceAttributeID = ctx.attributeID(effect.at, effect.ResistanceAttribute)
+		entry.TrackingSpeedAttributeID = ctx.attributeID(effect.at, effect.TrackingSpeedAttribute)
 
-		for _, modifier := range ref.def.Modifiers {
-			entry.Modifiers = append(entry.Modifiers, modifier.toSDE())
-		}
+		entry.Modifiers = append(entry.Modifiers, ctx.rules(effect.at, effect.Attribute, effect.Rules)...)
 	}
 }
 
-func attributeID(ref *AttributeRef) int32 {
-	if ref == nil {
+func (ctx *Context) link() {
+	for _, selector := range ctx.Spec.Selectors {
+		ctx.linkSelector(selector)
+	}
+	for _, effect := range ctx.Spec.Effects() {
+		if effect.On.tree == nil {
+			ctx.errorf(effect.at, "effect %q says nothing about who gets it, which would hit every type", effect.EffectName())
+			continue
+		}
+		effect.On.tree.link(ctx, effect.at)
+	}
+	for _, action := range ctx.Spec.Actions {
+		if action.On.tree == nil {
+			ctx.errorf(action.at, "%s: no condition, which would hit every type", action)
+			continue
+		}
+		action.On.tree.link(ctx, action.at)
+	}
+}
+
+func (ctx *Context) linkSelector(selector *NamedSelector) {
+	switch selector.linked {
+	case linked:
+		return
+	case linking:
+		ctx.errorf(selector.at, "selector %q refers back to itself", selector.Name)
+		selector.linked = linked
+		return
+	}
+
+	selector.linked = linking
+	if selector.Match.tree == nil {
+		ctx.errorf(selector.at, "selector %q has no condition", selector.Name)
+	} else {
+		selector.Match.tree.link(ctx, selector.at)
+	}
+	selector.linked = linked
+}
+
+func (ctx *Context) attributeID(at source, name string) int32 {
+	if name == "" {
 		return 0
 	}
-	return ref.id
+	entry, ok := ctx.attributeByName[name]
+	if !ok {
+		ctx.errorf(at, "no dogma attribute named %q", name)
+		return 0
+	}
+	return entry.Key
 }
 
-func (m Modifier) toSDE() sde.Modifier {
-	modifier := sde.Modifier{
-		Domain:               m.Domain,
-		Func:                 m.Func,
-		Operation:            m.Operation,
-		ModifiedAttributeID:  attributeID(m.Modified),
-		ModifyingAttributeID: attributeID(m.Modifying),
-	}
-	if m.Group != nil {
-		modifier.GroupID = m.Group.id
-	}
-	if m.Skill != nil {
-		modifier.SkillTypeID = m.Skill.id
-	}
-	return modifier
-}
-
-func (ctx *Context) match(selectors []Selector) []*sde.Type {
-	var matched []*sde.Type
-
-	for _, entry := range ctx.sortedTypes {
-		hit := true
-		for _, selector := range selectors {
-			if !selector.matches(ctx, entry) {
-				hit = false
-				break
-			}
+func (ctx *Context) rules(at source, writes string, rules []Rule) []sde.Modifier {
+	result := make([]sde.Modifier, 0, len(rules))
+	for _, rule := range rules {
+		domain, err := lookupEnum(modifierDomains, "modifier domain", rule.domain())
+		if err != nil {
+			ctx.errorf(at, "%s", err)
+			continue
 		}
-		if hit {
+		function, err := lookupEnum(modifierFuncs, "modifier func", rule.function())
+		if err != nil {
+			ctx.errorf(at, "%s", err)
+			continue
+		}
+		operation, err := operationOf(rule.Op)
+		if err != nil {
+			ctx.errorf(at, "%s", err)
+			continue
+		}
+
+		result = append(result, sde.Modifier{
+			Domain:               domain,
+			Func:                 function,
+			Operation:            operation,
+			ModifiedAttributeID:  ctx.attributeID(at, writes),
+			ModifyingAttributeID: ctx.attributeID(at, rule.By),
+			GroupID:              ctx.groupID(at, rule.Group),
+			SkillTypeID:          ctx.skillID(at, rule.Skill),
+		})
+	}
+	return result
+}
+
+func (ctx *Context) groupID(at source, name string) int32 {
+	if name == "" {
+		return 0
+	}
+	entries := ctx.groupsByName[name]
+	switch len(entries) {
+	case 0:
+		ctx.errorf(at, "no group named %q", name)
+	case 1:
+		return entries[0].Key
+	default:
+		ctx.errorf(at, "group %q is ambiguous: %d groups have that name", name, len(entries))
+	}
+	return 0
+}
+
+func (ctx *Context) skillID(at source, name string) int32 {
+	switch {
+	case name == "":
+		return 0
+	case name == AnySkill:
+		return -1
+	}
+
+	entries := ctx.typesByName[name]
+	switch len(entries) {
+	case 0:
+		ctx.errorf(at, "no type named %q", name)
+	case 1:
+		return entries[0].Key
+	default:
+		ctx.errorf(at, "type %q is ambiguous: %d types have that name", name, len(entries))
+	}
+	return 0
+}
+
+func (ctx *Context) match(action *Action) []*sde.Type { return ctx.matching(action.On) }
+
+func (ctx *Context) matching(on Expr) []*sde.Type {
+	if on.tree == nil {
+		return nil
+	}
+	var matched []*sde.Type
+	for _, entry := range ctx.sortedTypes {
+		if on.tree.matches(entry) {
 			matched = append(matched, entry)
 		}
 	}

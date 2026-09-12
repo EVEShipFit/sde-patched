@@ -1,0 +1,7 @@
+# damageProfileEm — incoming damage needs an assumed damage profile. It is
+# uniform by default: equal damage on all four resistances. The four should
+# always add up to exactly one, or effective hitpoints come out wrong.
+
+new:
+  default: 0.25
+  highIsGood: true

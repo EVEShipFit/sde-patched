@@ -1,0 +1,12 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: usesCapacitor
+    category: active
+    isWarpSafe: true
+    rules:
+      - {from: capacitorNeed}
+      - {div: cycleTime}
+      - {mul: thousand}
+      - {add: capacitorPeakLoad, domain: shipID}

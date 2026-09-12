@@ -1,0 +1,12 @@
+effects:
+  - on: name("CharacterType")
+    category: passive
+    isWarpSafe: true
+    isOffensive: true
+    rules:
+      - {mul: missileDamageMultiplier, domain: charID, func: ownerRequiredSkillModifier, skill: Missile Launcher Operation}
+
+addTo:
+  - effect: missileKineticDmgBonus2
+    rules:
+      - {percent: damageMultiplierBonus, domain: charID, func: ownerRequiredSkillModifier, skill: "*"}

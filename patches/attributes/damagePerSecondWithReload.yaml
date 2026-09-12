@@ -1,0 +1,27 @@
+new:
+  highIsGood: true
+
+effects:
+  - name: damagePerSecondWithReload
+    on: moduleCyclesOnSpeed or moduleCyclesOnDuration
+    category: active
+    isWarpSafe: true
+    rules:
+      - {from: thousand}
+      - {mul: damageVolley}
+      - {div: speedWithReload}
+      - {add: damagePerSecondWithReload, domain: shipID}
+
+  - name: damagePerSecondWithReload2
+    on: damagingDrone or moduleCyclesOnDuration
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: damagePerSecondWithoutReload, domain: shipID}
+
+  - name: damagePerSecondWithReload3
+    on: isCharge and attribute("dotMaxDamagePerTick")
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {assign: dotMaxDamagePerTick, domain: otherID}

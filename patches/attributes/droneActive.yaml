@@ -1,0 +1,11 @@
+# droneActive — how many drones are active, and how much bandwidth they use.
+
+new:
+  highIsGood: true
+
+effects:
+  - on: isDrone
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: droneUsage, domain: shipID}

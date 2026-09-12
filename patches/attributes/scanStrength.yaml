@@ -1,0 +1,16 @@
+# scanStrength — statistics show a single scan strength, but the SDE has one
+# attribute per race. Three of the four are zero, so adding them up gives
+# the one number a user interface wants.
+
+new:
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: scanRadarStrength}
+      - {add: scanLadarStrength}
+      - {add: scanMagnetometricStrength}
+      - {add: scanGravimetricStrength}

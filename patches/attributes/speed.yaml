@@ -1,0 +1,7 @@
+# speed — the rate-of-fire skill bonus, which the EVE client applies outside
+# dogma.
+
+addTo:
+  - effect: selfRof
+    rules:
+      - {percent: rofBonus, domain: shipID, func: locationRequiredSkillModifier, skill: "*"}

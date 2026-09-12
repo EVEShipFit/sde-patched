@@ -1,0 +1,25 @@
+# velocityBoost — afterburners and microwarpdrives have no active effect in
+# the dogma data; the EVE client handles them outside of dogma. Adding the
+# effect here saves the dogma-engine from special-casing them. Note: the
+# "mass" attribute is not right in the SDE. The "mass" field of the type is.
+# This patch assumes the attribute holds the mass of the ship.
+
+new:
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {div: mass}
+
+addTo:
+  - effect: moduleBonusAfterburner
+    rules:
+      - {add: speedBoostFactor, domain: shipID}
+      - {mul: speedFactor, domain: shipID}
+  - effect: moduleBonusMicrowarpdrive
+    rules:
+      - {add: speedBoostFactor, domain: shipID}
+      - {mul: speedFactor, domain: shipID}

@@ -1,0 +1,37 @@
+# damagePerSecondWithoutReload — damage per second, with and without
+# counting the time spent reloading.
+
+new:
+  highIsGood: true
+
+effects:
+  # Some modules keep their cycle time in "speed", others in "duration".
+  - name: damagePerSecondWithoutReload
+    on: moduleCyclesOnSpeed or damagingDrone
+    category: active
+    isWarpSafe: true
+    rules:
+      - {div: speed}
+
+  - name: damagePerSecondWithoutReload2
+    on: moduleCyclesOnDuration
+    category: active
+    isWarpSafe: true
+    rules:
+      - {div: duration}
+
+  - name: damagePerSecondWithoutReload3
+    on: cyclingDamageDealer
+    category: active
+    isWarpSafe: true
+    rules:
+      - {from: thousand}
+      - {mul: damageVolley}
+      - {add: damagePerSecondWithoutReload, domain: shipID}
+
+  - name: damagePerSecondWithoutReload4
+    on: isCharge and attribute("dotMaxDamagePerTick")
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {assign: dotMaxDamagePerTick, domain: otherID}

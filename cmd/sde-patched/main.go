@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,17 +13,18 @@ import (
 	"github.com/EVEShipFit/sde-patched/internal/fbs"
 	"github.com/EVEShipFit/sde-patched/internal/patch"
 	"github.com/EVEShipFit/sde-patched/internal/sde"
-
-	_ "github.com/EVEShipFit/sde-patched/patches"
+	"github.com/EVEShipFit/sde-patched/internal/web"
 )
 
 var (
-	sdeDir   = flag.String("sde-dir", "sde", "directory the SDE is downloaded to")
-	out      = flag.String("out", filepath.Join("dist", "sde.dat"), "file to write")
-	namesOut = flag.String("names-out", filepath.Join("dist", "names.dat"), "name lookup file to write")
-	buildNum = flag.Int("build", 0, "SDE build to use; defaults to the latest")
-	full     = flag.Bool("full", false, "explain: list every matched type")
-	typeName = flag.String("type", "", "explain: show what touches this type")
+	sdeDir     = flag.String("sde-dir", "sde", "directory the SDE is downloaded to")
+	patchesDir = flag.String("patches-dir", "patches", "directory the patches are read from")
+	out        = flag.String("out", filepath.Join("dist", "sde.dat"), "file to write")
+	namesOut   = flag.String("names-out", filepath.Join("dist", "names.dat"), "name lookup file to write")
+	buildNum   = flag.Int("build", 0, "SDE build to use; defaults to the latest")
+	full       = flag.Bool("full", false, "explain: list every matched type")
+	typeName   = flag.String("type", "", "explain: show what touches this type")
+	addr       = flag.String("addr", "localhost:8080", "serve: address to listen on")
 )
 
 func usage() {
@@ -33,6 +35,8 @@ commands:
   build      patch the SDE and write the flatbuffer
   explain    show what a patch does; "explain <name>" or "explain --type <name>"
   patches    list all patches
+  ids        give an ID to anything the patches added without one
+  serve      open an editor for the patches in a browser
 
 flags:
 `)
@@ -64,12 +68,35 @@ func run(command string, args []string) error {
 		_, _, err := download()
 		return err
 
+	case "ids":
+		spec, err := loadPatches()
+		if err != nil {
+			return err
+		}
+		handed := spec.IDs.Record(spec)
+		if handed == 0 {
+			fmt.Println("every attribute and effect already has an ID")
+			return nil
+		}
+		if err := spec.IDs.Save(); err != nil {
+			return err
+		}
+		fmt.Printf("gave out %d new ID(s), written to patches/%s\n", handed, patch.IDsFile)
+		return nil
+
 	case "build":
+		spec, err := loadPatches()
+		if err != nil {
+			return err
+		}
+		if err := spec.IDs.Missing(spec); err != nil {
+			return err
+		}
 		data, err := load()
 		if err != nil {
 			return err
 		}
-		if _, err := patch.Apply(data); err != nil {
+		if _, err := patch.Apply(spec, data); err != nil {
 			return err
 		}
 		if err := os.MkdirAll(filepath.Dir(*out), 0o755); err != nil {
@@ -96,11 +123,15 @@ func run(command string, args []string) error {
 		return nil
 
 	case "explain", "patches":
+		spec, err := loadPatches()
+		if err != nil {
+			return err
+		}
 		data, err := load()
 		if err != nil {
 			return err
 		}
-		ctx, err := patch.Apply(data)
+		ctx, err := patch.Apply(spec, data)
 		if err != nil {
 			return err
 		}
@@ -119,10 +150,34 @@ func run(command string, args []string) error {
 		}
 		return ctx.Explain(os.Stdout, args[0], *full)
 
+	case "serve":
+		// Patches are re-read on every request; only the SDE is loaded up front.
+		data, err := load()
+		if err != nil {
+			return err
+		}
+		server := web.New(data, *patchesDir)
+
+		fmt.Printf("editing %s on http://%s\n", *patchesDir, *addr)
+		return http.ListenAndServe(*addr, server.Handler())
+
 	default:
 		usage()
 		return fmt.Errorf("unknown command %q", command)
 	}
+}
+
+// loadPatches reads the patches and checks everything that can be checked
+// without the SDE, so a typo is reported before the long load.
+func loadPatches() (*patch.Spec, error) {
+	spec, err := patch.Load(*patchesDir)
+	if err != nil {
+		return nil, err
+	}
+	if err := spec.Validate(); err != nil {
+		return nil, err
+	}
+	return spec, nil
 }
 
 func download() (string, int32, error) {

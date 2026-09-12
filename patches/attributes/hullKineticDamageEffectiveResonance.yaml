@@ -1,0 +1,10 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {from: damageProfileKinetic}
+      - {mul: kineticDamageResonance}

@@ -1,0 +1,42 @@
+# damageVolley — the damage of a single volley of a module.
+
+new:
+  highIsGood: true
+
+effects:
+  # A turret or launcher takes its damage from the charge it holds.
+  - name: damageVolley
+    on: isCharge and hasDamageAttribute
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: emDamage, domain: otherID}
+      - {add: explosiveDamage, domain: otherID}
+      - {add: kineticDamage, domain: otherID}
+      - {add: thermalDamage, domain: otherID}
+
+  # Damage over time is shown per target, not what the module could manage in
+  # a hypothetical situation, so it overwrites the module damage per second.
+  - name: damageVolley2
+    on: isCharge and attribute("dotMaxDamagePerTick")
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: dotMaxDamagePerTick, domain: otherID}
+
+  - name: damageVolley3
+    on: damagingModule or damagingDrone
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: emDamage}
+      - {add: explosiveDamage}
+      - {add: kineticDamage}
+      - {add: thermalDamage}
+
+  - name: damageVolley4
+    on: attribute("damageMultiplier") and (damagingModule or damagingDrone)
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {mul: damageMultiplier}

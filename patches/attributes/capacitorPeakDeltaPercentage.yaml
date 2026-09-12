@@ -1,0 +1,11 @@
+new:
+  default: 100
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {mul: capacitorPeakDelta}
+      - {div: capacitorPeakRecharge}

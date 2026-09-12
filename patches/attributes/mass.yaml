@@ -1,0 +1,11 @@
+# mass — propulsion modules add to it, which the EVE client handles outside
+# dogma. The SDE mass attribute is not right; the mass field of the type is.
+# This assumes the attribute holds the mass of the ship.
+
+addTo:
+  - effect: moduleBonusAfterburner
+    rules:
+      - {add: massAddition, domain: shipID}
+  - effect: moduleBonusMicrowarpdrive
+    rules:
+      - {add: massAddition, domain: shipID}

@@ -1,0 +1,10 @@
+new:
+  highIsGood: true
+
+effects:
+  # Drones never reload, so their damage without reload is their damage.
+  - on: damagingDrone or moduleCyclesOnDuration
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: damagePerSecondWithoutReload, domain: shipID}

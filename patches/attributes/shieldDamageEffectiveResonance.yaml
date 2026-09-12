@@ -1,0 +1,12 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: isShip
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: shieldEmDamageEffectiveResonance}
+      - {add: shieldExplosiveDamageEffectiveResonance}
+      - {add: shieldKineticDamageEffectiveResonance}
+      - {add: shieldThermalDamageEffectiveResonance}

@@ -1,0 +1,6 @@
+effects:
+  - on: isDrone
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: droneBandwidthUsed, domain: shipID}
