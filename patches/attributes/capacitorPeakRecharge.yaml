@@ -10,7 +10,7 @@ new:
 effects:
   # Peak recharge is 5.0 / 2.0 * capacitorCapacity / rechargeRate. Not done
   # with dogma, as it needs simulation. The dogma-engine fills it in.
-  - on: isShip
+  - on: isHull
     category: passive
     isWarpSafe: true
     rules:

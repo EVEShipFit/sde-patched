@@ -135,3 +135,5 @@ effects:
   cycleTime7: -72
   cycleTime8: -73
   capacitorPeakLoad2: -74
+  scanStrength2: -75
+  speedOfReload2: -76
