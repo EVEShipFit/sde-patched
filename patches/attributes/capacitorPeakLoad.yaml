@@ -2,7 +2,7 @@ new:
   highIsGood: true
 
 effects:
-  - on: usesCapacitor
+  - on: usesCapacitorInCycles
     category: active
     isWarpSafe: true
     rules:
