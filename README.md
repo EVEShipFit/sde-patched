@@ -1,5 +1,10 @@
 # SDE Patched
 
+[![npm](https://img.shields.io/npm/v/%40eveshipfit%2Fsde.svg)](https://www.npmjs.com/package/@eveshipfit/sde)
+[![CI](https://github.com/EVEShipFit/sde-patched/actions/workflows/testing.yml/badge.svg)](https://github.com/EVEShipFit/sde-patched/actions/workflows/testing.yml)
+
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/S5V5BkvNf7)
+
 A patched [EVE Online SDE](https://developers.eveonline.com/static-data) to work better with EVEShipFit's dogma-engine.
 
 The main goal is to produce a small data-file, with everything included for dogma-engine to calculate fit statistics.
