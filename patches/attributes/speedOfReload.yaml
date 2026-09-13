@@ -2,7 +2,7 @@ new:
   highIsGood: true
 
 effects:
-  - on: moduleCyclesOnSpeed or moduleCyclesOnDuration
+  - on: moduleCycles and holdsCharge
     category: active
     isWarpSafe: true
     rules:

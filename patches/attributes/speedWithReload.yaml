@@ -17,7 +17,7 @@ effects:
       - {from: duration}
 
   - name: speedWithReload3
-    on: moduleCyclesOnSpeed or moduleCyclesOnDuration
+    on: moduleCycles and holdsCharge
     category: active
     isWarpSafe: true
     rules:

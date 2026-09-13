@@ -3,7 +3,7 @@ new:
 
 effects:
   # Drones never reload, so their damage without reload is their damage.
-  - on: damagingDrone or moduleCyclesOnDuration
+  - on: damagingDrone
     category: active
     isWarpSafe: true
     rules:

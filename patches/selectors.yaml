@@ -61,6 +61,17 @@ selectors:
     description: a damaging module that cycles on duration
     match: damagingModule and attribute("duration") and not attribute("speed")
 
+  - name: moduleCycles
+    description: a damaging module that cycles on speed or duration
+    match: moduleCyclesOnSpeed or moduleCyclesOnDuration
+
+  # Reloading depends on this, not on whether a module cycles on speed or
+  # duration: smart bombs cycle on duration and hold no charge, while a
+  # Modulated Deep Core Miner II does too and holds a crystal.
+  - name: holdsCharge
+    description: a module that holds a charge, and so reloads
+    match: isModule and attribute("chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5")
+
   - name: cyclingDamageDealer
     description: anything that deals damage in cycles
     match: moduleCyclesOnSpeed or moduleCyclesOnDuration or damagingDrone
