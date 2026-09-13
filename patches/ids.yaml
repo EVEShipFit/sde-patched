@@ -130,3 +130,7 @@ effects:
   speedWithReload3: -67
   thermalDamage: -68
   velocityBoost: -69
+  cycleTime5: -70
+  cycleTime6: -71
+  cycleTime7: -72
+  cycleTime8: -73

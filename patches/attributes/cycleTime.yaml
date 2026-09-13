@@ -2,7 +2,7 @@ new:
   highIsGood: false
 
 effects:
-  # Modules keep their cycle time in one of four different attributes.
+  # Modules keep their cycle time in one of several different attributes.
   - name: cycleTime
     on: usesCapacitor and attribute("duration")
     category: active
@@ -30,3 +30,31 @@ effects:
     isWarpSafe: true
     rules:
       - {add: moduleReactivationDelay}
+
+  - name: cycleTime5
+    on: usesCapacitor and attribute("durationECMJammerBurstProjector")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: durationECMJammerBurstProjector}
+
+  - name: cycleTime6
+    on: usesCapacitor and attribute("durationSensorDampeningBurstProjector")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: durationSensorDampeningBurstProjector}
+
+  - name: cycleTime7
+    on: usesCapacitor and attribute("durationTargetIlluminationBurstProjector")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: durationTargetIlluminationBurstProjector}
+
+  - name: cycleTime8
+    on: usesCapacitor and attribute("durationWeaponDisruptionBurstProjector")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {add: durationWeaponDisruptionBurstProjector}
