@@ -1,0 +1,69 @@
+name: Testing
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  testing:
+    name: Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Install Go toolchain
+      uses: actions/setup-go@v7
+      with:
+        go-version-file: go.mod
+
+    - name: Install flatc
+      # Keep in sync with the flatbuffers version in go.mod.
+      run: |
+        curl -sSfL -o /tmp/flatc.zip https://github.com/google/flatbuffers/releases/download/v25.2.10/Linux.flatc.binary.g++-13.zip
+        sudo unzip -o /tmp/flatc.zip -d /usr/local/bin
+        flatc --version
+
+    - name: Check generated code
+      run: |
+        go generate ./...
+        git diff --exit-code
+
+    - name: Check go.mod
+      run: |
+        go mod tidy -diff
+
+    - name: Check coding style
+      # flatc does not write gofmt-formatted code.
+      run: |
+        UNFORMATTED=$(gofmt -l cmd internal | grep -v '^internal/fbs/eve/' || true)
+        if [ -n "${UNFORMATTED}" ]; then
+          echo "Not gofmt-formatted:"
+          echo "${UNFORMATTED}"
+          exit 1
+        fi
+
+    - name: Check lints
+      run: |
+        go vet ./...
+
+    - name: Run tests
+      run: |
+        go test ./...
+
+    - name: Build SDE export
+      run: |
+        go run ./cmd/sde-patched build

@@ -9,10 +9,7 @@ import (
 /// Name lookup, in a file of its own.
 ///
 /// An EFT-fit can be written in any of the eight languages EVE supports, so a
-/// name has to be matchable back to a type. Showing a name is only ever done
-/// in English, and Sde.types carries that text; this file is only ever
-/// searched, never displayed. Splitting it off keeps it out of the download
-/// of anyone who never imports a fit.
+/// name has to be matchable back to a type.
 type Names struct {
 	_tab flatbuffers.Table
 }
@@ -60,8 +57,6 @@ func (rcv *Names) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-/// Build number of the SDE this was generated from. Match it against
-/// Sde.build_number; the type IDs below mean nothing otherwise.
 func (rcv *Names) BuildNumber() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
@@ -70,20 +65,13 @@ func (rcv *Names) BuildNumber() int32 {
 	return 0
 }
 
-/// Build number of the SDE this was generated from. Match it against
-/// Sde.build_number; the type IDs below mean nothing otherwise.
 func (rcv *Names) MutateBuildNumber(n int32) bool {
 	return rcv._tab.MutateInt32Slot(4, n)
 }
 
 /// Every name of every type, in every language, lowercased and sorted by
 /// UTF-8 bytes. Lowercasing is per code point and locale-independent, so
-/// that a fit does not have to match the case. The English name is in here
-/// too, so a lookup never needs a second code path.
-///
-/// Lowercase the name to look up and binary search this, then read
-/// type_ids at the same index. A name that several types share gives
-/// several entries in a row, so keep walking while the name matches.
+/// that a fit does not have to match the case.
 func (rcv *Names) Names(j int) []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
@@ -103,12 +91,7 @@ func (rcv *Names) NamesLength() int {
 
 /// Every name of every type, in every language, lowercased and sorted by
 /// UTF-8 bytes. Lowercasing is per code point and locale-independent, so
-/// that a fit does not have to match the case. The English name is in here
-/// too, so a lookup never needs a second code path.
-///
-/// Lowercase the name to look up and binary search this, then read
-/// type_ids at the same index. A name that several types share gives
-/// several entries in a row, so keep walking while the name matches.
+/// that a fit does not have to match the case.
 func (rcv *Names) TypeIds(j int) int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
