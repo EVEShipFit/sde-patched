@@ -2,9 +2,19 @@ new:
   highIsGood: true
 
 effects:
-  - on: moduleCycles and holdsCharge
+  - name: speedOfReload
+    on: moduleCycles and holdsCharge
     category: active
     isWarpSafe: true
     rules:
       - {from: reloadTime}
       - {div: chargeAmount}
+
+  # A point defense battery uses chargeRate charges a cycle; every other
+  # damaging module uses one.
+  - name: speedOfReload2
+    on: moduleCycles and holdsCharge and effect("pointDefense")
+    category: active
+    isWarpSafe: true
+    rules:
+      - {mul: chargeRate}

@@ -27,8 +27,15 @@ selectors:
   - name: isShip
     match: category("Ship")
 
+  - name: isStructure
+    match: category("Structure")
+
+  - name: isHull
+    description: a ship or a structure; what modules are fitted to
+    match: isShip or isStructure
+
   - name: isModule
-    match: category("Module")
+    match: category("Module", "Structure Module")
 
   - name: isDrone
     match: category("Drone")
@@ -42,9 +49,9 @@ selectors:
 
   - name: dealsDamage
     description: >-
-      deals damage; also covers turrets and missile launchers, which hold no
-      damage value of their own, as their charge does
-    match: hasDamageAttribute or effect("useMissiles", "turretFitted")
+      deals damage; also covers turrets, missile launchers and point defense
+      batteries, which hold no damage value of their own, as their charge does
+    match: hasDamageAttribute or effect("useMissiles", "turretFitted", "pointDefense")
 
   - name: damagingModule
     description: a module that deals damage

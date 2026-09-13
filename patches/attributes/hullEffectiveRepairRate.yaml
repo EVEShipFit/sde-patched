@@ -2,7 +2,7 @@ new:
   highIsGood: true
 
 effects:
-  - on: isShip
+  - on: isHull
     category: passive
     isWarpSafe: true
     rules:
