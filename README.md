@@ -4,7 +4,7 @@ A patched [EVE Online SDE](https://developers.eveonline.com/static-data) to work
 
 The main goal is to produce a small data-file, with everything included for dogma-engine to calculate fit statistics.
 
-## prerequisite
+## Prerequisite
 
 - Go 1.27 or later
 - flatc
@@ -35,12 +35,10 @@ It is also not meant as "production-ready" software, but much more as "an easier
 
 ## Output
 
-`build` writes two flatbuffers, described in [specs/](specs/).
-
-`dist/sde.dat` holds the types, dogma, groups and categories, with English
+`build` writes two flatbuffers, described in [specs/](specs/):
+- `dist/sde.dat` holds the types, dogma, groups and categories, with English
 names only. It is all a dogma-engine needs.
-
-`dist/names.dat` maps a name in any of the eight languages EVE supports back to
+- `dist/names.dat` maps a name in any of the eight languages EVE supports back to
 a type ID. Only an EFT-fit importer needs it, and only ever to search.
 
 Both files, and their specs, are published on npm as [`@eveshipfit/sde`](https://www.npmjs.com/package/@eveshipfit/sde).
