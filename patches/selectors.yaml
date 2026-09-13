@@ -21,6 +21,9 @@ selectors:
         "durationWeaponDisruptionBurstProjector"
       )
 
+  - name: transfersCapacitorToShip
+    match: usesCapacitorInCycles and effect("energyNosferatuFalloff")
+
   - name: isShip
     match: category("Ship")
 
