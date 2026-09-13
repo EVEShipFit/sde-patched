@@ -1,23 +1,111 @@
 name: Release
 
 on:
+  schedule:
+  - cron: "0 12 * * *"
+  workflow_dispatch:
   release:
     types:
     - published
 
+concurrency:
+  group: ${{ github.workflow }}
+
 permissions:
   contents: read
-  id-token: write
 
 jobs:
-  registries:
-    name: Publish to NPM
+  check:
+    name: Scheduled build
+    # A release made by hand skips this; it is published as-is.
+    if: github.event_name != 'release' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
 
     steps:
     - name: Checkout
       uses: actions/checkout@v7
+
+    - name: Install Go toolchain
+      uses: actions/setup-go@v7
+      with:
+        go-version-file: go.mod
+
+    - name: Build SDE export
+      id: build
+      run: |
+        BUILD=$(curl -sSfL https://developers.eveonline.com/static-data/tranquility/latest.jsonl | jq -r 'select(._key == "sde") | .buildNumber')
+        echo "SDE build: ${BUILD}"
+
+        go run ./cmd/sde-patched build --build "${BUILD}"
+        echo "build=${BUILD}" >> "${GITHUB_OUTPUT}"
+
+    - name: Compare with latest release
+      id: compare
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        PREVIOUS=$(gh release view --json tagName --jq .tagName 2>/dev/null || true)
+        if [ -z "${PREVIOUS}" ]; then
+          echo "No release yet"
+          echo "changed=true" >> "${GITHUB_OUTPUT}"
+          exit 0
+        fi
+        echo "Latest release: ${PREVIOUS}"
+        echo "previous=${PREVIOUS}" >> "${GITHUB_OUTPUT}"
+
+        gh release download "${PREVIOUS}" --pattern '*.dat' --dir previous
+        RESULT=$(go run ./cmd/sde-patched compare previous)
+        echo "Result: ${RESULT}"
+
+        if [ "${RESULT}" = "changed" ]; then
+          echo "changed=true" >> "${GITHUB_OUTPUT}"
+        fi
+
+    - name: Create release
+      id: release
+      if: steps.compare.outputs.changed == 'true'
+      # Tags are v<major>.<SDE build>.<n>; n counts releases of the same SDE build.
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PREVIOUS: ${{ steps.compare.outputs.previous }}
+        BUILD: ${{ steps.build.outputs.build }}
+      run: |
+        MAJOR=1
+        N=0
+        if [ -n "${PREVIOUS}" ]; then
+          MAJOR=$(echo "${PREVIOUS}" | cut -b2- | cut -d. -f1)
+          if [ "$(echo "${PREVIOUS}" | cut -d. -f2)" = "${BUILD}" ]; then
+            N=$(( $(echo "${PREVIOUS}" | cut -d. -f3) + 1 ))
+          fi
+        fi
+        TAG="v${MAJOR}.${BUILD}.${N}"
+        echo "Release: ${TAG}"
+
+        gh release create "${TAG}" --target "${GITHUB_SHA}" --title "${TAG}" --notes "Built from SDE build ${BUILD}." --generate-notes
+        echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+
+  publish:
+    name: Publish to NPM
+    needs: check
+    if: ${{ !cancelled() && !failure() && (github.event_name == 'release' || needs.check.outputs.tag != '') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TAG: ${{ needs.check.outputs.tag || github.ref_name }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ env.TAG }}
 
     - name: Install Go toolchain
       uses: actions/setup-go@v7
@@ -34,8 +122,8 @@ jobs:
       id: version
       # Tags are v<major>.<SDE build>.<n>, so a release always builds the SDE it names.
       run: |
-        VERSION=$(echo ${{ github.ref_name }} | cut -b2-)
-        BUILD=$(echo ${VERSION} | cut -d. -f2)
+        VERSION=$(echo "${TAG}" | cut -b2-)
+        BUILD=$(echo "${VERSION}" | cut -d. -f2)
         echo "Version: ${VERSION}"
         echo "SDE build: ${BUILD}"
 
@@ -47,8 +135,13 @@ jobs:
       run: |
         go run ./cmd/sde-patched build --build ${{ steps.version.outputs.build }}
 
+    - name: Upload to GitHub release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release upload "${TAG}" dist/sde.dat dist/names.dat --clobber
+
     - name: Publish to NPM
-      # Authenticates via trusted publishing; no token needed.
       run: |
         if [ -n "$(npm view @eveshipfit/sde@${{ steps.version.outputs.version }} version 2>/dev/null)" ]; then
           echo "Already published"

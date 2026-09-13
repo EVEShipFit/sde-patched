@@ -33,6 +33,7 @@ func usage() {
 commands:
   download   fetch the SDE
   build      patch the SDE and write the flatbuffer
+  compare    tell whether the build differs from the one in a directory; "compare <dir>"
   explain    show what a patch does; "explain <name>" or "explain --type <name>"
   patches    list all patches
   ids        give an ID to anything the patches added without one
@@ -120,6 +121,23 @@ func run(command string, args []string) error {
 			fmt.Printf("wrote %s (%.1f MiB)\n", filename, float64(info.Size())/1024/1024)
 		}
 		fmt.Printf("%d types\n", len(data.Types))
+		return nil
+
+	case "compare":
+		if len(args) == 0 {
+			return fmt.Errorf("compare needs the directory of an earlier build")
+		}
+		for _, filename := range []string{*out, *namesOut} {
+			equal, err := fbs.Equal(filepath.Join(args[0], filepath.Base(filename)), filename)
+			if err != nil {
+				return err
+			}
+			if !equal {
+				fmt.Println("changed")
+				return nil
+			}
+		}
+		fmt.Println("unchanged")
 		return nil
 
 	case "explain", "patches":

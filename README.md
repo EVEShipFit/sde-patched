@@ -14,6 +14,7 @@ The main goal is to produce a small data-file, with everything included for dogm
 ```bash
 go run ./cmd/sde-patched download        # fetch the latest SDE into sde/
 go run ./cmd/sde-patched build           # write dist/sde.dat and dist/names.dat
+go run ./cmd/sde-patched compare old/    # tell whether dist/ differs from old/, ignoring the SDE build
 go run ./cmd/sde-patched patches         # list all patches
 go run ./cmd/sde-patched ids             # give an ID to anything added without one
 go run ./cmd/sde-patched explain alignTime
@@ -43,6 +44,12 @@ names only. It is all a dogma-engine needs.
 a type ID. Only an EFT-fit importer needs it, and only ever to search.
 
 Both files, and their specs, are published on npm as [`@eveshipfit/sde`](https://www.npmjs.com/package/@eveshipfit/sde).
+
+## Releasing
+
+Every day at 12:00 UTC, `main` is built against the latest SDE.
+When the result differs from the latest release, the SDE build number aside, a new release is made and published on npm.
+A change to the patches is released this way too.
 
 ## Patches
 
