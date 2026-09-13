@@ -1,0 +1,21 @@
+{
+  "name": "@eveshipfit/sde",
+  "version": "0.0.0-git",
+  "description": "A patched EVE Online SDE, as flatbuffers, for EVEShipFit's dogma-engine",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EVEShipFit/sde-patched.git"
+  },
+  "author": "EVEShipFit Team <info@eveship.fit>",
+  "license": "SEE LICENSE IN LICENSE",
+  "files": [
+    "dist/sde.dat",
+    "dist/names.dat",
+    "specs/eve.fbs",
+    "specs/names.fbs",
+    "LICENSE.EVE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -42,6 +42,8 @@ names only. It is all a dogma-engine needs.
 `dist/names.dat` maps a name in any of the eight languages EVE supports back to
 a type ID. Only an EFT-fit importer needs it, and only ever to search.
 
+Both files, and their specs, are published on npm as [`@eveshipfit/sde`](https://www.npmjs.com/package/@eveshipfit/sde).
+
 ## Patches
 
 The SDE describes what the EVE client needs, not what a fitting tool needs.
