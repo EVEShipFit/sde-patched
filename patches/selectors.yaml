@@ -5,6 +5,22 @@ selectors:
   - name: usesCapacitor
     match: isModule and attribute("capacitorNeed")
 
+  # A module without any of these is still activated, but the EVE client
+  # leaves its capacitorNeed out of the peak load.
+  - name: usesCapacitorInCycles
+    description: uses capacitor, and has a cycle time to spread it over
+    match: >-
+      usesCapacitor and attribute(
+        "duration",
+        "durationHighisGood",
+        "speed",
+        "moduleReactivationDelay",
+        "durationECMJammerBurstProjector",
+        "durationSensorDampeningBurstProjector",
+        "durationTargetIlluminationBurstProjector",
+        "durationWeaponDisruptionBurstProjector"
+      )
+
   - name: isShip
     match: category("Ship")
 
