@@ -2,7 +2,8 @@ new:
   highIsGood: true
 
 effects:
-  - on: usesCapacitorInCycles
+  - name: capacitorPeakLoad
+    on: usesCapacitorInCycles
     category: active
     isWarpSafe: true
     rules:
@@ -10,3 +11,10 @@ effects:
       - {div: cycleTime}
       - {mul: thousand}
       - {add: capacitorPeakLoad, domain: shipID}
+
+  - name: capacitorPeakLoad2
+    on: transfersCapacitorToShip
+    category: active
+    isWarpSafe: true
+    rules:
+      - {sub: powerTransferAmount}
