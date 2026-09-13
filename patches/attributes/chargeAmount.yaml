@@ -5,9 +5,8 @@ new:
   highIsGood: true
 
 effects:
-  # Only modules that can actually hold a charge.
   - name: chargeAmount
-    on: isModule and attribute("chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5")
+    on: holdsCharge
     category: passive
     isWarpSafe: true
     rules:

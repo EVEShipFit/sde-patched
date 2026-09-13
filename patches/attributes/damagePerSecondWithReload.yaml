@@ -3,7 +3,7 @@ new:
 
 effects:
   - name: damagePerSecondWithReload
-    on: moduleCyclesOnSpeed or moduleCyclesOnDuration
+    on: moduleCycles and holdsCharge
     category: active
     isWarpSafe: true
     rules:
@@ -12,8 +12,9 @@ effects:
       - {div: speedWithReload}
       - {add: damagePerSecondWithReload, domain: shipID}
 
+  # Without a charge there is nothing to reload.
   - name: damagePerSecondWithReload2
-    on: damagingDrone or moduleCyclesOnDuration
+    on: damagingDrone or (moduleCycles and not holdsCharge)
     category: active
     isWarpSafe: true
     rules:
