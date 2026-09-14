@@ -63,6 +63,17 @@ struct TypeDogmaEffect {
     is_default: bool;
 }
 
+struct TypeFighterAbility {
+    /// The position in the fighter's ability bar, starting at 0.
+    slot: int8;
+    ability_id: int32;
+    /// 0 when the ability has no cooldown.
+    cooldown_seconds: float32;
+    /// 0 when the ability does not run out of charges.
+    charge_count: int32;
+    rearm_time_seconds: float32;
+}
+
 table Type {
     id: int32 (key);
     /// English. The other languages live in the Names file.
@@ -83,6 +94,7 @@ table Type {
 
     dogma_attributes: [TypeDogmaAttribute];
     dogma_effects: [TypeDogmaEffect];
+    fighter_abilities: [TypeFighterAbility];
 }
 
 table Group {

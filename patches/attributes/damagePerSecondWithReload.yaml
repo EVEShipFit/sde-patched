@@ -26,3 +26,17 @@ effects:
     isWarpSafe: true
     rules:
       - {assign: dotMaxDamagePerTick, domain: otherID}
+
+  - name: damagePerSecondWithReload4
+    on: isFighter
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: damagePerSecondWithReload, domain: shipID}
+
+# Missiles run out of charges and have to rearm, which is not counted yet; so
+# only the attack ability is sustained damage.
+addTo:
+  - effect: fighterAbilityAttackM
+    rules:
+      - {add: fighterAbilityAttackMissileDamagePerSecond}

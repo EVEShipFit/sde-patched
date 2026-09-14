@@ -1,0 +1,16 @@
+# fighterAbilityMissilesDamagePerSecond — damage per second of the missile
+# ability of a single fighter, while it has charges left.
+
+new:
+  highIsGood: true
+
+addTo:
+  - effect: fighterAbilityMissiles
+    rules:
+      - {add: fighterAbilityMissilesDamageEM}
+      - {add: fighterAbilityMissilesDamageTherm}
+      - {add: fighterAbilityMissilesDamageKin}
+      - {add: fighterAbilityMissilesDamageExp}
+      - {mul: fighterAbilityMissilesDamageMultiplier}
+      - {mul: thousand}
+      - {div: fighterAbilityMissilesDuration}

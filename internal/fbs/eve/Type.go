@@ -274,8 +274,27 @@ func (rcv *Type) DogmaEffectsLength() int {
 	return 0
 }
 
+func (rcv *Type) FighterAbilities(obj *TypeFighterAbility, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 20
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Type) FighterAbilitiesLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(34))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func TypeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(15)
+	builder.StartObject(16)
 }
 func TypeAddId(builder *flatbuffers.Builder, id int32) {
 	builder.PrependInt32Slot(0, id, 0)
@@ -331,6 +350,12 @@ func TypeAddDogmaEffects(builder *flatbuffers.Builder, dogmaEffects flatbuffers.
 }
 func TypeStartDogmaEffectsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(8, numElems, 4)
+}
+func TypeAddFighterAbilities(builder *flatbuffers.Builder, fighterAbilities flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(15, flatbuffers.UOffsetT(fighterAbilities), 0)
+}
+func TypeStartFighterAbilitiesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(20, numElems, 4)
 }
 func TypeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

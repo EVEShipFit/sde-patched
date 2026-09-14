@@ -30,6 +30,14 @@ type TypeDogmaEffect struct {
 	IsDefault bool  `json:"isDefault"`
 }
 
+type TypeFighterAbility struct {
+	Slot             int8
+	AbilityID        int32
+	CooldownSeconds  float64
+	ChargeCount      int32
+	RearmTimeSeconds float64
+}
+
 type Type struct {
 	Key           int32     `json:"_key"`
 	Name          Localized `json:"name"`
@@ -47,6 +55,9 @@ type Type struct {
 	// Merged in from typeDogma.jsonl; patches treat this as part of the type.
 	DogmaAttributes []TypeDogmaAttribute `json:"-"`
 	DogmaEffects    []TypeDogmaEffect    `json:"-"`
+
+	// Merged in from fighterAbilitiesByType.jsonl.
+	FighterAbilities []TypeFighterAbility `json:"-"`
 
 	// CategoryID is resolved via the group after loading.
 	CategoryID int32 `json:"-"`

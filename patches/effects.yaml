@@ -5,3 +5,8 @@ changes:
   # The SDE puts "online" in the "active" category. The EVE client does some
   # magic here; for a dogma-engine it simply belongs in "online".
   - {effect: online, category: online}
+
+  # The SDE puts the damaging fighter abilities in "target", which a
+  # dogma-engine never applies to the fighter itself.
+  - {effect: fighterAbilityAttackM, category: active}
+  - {effect: fighterAbilityMissiles, category: active}

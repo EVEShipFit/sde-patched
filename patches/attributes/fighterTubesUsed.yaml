@@ -1,0 +1,7 @@
+# fighterTubesUsed — how many fighter tubes hold a squadron.
+#
+# The dogma-engine counts this. Dogma counts a squadron once per fighter in
+# it, so it cannot.
+
+new:
+  highIsGood: true
