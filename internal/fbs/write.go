@@ -160,6 +160,22 @@ func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffse
 			}
 		}
 
+		var abilities flatbuffers.UOffsetT
+		if len(entry.FighterAbilities) > 0 {
+			eve.TypeStartFighterAbilitiesVector(builder, len(entry.FighterAbilities))
+			for i := len(entry.FighterAbilities) - 1; i >= 0; i-- {
+				ability := entry.FighterAbilities[i]
+				eve.CreateTypeFighterAbility(builder,
+					ability.Slot,
+					ability.AbilityID,
+					float32(ability.CooldownSeconds),
+					ability.ChargeCount,
+					float32(ability.RearmTimeSeconds),
+				)
+			}
+			abilities = builder.EndVector(len(entry.FighterAbilities))
+		}
+
 		eve.TypeStart(builder)
 		eve.TypeAddId(builder, entry.Key)
 		eve.TypeAddName(builder, name)
@@ -187,6 +203,9 @@ func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffse
 		}
 		if effects != 0 {
 			eve.TypeAddDogmaEffects(builder, effects)
+		}
+		if abilities != 0 {
+			eve.TypeAddFighterAbilities(builder, abilities)
 		}
 		offsets = append(offsets, eve.TypeEnd(builder))
 	}

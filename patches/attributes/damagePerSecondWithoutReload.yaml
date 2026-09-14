@@ -35,3 +35,19 @@ effects:
     isWarpSafe: true
     rules:
       - {assign: dotMaxDamagePerTick, domain: otherID}
+
+  - name: damagePerSecondWithoutReload5
+    on: isFighter
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: damagePerSecondWithoutReload, domain: shipID}
+
+addTo:
+  - effect: fighterAbilityAttackM
+    rules:
+      - {add: fighterAbilityAttackMissileDamagePerSecond}
+
+  - effect: fighterAbilityMissiles
+    rules:
+      - {add: fighterAbilityMissilesDamagePerSecond}

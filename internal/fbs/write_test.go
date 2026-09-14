@@ -36,6 +36,10 @@ func testData() *sde.Data {
 				DogmaEffects: []sde.TypeDogmaEffect{
 					{EffectID: -5, IsDefault: false},
 				},
+				FighterAbilities: []sde.TypeFighterAbility{
+					{Slot: 0, AbilityID: 22},
+					{Slot: 2, AbilityID: 33, ChargeCount: 18, RearmTimeSeconds: 4},
+				},
 			},
 			1: {Key: 1, Name: sde.Localized{En: "Nothing"}},
 		},
@@ -110,6 +114,14 @@ func TestWriteRoundTrip(t *testing.T) {
 
 	if entry.DogmaAttributesLength() != 1 || entry.DogmaEffectsLength() != 1 {
 		t.Fatalf("dogma: %d attributes, %d effects", entry.DogmaAttributesLength(), entry.DogmaEffectsLength())
+	}
+
+	var ability eve.TypeFighterAbility
+	if entry.FighterAbilitiesLength() != 2 || !entry.FighterAbilities(&ability, 1) {
+		t.Fatalf("fighter abilities: %d", entry.FighterAbilitiesLength())
+	}
+	if ability.Slot() != 2 || ability.AbilityId() != 33 || ability.ChargeCount() != 18 || ability.RearmTimeSeconds() != 4 {
+		t.Errorf("fighter ability = slot %d, ability %d, %d charges, %v rearm", ability.Slot(), ability.AbilityId(), ability.ChargeCount(), ability.RearmTimeSeconds())
 	}
 
 	var effect eve.DogmaEffect

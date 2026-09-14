@@ -62,6 +62,27 @@ func Load(filename string, build int32) (*Data, error) {
 		return nil, err
 	}
 
+	if err := decode(&reader.Reader, "fighterAbilitiesByType.jsonl", func(entry *fighterAbilitiesEntry) {
+		item, ok := data.Types[entry.Key]
+		if !ok {
+			return
+		}
+		for slot, ability := range []*fighterAbilitySlot{entry.Slot0, entry.Slot1, entry.Slot2} {
+			if ability == nil {
+				continue
+			}
+			item.FighterAbilities = append(item.FighterAbilities, TypeFighterAbility{
+				Slot:             int8(slot),
+				AbilityID:        ability.AbilityID,
+				CooldownSeconds:  ability.CooldownSeconds,
+				ChargeCount:      ability.Charges.ChargeCount,
+				RearmTimeSeconds: ability.Charges.RearmTimeSeconds,
+			})
+		}
+	}); err != nil {
+		return nil, err
+	}
+
 	for _, item := range data.Types {
 		if group, ok := data.Groups[item.GroupID]; ok {
 			item.CategoryID = group.CategoryID
@@ -75,6 +96,23 @@ type typeDogmaEntry struct {
 	Key             int32                `json:"_key"`
 	DogmaAttributes []TypeDogmaAttribute `json:"dogmaAttributes"`
 	DogmaEffects    []TypeDogmaEffect    `json:"dogmaEffects"`
+}
+
+// The SDE gives each ability slot its own key rather than a list.
+type fighterAbilitiesEntry struct {
+	Key   int32               `json:"_key"`
+	Slot0 *fighterAbilitySlot `json:"abilitySlot0"`
+	Slot1 *fighterAbilitySlot `json:"abilitySlot1"`
+	Slot2 *fighterAbilitySlot `json:"abilitySlot2"`
+}
+
+type fighterAbilitySlot struct {
+	AbilityID       int32   `json:"abilityID"`
+	CooldownSeconds float64 `json:"cooldownSeconds"`
+	Charges         struct {
+		ChargeCount      int32   `json:"chargeCount"`
+		RearmTimeSeconds float64 `json:"rearmTimeSeconds"`
+	} `json:"charges"`
 }
 
 func decode[T any](reader *zip.Reader, name string, add func(*T)) error {

@@ -1,0 +1,9 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: isFighter
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: damagePerSecondWithoutReload, domain: shipID}

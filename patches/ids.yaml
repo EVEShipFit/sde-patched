@@ -59,6 +59,14 @@ attributes:
   passiveShieldEffectiveRechargeRate: -52
   scanStrength: -53
   thousand: -54
+  fighterAbilityAttackMissileDamagePerSecond: -55
+  fighterAbilityMissilesDamagePerSecond: -56
+  fighterCapacityLoad: -57
+  fighterDamagePerSecond: -58
+  fighterHeavySlotsUsed: -59
+  fighterLightSlotsUsed: -60
+  fighterSupportSlotsUsed: -61
+  fighterTubesUsed: -62
 
 effects:
   alignTime: -1
@@ -137,3 +145,7 @@ effects:
   capacitorPeakLoad2: -74
   scanStrength2: -75
   speedOfReload2: -76
+  damagePerSecondWithReload4: -77
+  damagePerSecondWithoutReload5: -78
+  fighterCapacityLoad: -79
+  fighterDamagePerSecond: -80

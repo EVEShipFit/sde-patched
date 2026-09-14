@@ -40,6 +40,11 @@ selectors:
   - name: isDrone
     match: category("Drone")
 
+  # The dogma-engine takes every non-passive effect of a fighter to be an
+  # ability, and switches it by the fit; so an effect on isFighter is passive.
+  - name: isFighter
+    match: category("Fighter")
+
   - name: isCharge
     match: category("Charge")
 

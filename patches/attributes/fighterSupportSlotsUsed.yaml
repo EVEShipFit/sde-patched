@@ -1,0 +1,5 @@
+# fighterSupportSlotsUsed — how many tubes hold a support squadron. Counted by
+# the dogma-engine, like fighterTubesUsed.
+
+new:
+  highIsGood: true
