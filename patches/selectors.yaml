@@ -99,3 +99,11 @@ selectors:
 
   - name: shieldBoostModule
     match: isModule and attribute("shieldBonus") and effect("shieldBoosting")
+
+  - name: spoolsDamage
+    description: a damaging module whose damage grows every cycle
+    match: moduleCycles and attribute("damageMultiplierBonusMax")
+
+  - name: spoolsRepair
+    description: a repairing module whose repair grows every cycle
+    match: isModule and effect("ShipModuleRemoteArmorMutadaptiveRepairer")

@@ -34,6 +34,13 @@ effects:
     rules:
       - {add: damagePerSecondWithReload, domain: shipID}
 
+  - name: damagePerSecondWithReload5
+    on: spoolsDamage
+    category: active
+    isWarpSafe: true
+    rules:
+      - {mul: spoolMultiplier}
+
 # Missiles run out of charges and have to rearm, which is not counted yet; so
 # only the attack ability is sustained damage.
 addTo:

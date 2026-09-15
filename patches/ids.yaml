@@ -67,6 +67,8 @@ attributes:
   fighterLightSlotsUsed: -60
   fighterSupportSlotsUsed: -61
   fighterTubesUsed: -62
+  spoolMultiplier: -63
+  spoolMultiplierBonus: -64
 
 effects:
   alignTime: -1
@@ -149,3 +151,8 @@ effects:
   damagePerSecondWithoutReload5: -78
   fighterCapacityLoad: -79
   fighterDamagePerSecond: -80
+  damagePerSecondWithReload5: -81
+  damagePerSecondWithoutReload6: -82
+  spoolMultiplier: -83
+  spoolMultiplierBonus: -84
+  spoolMultiplierBonus2: -85
