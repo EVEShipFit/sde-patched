@@ -14,6 +14,7 @@ func (d *Data) Clone() *Data {
 		Categories:      d.Categories,
 		DogmaAttributes: make(map[int32]*DogmaAttribute, len(d.DogmaAttributes)),
 		DogmaEffects:    make(map[int32]*DogmaEffect, len(d.DogmaEffects)),
+		Mutaplasmids:    d.Mutaplasmids,
 	}
 
 	for id, entry := range d.Types {

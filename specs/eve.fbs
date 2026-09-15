@@ -64,12 +64,9 @@ struct TypeDogmaEffect {
 }
 
 struct TypeFighterAbility {
-    /// The position in the fighter's ability bar, starting at 0.
     slot: int8;
     ability_id: int32;
-    /// 0 when the ability has no cooldown.
     cooldown_seconds: float32;
-    /// 0 when the ability does not run out of charges.
     charge_count: int32;
     rearm_time_seconds: float32;
 }
@@ -147,14 +144,31 @@ table DogmaEffect {
     modifiers: [Modifier];
 }
 
+struct MutaplasmidAttribute {
+    attribute_id: int32;
+    min: float32;
+    max: float32;
+}
+
+table MutaplasmidMapping {
+    applicable_type_ids: [int32];
+    resulting_type_id: int32;
+}
+
+table Mutaplasmid {
+    id: int32 (key);
+    attributes: [MutaplasmidAttribute];
+    mappings: [MutaplasmidMapping];
+}
+
 table Sde {
-    /// Build number of the SDE this was generated from.
     build_number: int32;
     types: [Type];
     groups: [Group];
     categories: [Category];
     dogma_attributes: [DogmaAttribute];
     dogma_effects: [DogmaEffect];
+    mutaplasmids: [Mutaplasmid];
 }
 
 root_type Sde;

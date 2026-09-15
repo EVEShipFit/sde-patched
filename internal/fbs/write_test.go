@@ -61,6 +61,13 @@ func testData() *sde.Data {
 				}},
 			},
 		},
+		Mutaplasmids: map[int32]*sde.Mutaplasmid{
+			60461: {
+				Key:        60461,
+				Attributes: []sde.MutaplasmidAttribute{{AttributeID: 9, Min: 0.7, Max: 1.15}},
+				Mappings:   []sde.MutaplasmidMapping{{ApplicableTypes: []int32{2456, 2454}, ResultingType: 60478}},
+			},
+		},
 	}
 }
 
@@ -144,6 +151,30 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if modifier.ModifyingAttributeId() != 161 {
 		t.Errorf("modifyingAttributeID = %d", modifier.ModifyingAttributeId())
+	}
+
+	var mutaplasmid eve.Mutaplasmid
+	if !root.MutaplasmidsByKey(&mutaplasmid, 60461) {
+		t.Fatal("mutaplasmid 60461 not found")
+	}
+
+	var roll eve.MutaplasmidAttribute
+	if mutaplasmid.AttributesLength() != 1 || !mutaplasmid.Attributes(&roll, 0) {
+		t.Fatalf("mutaplasmid attributes: %d", mutaplasmid.AttributesLength())
+	}
+	if roll.AttributeId() != 9 || roll.Min() != 0.7 || roll.Max() != 1.15 {
+		t.Errorf("mutaplasmid attribute = %d, %v to %v", roll.AttributeId(), roll.Min(), roll.Max())
+	}
+
+	var mapping eve.MutaplasmidMapping
+	if mutaplasmid.MappingsLength() != 1 || !mutaplasmid.Mappings(&mapping, 0) {
+		t.Fatalf("mutaplasmid mappings: %d", mutaplasmid.MappingsLength())
+	}
+	if mapping.ResultingTypeId() != 60478 {
+		t.Errorf("resulting type = %d, want 60478", mapping.ResultingTypeId())
+	}
+	if mapping.ApplicableTypeIdsLength() != 2 || mapping.ApplicableTypeIds(0) != 2454 || mapping.ApplicableTypeIds(1) != 2456 {
+		t.Errorf("applicable types are not the sorted input")
 	}
 }
 

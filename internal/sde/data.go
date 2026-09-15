@@ -173,6 +173,23 @@ type DogmaEffect struct {
 	Modifiers                     []Modifier `json:"modifierInfo"`
 }
 
+type MutaplasmidAttribute struct {
+	AttributeID int32   `json:"_key"`
+	Min         float64 `json:"min"`
+	Max         float64 `json:"max"`
+}
+
+type MutaplasmidMapping struct {
+	ApplicableTypes []int32 `json:"applicableTypes"`
+	ResultingType   int32   `json:"resultingType"`
+}
+
+type Mutaplasmid struct {
+	Key        int32                  `json:"_key"`
+	Attributes []MutaplasmidAttribute `json:"attributeIDs"`
+	Mappings   []MutaplasmidMapping   `json:"inputOutputMapping"`
+}
+
 // Data is the part of the SDE this tool uses.
 type Data struct {
 	BuildNumber     int32
@@ -181,4 +198,5 @@ type Data struct {
 	Categories      map[int32]*Category
 	DogmaAttributes map[int32]*DogmaAttribute
 	DogmaEffects    map[int32]*DogmaEffect
+	Mutaplasmids    map[int32]*Mutaplasmid
 }
