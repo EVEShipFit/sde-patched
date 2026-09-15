@@ -53,7 +53,6 @@ func (rcv *Sde) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-/// Build number of the SDE this was generated from.
 func (rcv *Sde) BuildNumber() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
@@ -62,7 +61,6 @@ func (rcv *Sde) BuildNumber() int32 {
 	return 0
 }
 
-/// Build number of the SDE this was generated from.
 func (rcv *Sde) MutateBuildNumber(n int32) bool {
 	return rcv._tab.MutateInt32Slot(4, n)
 }
@@ -212,8 +210,37 @@ func (rcv *Sde) DogmaEffectsLength() int {
 	return 0
 }
 
+func (rcv *Sde) Mutaplasmids(obj *Mutaplasmid, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Sde) MutaplasmidsByKey(obj *Mutaplasmid, key int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		return obj.LookupByKey(key, x, rcv._tab.Bytes)
+	}
+	return false
+}
+
+func (rcv *Sde) MutaplasmidsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func SdeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(6)
+	builder.StartObject(7)
 }
 func SdeAddBuildNumber(builder *flatbuffers.Builder, buildNumber int32) {
 	builder.PrependInt32Slot(0, buildNumber, 0)
@@ -246,6 +273,12 @@ func SdeAddDogmaEffects(builder *flatbuffers.Builder, dogmaEffects flatbuffers.U
 	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(dogmaEffects), 0)
 }
 func SdeStartDogmaEffectsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
+func SdeAddMutaplasmids(builder *flatbuffers.Builder, mutaplasmids flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(mutaplasmids), 0)
+}
+func SdeStartMutaplasmidsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func SdeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {

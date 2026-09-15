@@ -9,6 +9,7 @@ import (
 	"encoding/binary"
 	"math"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 
@@ -28,6 +29,7 @@ func Write(data *sde.Data, filename string) error {
 	categories := writeCategories(builder, data)
 	attributes := writeAttributes(builder, data)
 	effects := writeEffects(builder, data)
+	mutaplasmids := writeMutaplasmids(builder, data)
 
 	eve.SdeStart(builder)
 	eve.SdeAddBuildNumber(builder, data.BuildNumber)
@@ -36,6 +38,7 @@ func Write(data *sde.Data, filename string) error {
 	eve.SdeAddCategories(builder, categories)
 	eve.SdeAddDogmaAttributes(builder, attributes)
 	eve.SdeAddDogmaEffects(builder, effects)
+	eve.SdeAddMutaplasmids(builder, mutaplasmids)
 	builder.FinishWithFileIdentifier(eve.SdeEnd(builder), []byte("ESF1"))
 
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
@@ -341,4 +344,48 @@ func writeEffects(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOff
 	}
 
 	return builder.CreateVectorOfSortedTables(offsets, eve.DogmaEffectKeyCompare)
+}
+
+func writeMutaplasmids(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	offsets := make([]flatbuffers.UOffsetT, 0, len(data.Mutaplasmids))
+
+	for _, key := range sortedKeys(data.Mutaplasmids) {
+		entry := data.Mutaplasmids[key]
+
+		mappingOffsets := make([]flatbuffers.UOffsetT, len(entry.Mappings))
+		for i, mapping := range entry.Mappings {
+			applicable := slices.Sorted(slices.Values(mapping.ApplicableTypes))
+			eve.MutaplasmidMappingStartApplicableTypeIdsVector(builder, len(applicable))
+			for j := len(applicable) - 1; j >= 0; j-- {
+				builder.PrependInt32(applicable[j])
+			}
+			applicableTypeIDs := builder.EndVector(len(applicable))
+
+			eve.MutaplasmidMappingStart(builder)
+			eve.MutaplasmidMappingAddApplicableTypeIds(builder, applicableTypeIDs)
+			eve.MutaplasmidMappingAddResultingTypeId(builder, mapping.ResultingType)
+			mappingOffsets[i] = eve.MutaplasmidMappingEnd(builder)
+		}
+
+		eve.MutaplasmidStartMappingsVector(builder, len(mappingOffsets))
+		for i := len(mappingOffsets) - 1; i >= 0; i-- {
+			builder.PrependUOffsetT(mappingOffsets[i])
+		}
+		mappings := builder.EndVector(len(mappingOffsets))
+
+		eve.MutaplasmidStartAttributesVector(builder, len(entry.Attributes))
+		for i := len(entry.Attributes) - 1; i >= 0; i-- {
+			attribute := entry.Attributes[i]
+			eve.CreateMutaplasmidAttribute(builder, attribute.AttributeID, float32(attribute.Min), float32(attribute.Max))
+		}
+		attributes := builder.EndVector(len(entry.Attributes))
+
+		eve.MutaplasmidStart(builder)
+		eve.MutaplasmidAddId(builder, entry.Key)
+		eve.MutaplasmidAddAttributes(builder, attributes)
+		eve.MutaplasmidAddMappings(builder, mappings)
+		offsets = append(offsets, eve.MutaplasmidEnd(builder))
+	}
+
+	return builder.CreateVectorOfSortedTables(offsets, eve.MutaplasmidKeyCompare)
 }

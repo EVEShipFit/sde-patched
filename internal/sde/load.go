@@ -23,6 +23,7 @@ func Load(filename string, build int32) (*Data, error) {
 		Categories:      map[int32]*Category{},
 		DogmaAttributes: map[int32]*DogmaAttribute{},
 		DogmaEffects:    map[int32]*DogmaEffect{},
+		Mutaplasmids:    map[int32]*Mutaplasmid{},
 	}
 
 	if err := decode(&reader.Reader, "categories.jsonl", func(entry *Category) {
@@ -79,6 +80,12 @@ func Load(filename string, build int32) (*Data, error) {
 				RearmTimeSeconds: ability.Charges.RearmTimeSeconds,
 			})
 		}
+	}); err != nil {
+		return nil, err
+	}
+
+	if err := decode(&reader.Reader, "dynamicItemAttributes.jsonl", func(entry *Mutaplasmid) {
+		data.Mutaplasmids[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}

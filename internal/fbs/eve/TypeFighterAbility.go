@@ -19,11 +19,9 @@ func (rcv *TypeFighterAbility) Table() flatbuffers.Table {
 	return rcv._tab.Table
 }
 
-/// The position in the fighter's ability bar, starting at 0.
 func (rcv *TypeFighterAbility) Slot() int8 {
 	return rcv._tab.GetInt8(rcv._tab.Pos + flatbuffers.UOffsetT(0))
 }
-/// The position in the fighter's ability bar, starting at 0.
 func (rcv *TypeFighterAbility) MutateSlot(n int8) bool {
 	return rcv._tab.MutateInt8(rcv._tab.Pos+flatbuffers.UOffsetT(0), n)
 }
@@ -35,20 +33,16 @@ func (rcv *TypeFighterAbility) MutateAbilityId(n int32) bool {
 	return rcv._tab.MutateInt32(rcv._tab.Pos+flatbuffers.UOffsetT(4), n)
 }
 
-/// 0 when the ability has no cooldown.
 func (rcv *TypeFighterAbility) CooldownSeconds() float32 {
 	return rcv._tab.GetFloat32(rcv._tab.Pos + flatbuffers.UOffsetT(8))
 }
-/// 0 when the ability has no cooldown.
 func (rcv *TypeFighterAbility) MutateCooldownSeconds(n float32) bool {
 	return rcv._tab.MutateFloat32(rcv._tab.Pos+flatbuffers.UOffsetT(8), n)
 }
 
-/// 0 when the ability does not run out of charges.
 func (rcv *TypeFighterAbility) ChargeCount() int32 {
 	return rcv._tab.GetInt32(rcv._tab.Pos + flatbuffers.UOffsetT(12))
 }
-/// 0 when the ability does not run out of charges.
 func (rcv *TypeFighterAbility) MutateChargeCount(n int32) bool {
 	return rcv._tab.MutateInt32(rcv._tab.Pos+flatbuffers.UOffsetT(12), n)
 }
