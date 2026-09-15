@@ -1,0 +1,14 @@
+# spoolMultiplier tells how far a module's per-cycle bonus has grown, as a
+# multiplier.
+
+new:
+  default: 1
+  highIsGood: true
+
+effects:
+  - name: spoolMultiplier
+    on: spoolsDamage or spoolsRepair
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {add: spoolMultiplierBonus}

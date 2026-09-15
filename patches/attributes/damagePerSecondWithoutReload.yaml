@@ -43,6 +43,13 @@ effects:
     rules:
       - {add: damagePerSecondWithoutReload, domain: shipID}
 
+  - name: damagePerSecondWithoutReload6
+    on: spoolsDamage
+    category: active
+    isWarpSafe: true
+    rules:
+      - {mul: spoolMultiplier}
+
 addTo:
   - effect: fighterAbilityAttackM
     rules:
