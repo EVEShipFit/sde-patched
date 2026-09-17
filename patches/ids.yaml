@@ -69,6 +69,7 @@ attributes:
   fighterTubesUsed: -62
   spoolMultiplier: -63
   spoolMultiplierBonus: -64
+  buffValue: -65
 
 effects:
   alignTime: -1

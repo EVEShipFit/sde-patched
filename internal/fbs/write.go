@@ -29,6 +29,7 @@ func Write(data *sde.Data, filename string) error {
 	categories := writeCategories(builder, data)
 	attributes := writeAttributes(builder, data)
 	effects := writeEffects(builder, data)
+	dbuffCollections := writeDbuffCollections(builder, data)
 	mutaplasmids := writeMutaplasmids(builder, data)
 
 	eve.SdeStart(builder)
@@ -38,6 +39,7 @@ func Write(data *sde.Data, filename string) error {
 	eve.SdeAddCategories(builder, categories)
 	eve.SdeAddDogmaAttributes(builder, attributes)
 	eve.SdeAddDogmaEffects(builder, effects)
+	eve.SdeAddDbuffCollections(builder, dbuffCollections)
 	eve.SdeAddMutaplasmids(builder, mutaplasmids)
 	builder.FinishWithFileIdentifier(eve.SdeEnd(builder), []byte("ESF1"))
 
@@ -344,6 +346,38 @@ func writeEffects(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOff
 	}
 
 	return builder.CreateVectorOfSortedTables(offsets, eve.DogmaEffectKeyCompare)
+}
+
+func writeDbuffCollections(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	offsets := make([]flatbuffers.UOffsetT, 0, len(data.DbuffCollections))
+
+	for _, key := range sortedKeys(data.DbuffCollections) {
+		entry := data.DbuffCollections[key]
+		displayName := builder.CreateString(entry.DisplayName.En)
+
+		eve.DbuffCollectionStartModifiersVector(builder, len(entry.Modifiers))
+		for i := len(entry.Modifiers) - 1; i >= 0; i-- {
+			modifier := entry.Modifiers[i]
+			eve.CreateDbuffModifier(builder,
+				modifier.Func,
+				modifier.ModifiedAttributeID,
+				modifier.GroupID,
+				modifier.SkillTypeID,
+			)
+		}
+		modifiers := builder.EndVector(len(entry.Modifiers))
+
+		eve.DbuffCollectionStart(builder)
+		eve.DbuffCollectionAddId(builder, entry.Key)
+		eve.DbuffCollectionAddDisplayName(builder, displayName)
+		eve.DbuffCollectionAddAggregateMode(builder, entry.AggregateMode)
+		eve.DbuffCollectionAddOperation(builder, entry.Operation)
+		eve.DbuffCollectionAddDisplay(builder, entry.Display)
+		eve.DbuffCollectionAddModifiers(builder, modifiers)
+		offsets = append(offsets, eve.DbuffCollectionEnd(builder))
+	}
+
+	return builder.CreateVectorOfSortedTables(offsets, eve.DbuffCollectionKeyCompare)
 }
 
 func writeMutaplasmids(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {

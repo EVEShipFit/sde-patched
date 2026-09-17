@@ -8,13 +8,14 @@ package sde
 // reading the SDE from disk a second time.
 func (d *Data) Clone() *Data {
 	clone := &Data{
-		BuildNumber:     d.BuildNumber,
-		Types:           make(map[int32]*Type, len(d.Types)),
-		Groups:          d.Groups,
-		Categories:      d.Categories,
-		DogmaAttributes: make(map[int32]*DogmaAttribute, len(d.DogmaAttributes)),
-		DogmaEffects:    make(map[int32]*DogmaEffect, len(d.DogmaEffects)),
-		Mutaplasmids:    d.Mutaplasmids,
+		BuildNumber:      d.BuildNumber,
+		Types:            make(map[int32]*Type, len(d.Types)),
+		Groups:           d.Groups,
+		Categories:       d.Categories,
+		DogmaAttributes:  make(map[int32]*DogmaAttribute, len(d.DogmaAttributes)),
+		DogmaEffects:     make(map[int32]*DogmaEffect, len(d.DogmaEffects)),
+		DbuffCollections: d.DbuffCollections,
+		Mutaplasmids:     d.Mutaplasmids,
 	}
 
 	for id, entry := range d.Types {

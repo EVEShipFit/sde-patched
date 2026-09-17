@@ -61,6 +61,19 @@ func testData() *sde.Data {
 				}},
 			},
 		},
+		DbuffCollections: map[int32]*sde.DbuffCollection{
+			12: {
+				Key:           12,
+				DisplayName:   sde.Localized{En: "Shield HP Bonus"},
+				AggregateMode: eve.DbuffAggregateModeMaximum,
+				Operation:     eve.ModifierOperationPostPercent,
+				Display:       eve.DbuffDisplayInverted,
+				Modifiers: []sde.DbuffModifier{
+					{Func: eve.ModifierFuncItemModifier, ModifiedAttributeID: 263},
+					{Func: eve.ModifierFuncLocationGroupModifier, ModifiedAttributeID: 54, GroupID: 208},
+				},
+			},
+		},
 		Mutaplasmids: map[int32]*sde.Mutaplasmid{
 			60461: {
 				Key:        60461,
@@ -151,6 +164,28 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if modifier.ModifyingAttributeId() != 161 {
 		t.Errorf("modifyingAttributeID = %d", modifier.ModifyingAttributeId())
+	}
+
+	var buff eve.DbuffCollection
+	if !root.DbuffCollectionsByKey(&buff, 12) {
+		t.Fatal("buff 12 not found")
+	}
+	if got := string(buff.DisplayName()); got != "Shield HP Bonus" {
+		t.Errorf("buff display name = %q", got)
+	}
+	if buff.AggregateMode() != eve.DbuffAggregateModeMaximum || buff.Operation() != eve.ModifierOperationPostPercent {
+		t.Errorf("buff = %v / %v", buff.AggregateMode(), buff.Operation())
+	}
+	if buff.Display() != eve.DbuffDisplayInverted {
+		t.Errorf("buff display = %v", buff.Display())
+	}
+
+	var buffModifier eve.DbuffModifier
+	if buff.ModifiersLength() != 2 || !buff.Modifiers(&buffModifier, 1) {
+		t.Fatalf("buff modifiers: %d", buff.ModifiersLength())
+	}
+	if buffModifier.Func() != eve.ModifierFuncLocationGroupModifier || buffModifier.ModifiedAttributeId() != 54 || buffModifier.GroupId() != 208 {
+		t.Errorf("buff modifier = %v, attribute %d, group %d", buffModifier.Func(), buffModifier.ModifiedAttributeId(), buffModifier.GroupId())
 	}
 
 	var mutaplasmid eve.Mutaplasmid
