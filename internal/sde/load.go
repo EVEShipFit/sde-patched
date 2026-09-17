@@ -17,13 +17,14 @@ func Load(filename string, build int32) (*Data, error) {
 	defer reader.Close()
 
 	data := &Data{
-		BuildNumber:     build,
-		Types:           map[int32]*Type{},
-		Groups:          map[int32]*Group{},
-		Categories:      map[int32]*Category{},
-		DogmaAttributes: map[int32]*DogmaAttribute{},
-		DogmaEffects:    map[int32]*DogmaEffect{},
-		Mutaplasmids:    map[int32]*Mutaplasmid{},
+		BuildNumber:      build,
+		Types:            map[int32]*Type{},
+		Groups:           map[int32]*Group{},
+		Categories:       map[int32]*Category{},
+		DogmaAttributes:  map[int32]*DogmaAttribute{},
+		DogmaEffects:     map[int32]*DogmaEffect{},
+		DbuffCollections: map[int32]*DbuffCollection{},
+		Mutaplasmids:     map[int32]*Mutaplasmid{},
 	}
 
 	if err := decode(&reader.Reader, "categories.jsonl", func(entry *Category) {
@@ -48,6 +49,12 @@ func Load(filename string, build int32) (*Data, error) {
 	}
 	if err := decode(&reader.Reader, "dogmaEffects.jsonl", func(entry *DogmaEffect) {
 		data.DogmaEffects[entry.Key] = entry
+	}); err != nil {
+		return nil, err
+	}
+
+	if err := decode(&reader.Reader, "dbuffCollections.jsonl", func(entry *DbuffCollection) {
+		data.DbuffCollections[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}

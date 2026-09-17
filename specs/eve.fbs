@@ -32,6 +32,19 @@ enum ModifierOperation: int8 {
     PostAssign = 7,
 }
 
+enum DbuffAggregateMode: int8 {
+    Maximum = 0,
+    Minimum = 1,
+}
+
+/// How a UI is meant to show a buff's value; `showOutputValueInUI` in the SDE.
+/// A resistance buff reads as -20% and shows as +20%, hence Inverted.
+enum DbuffDisplay: int8 {
+    Normal = 0,
+    Inverted = 1,
+    Hidden = 2,
+}
+
 enum EffectCategory: int8 {
     Passive = 0,
     Active = 1,
@@ -144,6 +157,23 @@ table DogmaEffect {
     modifiers: [Modifier];
 }
 
+struct DbuffModifier {
+    func: ModifierFunc;
+    modified_attribute_id: int32;
+    group_id: int32;
+    skill_type_id: int32;
+}
+
+table DbuffCollection {
+    id: int32 (key);
+    display_name: string;
+    aggregate_mode: DbuffAggregateMode;
+    operation: ModifierOperation;
+    display: DbuffDisplay;
+
+    modifiers: [DbuffModifier];
+}
+
 struct MutaplasmidAttribute {
     attribute_id: int32;
     min: float32;
@@ -169,6 +199,7 @@ table Sde {
     dogma_attributes: [DogmaAttribute];
     dogma_effects: [DogmaEffect];
     mutaplasmids: [Mutaplasmid];
+    dbuff_collections: [DbuffCollection];
 }
 
 root_type Sde;

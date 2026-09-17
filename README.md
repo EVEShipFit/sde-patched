@@ -41,7 +41,7 @@ It is also not meant as "production-ready" software, but much more as "an easier
 ## Output
 
 `build` writes two flatbuffers, described in [specs/](specs/):
-- `dist/sde.dat` holds the types, dogma, groups, categories and mutaplasmids, with English
+- `dist/sde.dat` holds the types, dogma, groups, categories, buffs and mutaplasmids, with English
 names only. It is all a dogma-engine needs.
 - `dist/names.dat` maps a name in any of the eight languages EVE supports back to
 a type ID. Only an EFT-fit importer needs it, and only ever to search.

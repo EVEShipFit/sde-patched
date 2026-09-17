@@ -173,6 +173,114 @@ type DogmaEffect struct {
 	Modifiers                     []Modifier `json:"modifierInfo"`
 }
 
+// DbuffModifier is one rule of a buff. Unlike an effect's modifier it names no
+// modifying attribute: the value comes from whoever applies the buff.
+type DbuffModifier struct {
+	Func                eve.ModifierFunc
+	ModifiedAttributeID int32
+	GroupID             int32
+	SkillTypeID         int32
+}
+
+// DbuffCollection is a buff another ship can put on this one, like a command
+// burst boost. The SDE splits its modifiers over four lists, one per func, and
+// spells two of the operations differently than it does for an effect; both are
+// normalised while loading.
+type DbuffCollection struct {
+	Key           int32
+	DisplayName   Localized
+	AggregateMode eve.DbuffAggregateMode
+	Operation     eve.ModifierOperation
+	Display       eve.DbuffDisplay
+	Modifiers     []DbuffModifier
+}
+
+var dbuffDisplays = map[string]eve.DbuffDisplay{
+	"ShowNormal":   eve.DbuffDisplayNormal,
+	"ShowInverted": eve.DbuffDisplayInverted,
+	"Hide":         eve.DbuffDisplayHidden,
+}
+
+var dbuffOperations = map[string]eve.ModifierOperation{
+	"PreAssignment":  eve.ModifierOperationPreAssign,
+	"PostAssignment": eve.ModifierOperationPostAssign,
+}
+
+func (d *DbuffCollection) UnmarshalJSON(data []byte) error {
+	type modifier struct {
+		DogmaAttributeID int32 `json:"dogmaAttributeID"`
+		GroupID          int32 `json:"groupID"`
+		SkillID          int32 `json:"skillID"`
+	}
+	var raw struct {
+		Key                            int32      `json:"_key"`
+		DisplayName                    Localized  `json:"displayName"`
+		AggregateMode                  string     `json:"aggregateMode"`
+		OperationName                  string     `json:"operationName"`
+		ShowOutputValueInUI            string     `json:"showOutputValueInUI"`
+		ItemModifiers                  []modifier `json:"itemModifiers"`
+		LocationModifiers              []modifier `json:"locationModifiers"`
+		LocationGroupModifiers         []modifier `json:"locationGroupModifiers"`
+		LocationRequiredSkillModifiers []modifier `json:"locationRequiredSkillModifiers"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	aggregateMode, ok := eve.EnumValuesDbuffAggregateMode[raw.AggregateMode]
+	if !ok {
+		return fmt.Errorf("unknown buff aggregate mode %q", raw.AggregateMode)
+	}
+	operation, ok := dbuffOperations[raw.OperationName]
+	if !ok {
+		if operation, ok = eve.EnumValuesModifierOperation[raw.OperationName]; !ok {
+			return fmt.Errorf("unknown buff operation %q", raw.OperationName)
+		}
+	}
+
+	display, ok := dbuffDisplays[raw.ShowOutputValueInUI]
+	if !ok {
+		return fmt.Errorf("unknown buff display %q", raw.ShowOutputValueInUI)
+	}
+
+	*d = DbuffCollection{
+		Key:           raw.Key,
+		DisplayName:   raw.DisplayName,
+		AggregateMode: aggregateMode,
+		Operation:     operation,
+		Display:       display,
+	}
+
+	for _, entry := range raw.ItemModifiers {
+		d.Modifiers = append(d.Modifiers, DbuffModifier{
+			Func:                eve.ModifierFuncItemModifier,
+			ModifiedAttributeID: entry.DogmaAttributeID,
+		})
+	}
+	for _, entry := range raw.LocationModifiers {
+		d.Modifiers = append(d.Modifiers, DbuffModifier{
+			Func:                eve.ModifierFuncLocationModifier,
+			ModifiedAttributeID: entry.DogmaAttributeID,
+		})
+	}
+	for _, entry := range raw.LocationGroupModifiers {
+		d.Modifiers = append(d.Modifiers, DbuffModifier{
+			Func:                eve.ModifierFuncLocationGroupModifier,
+			ModifiedAttributeID: entry.DogmaAttributeID,
+			GroupID:             entry.GroupID,
+		})
+	}
+	for _, entry := range raw.LocationRequiredSkillModifiers {
+		d.Modifiers = append(d.Modifiers, DbuffModifier{
+			Func:                eve.ModifierFuncLocationRequiredSkillModifier,
+			ModifiedAttributeID: entry.DogmaAttributeID,
+			SkillTypeID:         entry.SkillID,
+		})
+	}
+
+	return nil
+}
+
 type MutaplasmidAttribute struct {
 	AttributeID int32   `json:"_key"`
 	Min         float64 `json:"min"`
@@ -192,11 +300,12 @@ type Mutaplasmid struct {
 
 // Data is the part of the SDE this tool uses.
 type Data struct {
-	BuildNumber     int32
-	Types           map[int32]*Type
-	Groups          map[int32]*Group
-	Categories      map[int32]*Category
-	DogmaAttributes map[int32]*DogmaAttribute
-	DogmaEffects    map[int32]*DogmaEffect
-	Mutaplasmids    map[int32]*Mutaplasmid
+	BuildNumber      int32
+	Types            map[int32]*Type
+	Groups           map[int32]*Group
+	Categories       map[int32]*Category
+	DogmaAttributes  map[int32]*DogmaAttribute
+	DogmaEffects     map[int32]*DogmaEffect
+	DbuffCollections map[int32]*DbuffCollection
+	Mutaplasmids     map[int32]*Mutaplasmid
 }
