@@ -157,3 +157,6 @@ effects:
   spoolMultiplier: -83
   spoolMultiplierBonus: -84
   spoolMultiplierBonus2: -85
+  remoteArmorRepairRate: -86
+  remoteHullRepairRate: -87
+  remoteShieldBoostRate: -88

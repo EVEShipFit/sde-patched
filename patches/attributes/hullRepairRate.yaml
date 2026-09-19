@@ -2,7 +2,8 @@ new:
   highIsGood: true
 
 effects:
-  - on: hullRepairModule
+  - name: hullRepairRate
+    on: hullRepairModule
     category: active
     isWarpSafe: true
     rules:
@@ -10,3 +11,19 @@ effects:
       - {mul: structureDamageAmount}
       - {div: duration}
       - {add: hullRepairRate, domain: shipID}
+
+  # A remote repairer reaches the ship it is aimed at. The strength is its
+  # own; the spool multiplier is 1 for everything that does not spool.
+  - name: remoteHullRepairRate
+    on: remoteHullRepairModule
+    category: active
+    isWarpSafe: true
+    resistanceAttribute: remoteRepairImpedance
+    rangeAttribute: maxRange
+    falloffAttribute: falloffEffectiveness
+    rules:
+      - {from: thousand}
+      - {mul: structureDamageAmount}
+      - {mul: spoolMultiplier}
+      - {div: duration}
+      - {add: hullRepairRate, domain: targetID}

@@ -100,6 +100,32 @@ selectors:
   - name: shieldBoostModule
     match: isModule and attribute("shieldBonus") and effect("shieldBoosting")
 
+  # The remote versions, which repair the ship they are aimed at instead. Ewar
+  # drones do the same job, so they count too.
+  - name: remoteArmorRepairModule
+    match: >-
+      (isModule or isDrone) and attribute("armorDamageAmount") and attribute("duration") and effect(
+        "shipModuleRemoteArmorRepairer",
+        "shipModuleAncillaryRemoteArmorRepairer",
+        "ShipModuleRemoteArmorMutadaptiveRepairer",
+        "npcEntityRemoteArmorRepairer"
+      )
+
+  - name: remoteShieldBoostModule
+    match: >-
+      (isModule or isDrone) and attribute("shieldBonus") and attribute("duration") and effect(
+        "shipModuleRemoteShieldBooster",
+        "shipModuleAncillaryRemoteShieldBooster",
+        "npcEntityRemoteShieldBooster"
+      )
+
+  - name: remoteHullRepairModule
+    match: >-
+      (isModule or isDrone) and attribute("structureDamageAmount") and attribute("duration") and effect(
+        "shipModuleRemoteHullRepairer",
+        "npcEntityRemoteHullRepairer"
+      )
+
   - name: spoolsDamage
     description: a damaging module whose damage grows every cycle
     match: moduleCycles and attribute("damageMultiplierBonusMax")
