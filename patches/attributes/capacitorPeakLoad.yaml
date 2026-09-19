@@ -18,3 +18,25 @@ effects:
     isWarpSafe: true
     rules:
       - {sub: powerTransferAmount}
+
+  # What a fit aims at another: a transmitter takes load off it, a neutralizer
+  # or nosferatu puts load on.
+  - name: capacitorPeakLoadGiven
+    on: remoteCapacitorTransmitter
+    category: active
+    isWarpSafe: true
+    resistanceAttribute: remoteRepairImpedance
+    rangeAttribute: maxRange
+    falloffAttribute: falloffEffectiveness
+    rules:
+      - {sub: capacitorTransferRate, domain: targetID}
+
+  - name: capacitorPeakLoadTaken
+    on: energyNeutralizer or energyNosferatu
+    category: active
+    isWarpSafe: true
+    resistanceAttribute: energyWarfareResistance
+    rangeAttribute: maxRange
+    falloffAttribute: falloffEffectiveness
+    rules:
+      - {add: capacitorTransferRate, domain: targetID}

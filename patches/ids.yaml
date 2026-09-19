@@ -70,6 +70,7 @@ attributes:
   spoolMultiplier: -63
   spoolMultiplierBonus: -64
   buffValue: -65
+  capacitorTransferRate: -66
 
 effects:
   alignTime: -1
@@ -160,3 +161,7 @@ effects:
   remoteArmorRepairRate: -86
   remoteHullRepairRate: -87
   remoteShieldBoostRate: -88
+  capacitorPeakLoadGiven: -89
+  capacitorPeakLoadTaken: -90
+  capacitorTransferRate: -91
+  capacitorTransferRateNeutralizer: -92
