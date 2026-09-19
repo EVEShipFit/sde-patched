@@ -1,0 +1,13 @@
+# falloff — tracking disruptors and remote tracking computers, which reach the
+# turrets of the ship they are aimed at.
+
+addTo:
+  - effect: shipModuleTrackingDisruptor
+    rules:
+      - {percent: falloffBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Gunnery}
+  - effect: npcEntityWeaponDisruptor
+    rules:
+      - {percent: falloffBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Gunnery}
+  - effect: shipModuleRemoteTrackingComputer
+    rules:
+      - {percent: falloffBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Gunnery}

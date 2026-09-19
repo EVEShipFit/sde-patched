@@ -1,0 +1,13 @@
+# maxRange — tracking disruptors and remote tracking computers, which reach
+# the turrets of the ship they are aimed at.
+
+addTo:
+  - effect: shipModuleTrackingDisruptor
+    rules:
+      - {percent: maxRangeBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Gunnery}
+  - effect: npcEntityWeaponDisruptor
+    rules:
+      - {percent: maxRangeBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Gunnery}
+  - effect: shipModuleRemoteTrackingComputer
+    rules:
+      - {percent: maxRangeBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Gunnery}

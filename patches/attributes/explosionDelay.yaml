@@ -1,0 +1,7 @@
+# explosionDelay — guidance disruptors, which reach the missiles of the ship
+# they are aimed at. Missile guidance computers do the same for their own ship.
+
+addTo:
+  - effect: shipModuleGuidanceDisruptor
+    rules:
+      - {percent: explosionDelayBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Missile Launcher Operation}
