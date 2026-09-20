@@ -73,6 +73,7 @@ attributes:
   capacitorTransferRate: -66
   capacitorInjectionAmount: -67
   chargedRepairMultiplier: -68
+  upgradeFree: -69
 
 effects:
   alignTime: -1
@@ -171,3 +172,5 @@ effects:
   capacitorPeakLoadInjected: -94
   armorDamageAmountCharged: -95
   chargedRepairMultiplier: -96
+  upgradeLoad: -97
+  upgradeFree: -98
