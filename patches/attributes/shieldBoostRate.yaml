@@ -2,7 +2,8 @@ new:
   highIsGood: true
 
 effects:
-  - on: shieldBoostModule
+  - name: shieldBoostRate
+    on: shieldBoostModule
     category: active
     isWarpSafe: true
     rules:
@@ -10,3 +11,19 @@ effects:
       - {mul: shieldBonus}
       - {div: duration}
       - {add: shieldBoostRate, domain: shipID}
+
+  # A remote repairer reaches the ship it is aimed at. The strength is its
+  # own; the spool multiplier is 1 for everything that does not spool.
+  - name: remoteShieldBoostRate
+    on: remoteShieldBoostModule
+    category: active
+    isWarpSafe: true
+    resistanceAttribute: remoteRepairImpedance
+    rangeAttribute: maxRange
+    falloffAttribute: falloffEffectiveness
+    rules:
+      - {from: thousand}
+      - {mul: shieldBonus}
+      - {mul: spoolMultiplier}
+      - {div: duration}
+      - {add: shieldBoostRate, domain: targetID}
