@@ -1,7 +1,3 @@
-# scanStrength — statistics show a single scan strength, but the SDE has one
-# attribute per race. On a ship three of the four are zero, so adding them
-# up gives the one number a user interface wants.
-
 new:
   highIsGood: true
 

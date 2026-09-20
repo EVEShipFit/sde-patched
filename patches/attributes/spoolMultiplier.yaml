@@ -1,6 +1,3 @@
-# spoolMultiplier tells how far a module's per-cycle bonus has grown, as a
-# multiplier.
-
 new:
   default: 1
   highIsGood: true

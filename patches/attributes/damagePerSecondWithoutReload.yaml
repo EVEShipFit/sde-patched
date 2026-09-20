@@ -1,6 +1,3 @@
-# damagePerSecondWithoutReload — damage per second, with and without
-# counting the time spent reloading.
-
 new:
   highIsGood: true
 

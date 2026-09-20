@@ -1,5 +1,3 @@
-# spoolMultiplierBonus tells how far a module's per-cycle bonus has grown.
-
 new:
   highIsGood: true
 

@@ -1,7 +1,3 @@
-# The Reactive Armor Hardener carries the four armor resonances, but its
-# effect has no modifier. Add those here: the dogma-engine will take care
-# of the rest.
-
 addTo:
   - effect: adaptiveArmorHardener
     rules:

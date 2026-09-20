@@ -1,6 +1,3 @@
-# passiveShieldRechargeRate — shields recharge on their own; this is how
-# fast.
-
 new:
   default: 2500
   highIsGood: true

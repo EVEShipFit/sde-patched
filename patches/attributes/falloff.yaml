@@ -1,6 +1,3 @@
-# falloff — tracking disruptors and remote tracking computers, which reach the
-# turrets of the ship they are aimed at.
-
 addTo:
   - effect: shipModuleTrackingDisruptor
     rules:

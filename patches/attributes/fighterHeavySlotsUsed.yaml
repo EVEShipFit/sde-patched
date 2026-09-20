@@ -1,5 +1,2 @@
-# fighterHeavySlotsUsed — how many tubes hold a heavy squadron. Counted by the
-# dogma-engine, like fighterTubesUsed.
-
 new:
   highIsGood: true
