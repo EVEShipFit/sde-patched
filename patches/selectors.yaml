@@ -110,13 +110,21 @@ selectors:
     match: moduleCyclesOnSpeed or moduleCyclesOnDuration or damagingDrone
 
   - name: armorRepairModule
-    match: isModule and attribute("armorDamageAmount") and attribute("duration") and effect("armorRepair")
+    match: >-
+      isModule and attribute("armorDamageAmount") and attribute("duration") and effect(
+        "armorRepair",
+        "fueledArmorRepair"
+      )
 
   - name: hullRepairModule
     match: isModule and attribute("structureDamageAmount") and attribute("duration") and effect("structureRepair")
 
   - name: shieldBoostModule
-    match: isModule and attribute("shieldBonus") and effect("shieldBoosting")
+    match: >-
+      isModule and attribute("shieldBonus") and effect(
+        "shieldBoosting",
+        "fueledShieldBoosting"
+      )
 
   # The remote versions, which repair the ship they are aimed at instead. Ewar
   # drones do the same job, so they count too.
