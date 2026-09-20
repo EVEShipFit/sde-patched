@@ -8,3 +8,9 @@ addTo:
   - effect: microJumpDrive
     rules:
       - {percent: signatureRadiusBonusPercent, domain: shipID}
+  - effect: remoteTargetPaintFalloff
+    rules:
+      - {percent: signatureRadiusBonus, domain: targetID}
+  - effect: remoteTargetPaintEntity
+    rules:
+      - {percent: signatureRadiusBonus, domain: targetID}

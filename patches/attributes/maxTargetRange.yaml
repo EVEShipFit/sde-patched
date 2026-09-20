@@ -1,0 +1,13 @@
+# maxTargetRange — remote sensor dampeners and boosters. The SDE leaves the
+# player modules without modifiers; only their NPC twins carry them.
+
+addTo:
+  - effect: remoteSensorDampFalloff
+    rules:
+      - {percent: maxTargetRangeBonus, domain: targetID}
+  - effect: remoteSensorDampEntity
+    rules:
+      - {percent: maxTargetRangeBonus, domain: targetID}
+  - effect: remoteSensorBoostFalloff
+    rules:
+      - {percent: maxTargetRangeBonus, domain: targetID}

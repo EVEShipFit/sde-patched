@@ -1,6 +1,20 @@
+# maxVelocity — the speed a propulsion module adds, which the EVE client
+# works out itself, and what a stasis webifier takes away.
+
 effects:
   - on: isShip
     category: passive
     isWarpSafe: true
     rules:
       - {percent: velocityBoost}
+
+addTo:
+  - effect: remoteWebifierFalloff
+    rules:
+      - {percent: speedFactor, domain: targetID}
+  - effect: remoteWebifierEntity
+    rules:
+      - {percent: speedFactor, domain: targetID}
+  - effect: shipModuleGuidanceDisruptor
+    rules:
+      - {percent: missileVelocityBonus, domain: targetID, func: locationRequiredSkillModifier, skill: Missile Launcher Operation}
