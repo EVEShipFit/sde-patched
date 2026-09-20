@@ -42,6 +42,15 @@ func (ctx *Context) Explain(w io.Writer, name string, full bool) error {
 	return fmt.Errorf("nothing named %q", name)
 }
 
+// attributeName reads back the name of an attribute a floor or a cap points
+// at, falling back to its number when it is gone.
+func (ctx *Context) attributeName(id int32) string {
+	if entry, ok := ctx.Data.DogmaAttributes[id]; ok {
+		return entry.Name
+	}
+	return fmt.Sprintf("%d", id)
+}
+
 func (ctx *Context) explainAttribute(w io.Writer, attribute *Attribute, full bool) error {
 	fmt.Fprintf(w, "%s\n\n", attribute.Name)
 
@@ -55,6 +64,15 @@ func (ctx *Context) explainAttribute(w io.Writer, attribute *Attribute, full boo
 		fmt.Fprintf(w, "  CCP's          %6d  changed, default %g\n", entry.Key, entry.DefaultValue)
 	default:
 		fmt.Fprintf(w, "  CCP's          %6d  only filled in\n", entry.Key)
+	}
+
+	if entry != nil {
+		if entry.MinAttributeID != 0 {
+			fmt.Fprintf(w, "  never below            %s\n", ctx.attributeName(entry.MinAttributeID))
+		}
+		if entry.MaxAttributeID != 0 {
+			fmt.Fprintf(w, "  never above            %s\n", ctx.attributeName(entry.MaxAttributeID))
+		}
 	}
 
 	for _, effect := range attribute.Effects {

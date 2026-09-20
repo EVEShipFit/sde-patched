@@ -62,6 +62,7 @@ func Apply(spec *Spec, data *sde.Data) (*Context, error) {
 	ctx.index()
 
 	ctx.create()
+	ctx.clamp()
 	ctx.fillRules()
 	ctx.link()
 
@@ -105,6 +106,38 @@ func Apply(spec *Spec, data *sde.Data) (*Context, error) {
 	}
 
 	return ctx, ctx.err()
+}
+
+// clamp links the attributes a definition names as its floor and its cap. It
+// runs after create, so one new attribute can be capped by another.
+func (ctx *Context) clamp() {
+	for _, attribute := range ctx.Spec.Attributes {
+		entry := ctx.attributeByName[attribute.Name]
+		if entry == nil {
+			continue
+		}
+
+		for _, definition := range []*Definition{attribute.New, attribute.Change} {
+			if definition == nil {
+				continue
+			}
+			if definition.Min != "" {
+				entry.MinAttributeID = ctx.clampAgainst(attribute.at, definition.Min)
+			}
+			if definition.Max != "" {
+				entry.MaxAttributeID = ctx.clampAgainst(attribute.at, definition.Max)
+			}
+		}
+	}
+}
+
+func (ctx *Context) clampAgainst(at source, name string) int32 {
+	entry, ok := ctx.attributeByName[name]
+	if !ok {
+		ctx.errorf(at, "no dogma attribute named %q to clamp against", name)
+		return 0
+	}
+	return entry.Key
 }
 
 func (ctx *Context) index() {

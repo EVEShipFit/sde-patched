@@ -1,0 +1,10 @@
+new:
+  highIsGood: true
+  max: maxTargetsCharacter
+
+effects:
+  - on: isHull
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {from: maxLockedTargets}

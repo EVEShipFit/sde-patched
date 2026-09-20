@@ -113,6 +113,48 @@ effects:
 	}
 }
 
+// An attribute can name another as its cap, including one the patches add.
+func TestClamp(t *testing.T) {
+	spec := load(t, tree{
+		"maxTargets": `
+new:
+  max: maxTargetsCharacter
+
+effects:
+  - on: category("Ship")
+    category: passive
+    rules:
+      - {from: agility}
+`,
+		"maxTargetsCharacter": "new: {default: 1000000}\n",
+		"volume":              "change: {min: agility}\n",
+	})
+
+	data := testData()
+	if _, err := Apply(spec, data); err != nil {
+		t.Fatal(err)
+	}
+
+	capID, _ := spec.IDs.Attribute("maxTargetsCharacter")
+	if got := data.DogmaAttributes[-1].MaxAttributeID; got != capID {
+		t.Errorf("cap of maxTargets = %d, want %d", got, capID)
+	}
+	// One of CCP's can be capped too, against one of CCP's.
+	if got := data.DogmaAttributes[161].MinAttributeID; got != 70 {
+		t.Errorf("floor of volume = %d, want 70 (agility)", got)
+	}
+}
+
+// A cap that names nothing is a mistake worth reporting.
+func TestClampAgainstUnknown(t *testing.T) {
+	spec := load(t, tree{"maxTargets": "new: {max: nosuchattribute}\n"})
+
+	_, err := Apply(spec, testData())
+	if err == nil || !strings.Contains(err.Error(), "nosuchattribute") {
+		t.Errorf("error = %v, want one naming nosuchattribute", err)
+	}
+}
+
 // An ID written down once is the ID that name keeps, whatever is added later.
 func TestIDsNeverMove(t *testing.T) {
 	files := tree{
