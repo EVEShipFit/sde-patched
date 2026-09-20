@@ -129,6 +129,8 @@ table DogmaAttribute {
     stackable: bool;
     published: bool;
     unit_id: int32;
+    min_attribute_id: int32;
+    max_attribute_id: int32;
 }
 
 table DogmaEffect {
