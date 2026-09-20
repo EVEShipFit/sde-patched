@@ -1,6 +1,3 @@
-# damageMultiplier — the drone damage skill bonus, which the EVE client
-# applies outside dogma.
-
 addTo:
   - effect: droneDmgBonus
     rules:

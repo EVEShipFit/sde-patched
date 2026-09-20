@@ -1,6 +1,3 @@
-# fighterCapacityLoad — how much of the fighter bay is in use; launched
-# squadrons still count.
-
 new:
   highIsGood: true
 

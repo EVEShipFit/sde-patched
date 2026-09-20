@@ -1,6 +1,3 @@
-# capacitorInjectionAmount — the capacitor a booster charge holds, handed to
-# the module it sits in.
-
 new:
   default: 0
   highIsGood: true

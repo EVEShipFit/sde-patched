@@ -1,6 +1,3 @@
-# signatureRadius — propulsion modules blow it up, which the EVE client
-# handles outside dogma.
-
 addTo:
   - effect: moduleBonusMicrowarpdrive
     rules:

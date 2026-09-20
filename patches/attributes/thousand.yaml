@@ -1,7 +1,3 @@
-# thousand — some millisecond to second calculations need the value 1000.
-# Dogma can only multiply by other attributes, so the constant has to be an
-# attribute.
-
 new:
   default: 1000
   highIsGood: true

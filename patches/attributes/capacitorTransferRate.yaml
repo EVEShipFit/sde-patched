@@ -1,7 +1,3 @@
-# capacitorTransferRate — the capacitor a module moves between itself and what
-# it is aimed at, in GJ/s. Always positive; which way it goes is decided where
-# it lands.
-
 new:
   highIsGood: true
 

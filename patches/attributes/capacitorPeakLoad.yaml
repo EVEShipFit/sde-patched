@@ -19,8 +19,6 @@ effects:
     rules:
       - {sub: powerTransferAmount}
 
-  # A capacitor booster puts capacitor in rather than taking it out, so what
-  # it contributes is negative.
   - name: capacitorPeakLoadInjected
     on: capacitorBooster
     category: active
@@ -31,8 +29,6 @@ effects:
       - {mul: thousand}
       - {add: capacitorPeakLoad, domain: shipID}
 
-  # What a fit aims at another: a transmitter takes load off it, a neutralizer
-  # or nosferatu puts load on.
   - name: capacitorPeakLoadGiven
     on: remoteCapacitorTransmitter
     category: active

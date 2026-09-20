@@ -1,5 +1,2 @@
-# fighterLightSlotsUsed — how many tubes hold a light squadron. Counted by the
-# dogma-engine, like fighterTubesUsed.
-
 new:
   highIsGood: true

@@ -1,9 +1,3 @@
-# armorRepairRate — repair and boost rates, for the modules that do the
-# repairing and for the ship that receives it. The effective rate also takes
-# resistances into account, so it can be compared with incoming damage. The
-# three layers work the same way; they differ in which attributes the SDE
-# keeps their numbers in.
-
 new:
   highIsGood: true
 

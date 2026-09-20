@@ -1,8 +1,3 @@
-# cpuFree — cPU and powergrid load is not part of the dogma data. It reuses
-# the existing "cpuLoad" and "powerLoad": looking at their IDs, those are
-# most likely meant to hold exactly this. "cpuFree" and "powerFree" show
-# what is left.
-
 new:
   highIsGood: true
 

@@ -1,5 +1,3 @@
-# chargeAmount — how many charges fit in a module.
-
 new:
   default: 1
   highIsGood: true

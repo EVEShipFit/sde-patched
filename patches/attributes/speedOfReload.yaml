@@ -10,8 +10,6 @@ effects:
       - {from: reloadTime}
       - {div: chargeAmount}
 
-  # A point defense battery uses chargeRate charges a cycle; every other
-  # damaging module uses one.
   - name: speedOfReload2
     on: moduleCycles and holdsCharge and effect("pointDefense")
     category: active

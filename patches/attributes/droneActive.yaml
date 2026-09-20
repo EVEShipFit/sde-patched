@@ -1,5 +1,3 @@
-# droneActive — how many drones are active, and how much bandwidth they use.
-
 new:
   highIsGood: true
 

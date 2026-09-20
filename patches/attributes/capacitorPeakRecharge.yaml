@@ -1,8 +1,3 @@
-# capacitorPeakRecharge — capacitor information the EVE client works out
-# itself. - capacitorPeakRecharge is the recharge in GJ/s at its peak. -
-# capacitorPeakLoad is the drain in GJ if every module runs at once. -
-# capacitorPeakDelta is the difference between the two.
-
 new:
   default: 2.5
   highIsGood: true

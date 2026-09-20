@@ -1,6 +1,3 @@
-# alignTime — align time in seconds. The EVE client works this out itself,
-# so the SDE has no attribute for it.
-
 new:
   default: 1.3862943611198906 # -ln(0.25)
   highIsGood: false

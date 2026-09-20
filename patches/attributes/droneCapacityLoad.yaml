@@ -1,5 +1,3 @@
-# droneCapacityLoad — how much of the drone bay is in use.
-
 new:
   highIsGood: true
 
