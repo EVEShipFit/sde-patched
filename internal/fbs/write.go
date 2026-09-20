@@ -292,6 +292,8 @@ func writeAttributes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.U
 		eve.DogmaAttributeAddStackable(builder, entry.Stackable)
 		eve.DogmaAttributeAddPublished(builder, entry.Published)
 		eve.DogmaAttributeAddUnitId(builder, entry.UnitID)
+		eve.DogmaAttributeAddMinAttributeId(builder, entry.MinAttributeID)
+		eve.DogmaAttributeAddMaxAttributeId(builder, entry.MaxAttributeID)
 		offsets = append(offsets, eve.DogmaAttributeEnd(builder))
 	}
 

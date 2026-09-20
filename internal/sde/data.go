@@ -77,14 +77,16 @@ type Category struct {
 }
 
 type DogmaAttribute struct {
-	Key          int32     `json:"_key"`
-	Name         string    `json:"name"`
-	DisplayName  Localized `json:"displayName"`
-	DefaultValue float64   `json:"defaultValue"`
-	HighIsGood   bool      `json:"highIsGood"`
-	Stackable    bool      `json:"stackable"`
-	Published    bool      `json:"published"`
-	UnitID       int32     `json:"unitID"`
+	Key            int32     `json:"_key"`
+	Name           string    `json:"name"`
+	DisplayName    Localized `json:"displayName"`
+	DefaultValue   float64   `json:"defaultValue"`
+	HighIsGood     bool      `json:"highIsGood"`
+	Stackable      bool      `json:"stackable"`
+	Published      bool      `json:"published"`
+	UnitID         int32     `json:"unitID"`
+	MinAttributeID int32     `json:"minAttributeID"`
+	MaxAttributeID int32     `json:"maxAttributeID"`
 }
 
 // Modifier is one rule of an effect. The SDE stores domain and func as
