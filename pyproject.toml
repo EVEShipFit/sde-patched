@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eveshipfit-sde"
+# The release workflow sets this to the tag.
+version = "0.0.0"
+description = "A patched EVE Online SDE, as flatbuffers, for EVEShipFit's dogma-engine"
+authors = [{ name = "EVEShipFit Team", email = "info@eveship.fit" }]
+license-files = ["LICENSE", "LICENSE.EVE"]
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["eve-online", "sde", "dogma-engine"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Games/Entertainment",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Repository = "https://github.com/EVEShipFit/sde-patched"
+Issues = "https://github.com/EVEShipFit/sde-patched/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["eveshipfit_sde"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"dist/sde.dat" = "eveshipfit_sde/sde.dat"
+"dist/names.dat" = "eveshipfit_sde/names.dat"
+"specs/eve.fbs" = "eveshipfit_sde/specs/eve.fbs"
+"specs/names.fbs" = "eveshipfit_sde/specs/names.fbs"
+
+[tool.hatch.build.targets.sdist]
+only-include = ["eveshipfit_sde", "specs", "README.md"]
+
+[tool.hatch.build.targets.sdist.force-include]
+"dist/sde.dat" = "dist/sde.dat"
+"dist/names.dat" = "dist/names.dat"

@@ -118,6 +118,11 @@ jobs:
         node-version: lts/*
         registry-url: https://registry.npmjs.org
 
+    - name: Install Python toolchain
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.x"
+
     - name: Set version
       id: version
       # Tags are v<major>.<SDE build>.<n>, so a release always builds the SDE it names.
@@ -128,6 +133,7 @@ jobs:
         echo "SDE build: ${BUILD}"
 
         npm version --no-git-tag-version "${VERSION}"
+        sed -i 's/^version = "0.0.0"$/version = "'${VERSION}'"/' pyproject.toml
         echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
         echo "build=${BUILD}" >> "${GITHUB_OUTPUT}"
 
@@ -141,6 +147,17 @@ jobs:
       run: |
         gh release upload "${TAG}" dist/sde.dat dist/names.dat --clobber
 
+    - name: Create Python package
+      run: |
+        pip install build
+        python -m build --wheel --sdist --outdir pythondist
+
+    - name: Upload Python package
+      uses: actions/upload-artifact@v5
+      with:
+        name: python-package
+        path: pythondist
+
     - name: Publish to NPM
       run: |
         if [ -n "$(npm view @eveshipfit/sde@${{ steps.version.outputs.version }} version 2>/dev/null)" ]; then
@@ -148,3 +165,24 @@ jobs:
           exit 0
         fi
         npm publish
+
+  pypi:
+    name: Publish to PyPI
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: pypi
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download Python package
+      uses: actions/download-artifact@v6
+      with:
+        name: python-package
+        path: dist
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        skip-existing: true
