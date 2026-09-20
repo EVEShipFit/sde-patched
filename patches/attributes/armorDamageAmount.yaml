@@ -1,0 +1,7 @@
+effects:
+  - name: armorDamageAmountCharged
+    on: naniteRepairPaste
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {mul: chargedRepairMultiplier, domain: otherID}

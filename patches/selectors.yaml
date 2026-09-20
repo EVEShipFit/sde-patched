@@ -125,6 +125,15 @@ selectors:
         "fueledArmorRepair"
       )
 
+  # Both the local and the remote ones repair more while loaded with paste.
+  - name: ancillaryArmorRepairModule
+    match: >-
+      (armorRepairModule or remoteArmorRepairModule)
+      and attribute("chargedArmorDamageMultiplier")
+
+  - name: naniteRepairPaste
+    match: isCharge and group("Nanite Repair Paste")
+
   - name: hullRepairModule
     match: isModule and attribute("structureDamageAmount") and attribute("duration") and effect("structureRepair")
 

@@ -1,0 +1,14 @@
+# chargedRepairMultiplier — what an ancillary armor repairer repairs extra
+# while it is loaded, parked on the charge: a module only reaches its charge
+# when one is in, so the multiplier is 1 whenever it runs on capacitor alone.
+
+new:
+  default: 1
+  highIsGood: true
+
+effects:
+  - on: ancillaryArmorRepairModule
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {from: chargedArmorDamageMultiplier, domain: otherID}
