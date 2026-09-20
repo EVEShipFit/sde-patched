@@ -76,6 +76,7 @@ attributes:
   upgradeFree: -69
   maxTargets: -70
   maxTargetsCharacter: -71
+  capacitorStablePercentage: -72
 
 effects:
   alignTime: -1
