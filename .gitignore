@@ -1,2 +1,7 @@
+__pycache__/
+.mypy_cache/
+.venv/
 /dist/
+/pythondist/
+/eveshipfit_sde/*.dat
 /sde/

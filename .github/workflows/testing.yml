@@ -67,3 +67,24 @@ jobs:
     - name: Build SDE export
       run: |
         go run ./cmd/sde-patched build
+
+    - name: Install Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.10"
+
+    - name: Build Python package
+      run: |
+        pip install build
+        python -m build --wheel --sdist --outdir pythondist
+        pip install pythondist/*.whl
+
+    - name: Check Python package
+      run: |
+        # From elsewhere, or the source tree shadows the installed package.
+        cd "${RUNNER_TEMP}"
+        python -c "
+        from eveshipfit_sde import names_path, sde_path
+        assert sde_path().is_file(), sde_path()
+        assert names_path().is_file(), names_path()
+        "
