@@ -169,6 +169,7 @@ jobs:
   pypi:
     name: Publish to PyPI
     needs: publish
+    if: needs.publish.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: pypi
