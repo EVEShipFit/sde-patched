@@ -1,0 +1,10 @@
+new:
+  highIsGood: true
+
+effects:
+  - on: isHull
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {from: upgradeCapacity}
+      - {sub: upgradeLoad}
