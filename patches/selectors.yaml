@@ -24,6 +24,24 @@ selectors:
   - name: transfersCapacitorToShip
     match: usesCapacitorInCycles and effect("energyNosferatuFalloff")
 
+  # Capacitor warfare: one gives capacitor away, the other two take it.
+  - name: remoteCapacitorTransmitter
+    match: >-
+      isModule and attribute("powerTransferAmount") and attribute("duration")
+      and effect("shipModuleRemoteCapacitorTransmitter")
+
+  - name: energyNosferatu
+    match: >-
+      isModule and attribute("powerTransferAmount") and attribute("duration")
+      and effect("energyNosferatuFalloff")
+
+  - name: energyNeutralizer
+    match: >-
+      (isModule or isDrone) and attribute("energyNeutralizerAmount") and attribute("duration") and effect(
+        "energyNeutralizerFalloff",
+        "entityEnergyNeutralizerFalloff"
+      )
+
   - name: isShip
     match: category("Ship")
 
