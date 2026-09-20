@@ -71,6 +71,7 @@ attributes:
   spoolMultiplierBonus: -64
   buffValue: -65
   capacitorTransferRate: -66
+  capacitorInjectionAmount: -67
 
 effects:
   alignTime: -1
@@ -165,3 +166,5 @@ effects:
   capacitorPeakLoadTaken: -90
   capacitorTransferRate: -91
   capacitorTransferRateNeutralizer: -92
+  capacitorInjectionAmount: -93
+  capacitorPeakLoadInjected: -94

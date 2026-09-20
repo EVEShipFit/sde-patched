@@ -35,6 +35,15 @@ selectors:
       isModule and attribute("powerTransferAmount") and attribute("duration")
       and effect("energyNosferatuFalloff")
 
+  # A capacitor booster injects what its charge holds. An ancillary shield
+  # booster takes the same charge, but burns it as fuel instead, so the charge
+  # hands the amount over and only this module spends it.
+  - name: capacitorBooster
+    match: isModule and attribute("duration") and effect("powerBooster")
+
+  - name: capacitorBoosterCharge
+    match: isCharge and attribute("capacitorBonus")
+
   - name: energyNeutralizer
     match: >-
       (isModule or isDrone) and attribute("energyNeutralizerAmount") and attribute("duration") and effect(
