@@ -74,6 +74,8 @@ attributes:
   capacitorInjectionAmount: -67
   chargedRepairMultiplier: -68
   upgradeFree: -69
+  maxTargets: -70
+  maxTargetsCharacter: -71
 
 effects:
   alignTime: -1
@@ -174,3 +176,5 @@ effects:
   chargedRepairMultiplier: -96
   upgradeLoad: -97
   upgradeFree: -98
+  maxTargets: -99
+  maxTargetsCharacter: -100

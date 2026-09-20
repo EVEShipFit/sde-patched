@@ -1,0 +1,10 @@
+new:
+  default: 1e+06
+  highIsGood: true
+
+effects:
+  - on: name("CharacterType")
+    category: passive
+    isWarpSafe: true
+    rules:
+      - {assign: maxLockedTargets, domain: shipID}

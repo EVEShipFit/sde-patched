@@ -106,6 +106,8 @@ type Definition struct {
 	Stackable   *bool    `yaml:"stackable,omitempty" json:"stackable"`
 	Published   *bool    `yaml:"published,omitempty" json:"published"`
 	UnitID      int32    `yaml:"unitID,omitempty" json:"unitID"`
+	Min         string   `yaml:"min,omitempty" json:"min"`
+	Max         string   `yaml:"max,omitempty" json:"max"`
 }
 
 func value(number *float64) float64 {
