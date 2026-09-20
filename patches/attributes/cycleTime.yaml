@@ -5,7 +5,7 @@ effects:
   # Modules keep their cycle time in one of several different attributes; an
   # attribute not listed in usesCapacitorInCycles is never read.
   - name: cycleTime
-    on: usesCapacitorInCycles and attribute("duration")
+    on: (usesCapacitorInCycles or capacitorBooster) and attribute("duration")
     category: active
     isWarpSafe: true
     rules:
