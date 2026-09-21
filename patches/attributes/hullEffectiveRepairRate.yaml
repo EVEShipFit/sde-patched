@@ -1,4 +1,6 @@
 new:
+  displayName: Effective Structure Repair Rate
+  category: Structure
   highIsGood: true
 
 effects:

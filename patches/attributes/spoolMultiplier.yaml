@@ -1,4 +1,6 @@
 new:
+  displayName: Spool Multiplier
+  category: Miscellaneous
   default: 1
   highIsGood: true
 

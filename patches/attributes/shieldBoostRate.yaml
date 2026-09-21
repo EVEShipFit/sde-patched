@@ -1,4 +1,6 @@
 new:
+  displayName: Shield Boost Rate
+  category: Shield
   highIsGood: true
 
 effects:

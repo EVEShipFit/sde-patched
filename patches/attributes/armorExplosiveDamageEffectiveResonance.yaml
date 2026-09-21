@@ -1,4 +1,6 @@
 new:
+  displayName: Armor Effective Explosive Resonance
+  category: Armor
   highIsGood: true
 
 effects:

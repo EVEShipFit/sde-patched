@@ -1,4 +1,6 @@
 new:
+  displayName: Drone Bay Used
+  category: Drones
   highIsGood: true
 
 effects:

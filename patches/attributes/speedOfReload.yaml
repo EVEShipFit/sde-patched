@@ -1,4 +1,6 @@
 new:
+  displayName: Reload Time
+  category: Miscellaneous
   highIsGood: true
 
 effects:

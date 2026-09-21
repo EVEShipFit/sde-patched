@@ -1,4 +1,6 @@
 new:
+  displayName: Capacitor Peak Load
+  category: Capacitor
   highIsGood: true
 
 effects:

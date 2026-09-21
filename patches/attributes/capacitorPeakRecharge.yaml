@@ -1,4 +1,6 @@
 new:
+  displayName: Capacitor Peak Recharge
+  category: Capacitor
   default: 2.5
   highIsGood: true
 

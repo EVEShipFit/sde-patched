@@ -1,4 +1,6 @@
 new:
+  displayName: Alpha Damage
+  category: Miscellaneous
   highIsGood: true
 
 effects:

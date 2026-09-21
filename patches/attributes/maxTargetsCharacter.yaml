@@ -1,4 +1,6 @@
 new:
+  displayName: Maximum Locked Targets (Character)
+  category: Targeting
   default: 1e+06
   highIsGood: true
 

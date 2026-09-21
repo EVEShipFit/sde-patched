@@ -1,4 +1,6 @@
 new:
+  displayName: Capacitor Peak Delta
+  category: Capacitor
   highIsGood: true
 
 effects:

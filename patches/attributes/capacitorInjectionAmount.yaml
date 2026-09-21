@@ -1,4 +1,6 @@
 new:
+  displayName: Capacitor Injection Amount
+  category: Capacitor
   default: 0
   highIsGood: true
 

@@ -1,4 +1,6 @@
 new:
+  displayName: Maximum Locked Targets
+  category: Targeting
   highIsGood: true
   max: maxTargetsCharacter
 

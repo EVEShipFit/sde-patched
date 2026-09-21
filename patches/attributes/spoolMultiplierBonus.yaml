@@ -1,4 +1,6 @@
 new:
+  displayName: Spool Multiplier Bonus
+  category: Miscellaneous
   highIsGood: true
 
 effects:

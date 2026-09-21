@@ -1,3 +1,5 @@
 new:
+  displayName: Thousand
+  category: "NULL"
   default: 1000
   highIsGood: true
