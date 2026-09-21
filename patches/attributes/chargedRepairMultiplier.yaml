@@ -5,6 +5,5 @@ new:
 effects:
   - on: ancillaryArmorRepairModule
     category: passive
-    isWarpSafe: true
     rules:
       - {from: chargedArmorDamageMultiplier, domain: otherID}

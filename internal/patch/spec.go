@@ -139,13 +139,13 @@ type Effect struct {
 	// AsDefault marks the effect as one the item runs on its own.
 	AsDefault bool `yaml:"asDefault,omitempty" json:"asDefault"`
 
-	Published        bool `yaml:"published,omitempty" json:"published"`
-	ElectronicChance bool `yaml:"electronicChance,omitempty" json:"electronicChance"`
-	IsAssistance     bool `yaml:"isAssistance,omitempty" json:"isAssistance"`
-	IsOffensive      bool `yaml:"isOffensive,omitempty" json:"isOffensive"`
-	IsWarpSafe       bool `yaml:"isWarpSafe,omitempty" json:"isWarpSafe"`
-	PropulsionChance bool `yaml:"propulsionChance,omitempty" json:"propulsionChance"`
-	RangeChance      bool `yaml:"rangeChance,omitempty" json:"rangeChance"`
+	Published        bool  `yaml:"published,omitempty" json:"published"`
+	ElectronicChance bool  `yaml:"electronicChance,omitempty" json:"electronicChance"`
+	IsAssistance     bool  `yaml:"isAssistance,omitempty" json:"isAssistance"`
+	IsOffensive      bool  `yaml:"isOffensive,omitempty" json:"isOffensive"`
+	IsWarpSafe       *bool `yaml:"isWarpSafe,omitempty" json:"isWarpSafe"`
+	PropulsionChance bool  `yaml:"propulsionChance,omitempty" json:"propulsionChance"`
+	RangeChance      bool  `yaml:"rangeChance,omitempty" json:"rangeChance"`
 
 	DischargeAttribute          string `yaml:"dischargeAttribute,omitempty" json:"dischargeAttribute"`
 	DurationAttribute           string `yaml:"durationAttribute,omitempty" json:"durationAttribute"`

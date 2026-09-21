@@ -6,21 +6,18 @@ effects:
   - name: damagePerSecondWithoutReload
     on: moduleCyclesOnSpeed or damagingDrone
     category: active
-    isWarpSafe: true
     rules:
       - {div: speed}
 
   - name: damagePerSecondWithoutReload2
     on: moduleCyclesOnDuration
     category: active
-    isWarpSafe: true
     rules:
       - {div: duration}
 
   - name: damagePerSecondWithoutReload3
     on: cyclingDamageDealer
     category: active
-    isWarpSafe: true
     rules:
       - {from: thousand}
       - {mul: damageVolley}
@@ -29,21 +26,18 @@ effects:
   - name: damagePerSecondWithoutReload4
     on: isCharge and attribute("dotMaxDamagePerTick")
     category: passive
-    isWarpSafe: true
     rules:
       - {assign: dotMaxDamagePerTick, domain: otherID}
 
   - name: damagePerSecondWithoutReload5
     on: isFighter
     category: passive
-    isWarpSafe: true
     rules:
       - {add: damagePerSecondWithoutReload, domain: shipID}
 
   - name: damagePerSecondWithoutReload6
     on: spoolsDamage
     category: active
-    isWarpSafe: true
     rules:
       - {mul: spoolMultiplier}
 

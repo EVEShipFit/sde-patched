@@ -5,6 +5,5 @@ new:
 effects:
   - on: name("CharacterType")
     category: passive
-    isWarpSafe: true
     rules:
       - {assign: maxLockedTargets, domain: shipID}

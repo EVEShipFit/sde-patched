@@ -7,7 +7,6 @@ effects:
   # with dogma, as it needs simulation. The dogma-engine fills it in.
   - on: isHull
     category: passive
-    isWarpSafe: true
     rules:
       - {mul: capacitorCapacity}
       - {div: rechargeRate}

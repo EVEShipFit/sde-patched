@@ -5,7 +5,6 @@ effects:
   - name: scanStrength
     on: isShip
     category: passive
-    isWarpSafe: true
     rules:
       - {add: scanRadarStrength}
       - {add: scanLadarStrength}
@@ -16,6 +15,5 @@ effects:
   - name: scanStrength2
     on: isStructure
     category: passive
-    isWarpSafe: true
     rules:
       - {add: scanRadarStrength}

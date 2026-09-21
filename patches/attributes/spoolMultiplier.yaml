@@ -6,6 +6,5 @@ effects:
   - name: spoolMultiplier
     on: spoolsDamage or spoolsRepair
     category: passive
-    isWarpSafe: true
     rules:
       - {add: spoolMultiplierBonus}

@@ -5,7 +5,6 @@ new:
 effects:
   - on: isShip
     category: passive
-    isWarpSafe: true
     rules:
       - {mul: agility}
       - {mul: mass}

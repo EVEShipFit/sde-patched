@@ -247,7 +247,7 @@ func (ctx *Context) create() {
 			ElectronicChance: effect.ElectronicChance,
 			IsAssistance:     effect.IsAssistance,
 			IsOffensive:      effect.IsOffensive,
-			IsWarpSafe:       effect.IsWarpSafe,
+			IsWarpSafe:       yes(effect.IsWarpSafe),
 			PropulsionChance: effect.PropulsionChance,
 			RangeChance:      effect.RangeChance,
 		}

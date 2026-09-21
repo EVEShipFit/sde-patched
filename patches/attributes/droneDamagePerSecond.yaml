@@ -5,6 +5,5 @@ effects:
   # Drones never reload, so their damage without reload is their damage.
   - on: damagingDrone
     category: active
-    isWarpSafe: true
     rules:
       - {add: damagePerSecondWithoutReload, domain: shipID}

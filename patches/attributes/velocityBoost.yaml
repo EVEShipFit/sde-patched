@@ -4,7 +4,6 @@ new:
 effects:
   - on: isShip
     category: passive
-    isWarpSafe: true
     rules:
       - {div: mass}
 

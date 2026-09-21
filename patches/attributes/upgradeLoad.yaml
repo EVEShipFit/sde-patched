@@ -1,6 +1,5 @@
 effects:
   - on: isModule and attribute("upgradeCost")
     category: passive
-    isWarpSafe: true
     rules:
       - {add: upgradeCost, domain: shipID}

@@ -5,20 +5,17 @@ effects:
   - name: speedWithReload
     on: moduleCyclesOnSpeed or damagingDrone
     category: active
-    isWarpSafe: true
     rules:
       - {from: speed}
 
   - name: speedWithReload2
     on: moduleCyclesOnDuration
     category: active
-    isWarpSafe: true
     rules:
       - {from: duration}
 
   - name: speedWithReload3
     on: moduleCycles and holdsCharge
     category: active
-    isWarpSafe: true
     rules:
       - {add: speedOfReload}

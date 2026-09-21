@@ -4,7 +4,6 @@ new:
 effects:
   - on: isHull
     category: passive
-    isWarpSafe: true
     rules:
       - {add: shieldEhp}
       - {add: armorEhp}
