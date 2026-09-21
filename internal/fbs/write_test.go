@@ -52,7 +52,14 @@ func testData() *sde.Data {
 			1: {Key: 1, Name: sde.Localized{En: "Nothing"}},
 		},
 		DogmaAttributes: map[int32]*sde.DogmaAttribute{
-			9: {Key: 9, Name: "hp", DefaultValue: 0, HighIsGood: true, Stackable: true},
+			9: {Key: 9, Name: "hp", DefaultValue: 0, HighIsGood: true, Stackable: true, UnitID: 113, CategoryID: 4},
+		},
+		DogmaUnits: map[int32]*sde.DogmaUnit{
+			113: {Key: 113, Name: "Hitpoints", DisplayName: sde.Localized{En: "HP"}},
+			122: {Key: 122, Name: "Fitting slots"},
+		},
+		DogmaCategories: map[int32]*sde.DogmaAttributeCategory{
+			4: {Key: 4, Name: "Structure"},
 		},
 		DogmaEffects: map[int32]*sde.DogmaEffect{
 			-5: {
@@ -169,6 +176,40 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if got := string(metaGroup.Name()); got != "Tech II" {
 		t.Errorf("meta group name = %q", got)
+	}
+
+	var attribute eve.DogmaAttribute
+	if !root.DogmaAttributesByKey(&attribute, 9) {
+		t.Fatal("attribute 9 not found")
+	}
+	if attribute.UnitId() != 113 || attribute.CategoryId() != 4 {
+		t.Errorf("attribute unit = %d, category = %d", attribute.UnitId(), attribute.CategoryId())
+	}
+
+	var unit eve.DogmaUnit
+	if !root.DogmaUnitsByKey(&unit, 113) {
+		t.Fatal("unit 113 not found")
+	}
+	if got := string(unit.Name()); got != "Hitpoints" {
+		t.Errorf("unit name = %q", got)
+	}
+	if got := string(unit.DisplayName()); got != "HP" {
+		t.Errorf("unit display name = %q", got)
+	}
+
+	if !root.DogmaUnitsByKey(&unit, 122) {
+		t.Fatal("unit 122 not found")
+	}
+	if got := string(unit.DisplayName()); got != "" {
+		t.Errorf("unit without a display name = %q", got)
+	}
+
+	var attributeCategory eve.DogmaAttributeCategory
+	if !root.DogmaAttributeCategoriesByKey(&attributeCategory, 4) {
+		t.Fatal("attribute category 4 not found")
+	}
+	if got := string(attributeCategory.Name()); got != "Structure" {
+		t.Errorf("attribute category name = %q", got)
 	}
 
 	var effect eve.DogmaEffect

@@ -30,6 +30,8 @@ func Write(data *sde.Data, filename string) error {
 	marketGroups := writeMarketGroups(builder, data)
 	metaGroups := writeMetaGroups(builder, data)
 	attributes := writeAttributes(builder, data)
+	units := writeDogmaUnits(builder, data)
+	attributeCategories := writeAttributeCategories(builder, data)
 	effects := writeEffects(builder, data)
 	dbuffCollections := writeDbuffCollections(builder, data)
 	mutaplasmids := writeMutaplasmids(builder, data)
@@ -45,6 +47,8 @@ func Write(data *sde.Data, filename string) error {
 	eve.SdeAddMutaplasmids(builder, mutaplasmids)
 	eve.SdeAddMarketGroups(builder, marketGroups)
 	eve.SdeAddMetaGroups(builder, metaGroups)
+	eve.SdeAddDogmaUnits(builder, units)
+	eve.SdeAddDogmaAttributeCategories(builder, attributeCategories)
 	builder.FinishWithFileIdentifier(eve.SdeEnd(builder), []byte("ESF1"))
 
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
@@ -331,10 +335,45 @@ func writeAttributes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.U
 		eve.DogmaAttributeAddUnitId(builder, entry.UnitID)
 		eve.DogmaAttributeAddMinAttributeId(builder, entry.MinAttributeID)
 		eve.DogmaAttributeAddMaxAttributeId(builder, entry.MaxAttributeID)
+		eve.DogmaAttributeAddCategoryId(builder, entry.CategoryID)
 		offsets = append(offsets, eve.DogmaAttributeEnd(builder))
 	}
 
 	return builder.CreateVectorOfSortedTables(offsets, eve.DogmaAttributeKeyCompare)
+}
+
+func writeDogmaUnits(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	offsets := make([]flatbuffers.UOffsetT, 0, len(data.DogmaUnits))
+
+	for _, key := range sortedKeys(data.DogmaUnits) {
+		entry := data.DogmaUnits[key]
+		name := builder.CreateString(entry.Name)
+		displayName := builder.CreateString(entry.DisplayName.En)
+
+		eve.DogmaUnitStart(builder)
+		eve.DogmaUnitAddId(builder, entry.Key)
+		eve.DogmaUnitAddName(builder, name)
+		eve.DogmaUnitAddDisplayName(builder, displayName)
+		offsets = append(offsets, eve.DogmaUnitEnd(builder))
+	}
+
+	return builder.CreateVectorOfSortedTables(offsets, eve.DogmaUnitKeyCompare)
+}
+
+func writeAttributeCategories(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	offsets := make([]flatbuffers.UOffsetT, 0, len(data.DogmaCategories))
+
+	for _, key := range sortedKeys(data.DogmaCategories) {
+		entry := data.DogmaCategories[key]
+		name := builder.CreateString(entry.Name)
+
+		eve.DogmaAttributeCategoryStart(builder)
+		eve.DogmaAttributeCategoryAddId(builder, entry.Key)
+		eve.DogmaAttributeCategoryAddName(builder, name)
+		offsets = append(offsets, eve.DogmaAttributeCategoryEnd(builder))
+	}
+
+	return builder.CreateVectorOfSortedTables(offsets, eve.DogmaAttributeCategoryKeyCompare)
 }
 
 func writeEffects(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {

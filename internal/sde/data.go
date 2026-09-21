@@ -98,6 +98,18 @@ type DogmaAttribute struct {
 	UnitID         int32     `json:"unitID"`
 	MinAttributeID int32     `json:"minAttributeID"`
 	MaxAttributeID int32     `json:"maxAttributeID"`
+	CategoryID     int32     `json:"attributeCategoryID"`
+}
+
+type DogmaUnit struct {
+	Key         int32     `json:"_key"`
+	Name        string    `json:"name"`
+	DisplayName Localized `json:"displayName"`
+}
+
+type DogmaAttributeCategory struct {
+	Key  int32  `json:"_key"`
+	Name string `json:"name"`
 }
 
 // Modifier is one rule of an effect. The SDE stores domain and func as
@@ -320,6 +332,8 @@ type Data struct {
 	MarketGroups     map[int32]*MarketGroup
 	MetaGroups       map[int32]*MetaGroup
 	DogmaAttributes  map[int32]*DogmaAttribute
+	DogmaUnits       map[int32]*DogmaUnit
+	DogmaCategories  map[int32]*DogmaAttributeCategory
 	DogmaEffects     map[int32]*DogmaEffect
 	DbuffCollections map[int32]*DbuffCollection
 	Mutaplasmids     map[int32]*Mutaplasmid

@@ -142,6 +142,18 @@ table DogmaAttribute {
     unit_id: int32;
     min_attribute_id: int32;
     max_attribute_id: int32;
+    category_id: int32;
+}
+
+table DogmaUnit {
+    id: int32 (key);
+    name: string (required);
+    display_name: string;
+}
+
+table DogmaAttributeCategory {
+    id: int32 (key);
+    name: string (required);
 }
 
 table DogmaEffect {
@@ -215,6 +227,8 @@ table Sde {
     dbuff_collections: [DbuffCollection];
     market_groups: [MarketGroup];
     meta_groups: [MetaGroup];
+    dogma_units: [DogmaUnit];
+    dogma_attribute_categories: [DogmaAttributeCategory];
 }
 
 root_type Sde;
