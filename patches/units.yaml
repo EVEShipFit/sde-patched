@@ -1,0 +1,11 @@
+# Units the SDE has no answer for.
+
+units:
+  - name: hitpointsPerSecond
+    displayName: HP/s
+
+  - name: damagePerSecond
+    displayName: DPS
+
+  - name: capacitorPerSecond
+    displayName: GJ/s

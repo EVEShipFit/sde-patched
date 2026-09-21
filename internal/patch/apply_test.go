@@ -38,6 +38,38 @@ func testData() *sde.Data {
 		DogmaEffects: map[int32]*sde.DogmaEffect{
 			16: {Key: 16, Name: "online", EffectCategoryID: 1},
 		},
+		DogmaUnits:      map[int32]*sde.DogmaUnit{113: {Key: 113, Name: "Hitpoints"}},
+		DogmaCategories: map[int32]*sde.DogmaAttributeCategory{3: {Key: 3, Name: "Armor"}},
+	}
+}
+
+func TestUnitsAndCategories(t *testing.T) {
+	spec := load(t, tree{
+		"units":     "units: [{name: hitpointsPerSecond, displayName: HP/s}]\n",
+		"repairing": "new: {displayName: Repairing, category: Armor, unit: hitpointsPerSecond, highIsGood: true}\n",
+		"armorHP":   "new: {displayName: Armor HP, category: Armor, unit: Hitpoints, highIsGood: true}\n",
+	})
+	if err := spec.Validate(); err != nil {
+		t.Fatal(err)
+	}
+
+	data := testData()
+	ctx, err := Apply(spec, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	unit := data.DogmaUnits[spec.IDs.Units["hitpointsPerSecond"]]
+	if unit == nil || unit.DisplayName.En != "HP/s" {
+		t.Fatalf("the unit we added reads %+v", unit)
+	}
+
+	ours := data.DogmaAttributes[ctx.AttributeID("repairing")]
+	if ours.UnitID != unit.Key || ours.CategoryID != 3 {
+		t.Errorf("repairing has unit %d and category %d", ours.UnitID, ours.CategoryID)
+	}
+	if theirs := data.DogmaAttributes[ctx.AttributeID("armorHP")]; theirs.UnitID != 113 {
+		t.Errorf("an attribute naming one of CCP's units has unit %d", theirs.UnitID)
 	}
 }
 
@@ -56,7 +88,7 @@ func load(t *testing.T, files tree) *Spec {
 	}
 	for name, text := range files {
 		path := filepath.Join(dir, AttributesDir, name+".yaml")
-		if name == "selectors" || name == "effects" {
+		if name == "selectors" || name == "effects" || name == "units" {
 			path = filepath.Join(dir, name+".yaml")
 		}
 		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {

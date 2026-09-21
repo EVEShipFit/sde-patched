@@ -11,11 +11,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// The three things a patches directory holds.
+// The four things a patches directory holds.
 const (
 	AttributesDir = "attributes"
 	SelectorsFile = "selectors.yaml"
 	EffectsFile   = "effects.yaml"
+	UnitsFile     = "units.yaml"
 )
 
 // Load reads a patches directory into one Spec. Attribute files are read in
@@ -28,6 +29,9 @@ func Load(dir string) (*Spec, error) {
 	}
 	spec := &Spec{IDs: ids}
 
+	if err := spec.addUnits(filepath.Join(dir, UnitsFile)); err != nil {
+		return nil, err
+	}
 	if err := spec.addSelectors(filepath.Join(dir, SelectorsFile)); err != nil {
 		return nil, err
 	}
@@ -84,6 +88,26 @@ func (spec *Spec) addAttribute(filename string) error {
 	}
 
 	spec.Attributes = append(spec.Attributes, attribute)
+	return nil
+}
+
+func (spec *Spec) addUnits(filename string) error {
+	raw, err := os.ReadFile(filename)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	var parsed unitFile
+	if err := decode(raw, &parsed); err != nil {
+		return atLine(UnitsFile, err)
+	}
+	for _, unit := range parsed.Units {
+		unit.at.file = UnitsFile
+		spec.Units = append(spec.Units, unit)
+	}
 	return nil
 }
 

@@ -37,6 +37,8 @@ func (s *Server) file(name string) (fileRef, error) {
 		return fileRef{filepath.Join(s.patchesDir, patch.SelectorsFile), patch.KindSelectors}, nil
 	case "effects":
 		return fileRef{filepath.Join(s.patchesDir, patch.EffectsFile), patch.KindEffects}, nil
+	case "units":
+		return fileRef{filepath.Join(s.patchesDir, patch.UnitsFile), patch.KindUnits}, nil
 	}
 	return fileRef{filepath.Join(s.patchesDir, patch.AttributesDir, name+".yaml"), patch.KindAttribute}, nil
 }

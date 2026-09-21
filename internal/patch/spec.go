@@ -5,9 +5,10 @@
 // the attribute, so the name is never written inside it, and every rule in it
 // writes that attribute and nothing else.
 //
-// Two files are not an attribute. patches/selectors.yaml holds the filters
-// more than one attribute needs, and patches/effects.yaml holds the handful of
-// changes that belong to an effect of CCP's rather than to any one value.
+// Three files are not an attribute. patches/selectors.yaml holds the filters
+// more than one attribute needs, patches/effects.yaml holds the handful of
+// changes that belong to an effect of CCP's rather than to any one value, and
+// patches/units.yaml holds the units the SDE has none of.
 //
 // Nothing is looked up while reading; a file only writes down the intent, and
 // Apply resolves it against the SDE.
@@ -28,6 +29,7 @@ import (
 // Spec is everything the patches declare, gathered from every file, plus the
 // IDs that have already been handed out.
 type Spec struct {
+	Units      []*Unit
 	Selectors  []*NamedSelector
 	Attributes []*Attribute
 	Changes    []*Change
@@ -53,6 +55,20 @@ func (spec *Spec) AddTos() []*AddTo {
 		found = append(found, attribute.AddTo...)
 	}
 	return found
+}
+
+// unitFile is patches/units.yaml.
+type unitFile struct {
+	Units []*Unit `yaml:"units,omitempty" json:"units"`
+}
+
+// Unit is a dogma unit the SDE has no answer for, such as a rate. It is only
+// ever a label: nothing converts by it.
+type Unit struct {
+	at source
+
+	Name        string `yaml:"name" json:"name"`
+	DisplayName string `yaml:"displayName" json:"displayName"`
 }
 
 // selectorFile is patches/selectors.yaml.
@@ -102,11 +118,11 @@ type Attribute struct {
 type Definition struct {
 	DisplayName string   `yaml:"displayName,omitempty" json:"displayName"`
 	Category    string   `yaml:"category,omitempty" json:"category"`
+	Unit        string   `yaml:"unit,omitempty" json:"unit"`
 	Default     *float64 `yaml:"default,omitempty" json:"default"`
 	HighIsGood  *bool    `yaml:"highIsGood,omitempty" json:"highIsGood"`
 	Stackable   *bool    `yaml:"stackable,omitempty" json:"stackable"`
 	Published   *bool    `yaml:"published,omitempty" json:"published"`
-	UnitID      int32    `yaml:"unitID,omitempty" json:"unitID"`
 	Min         string   `yaml:"min,omitempty" json:"min"`
 	Max         string   `yaml:"max,omitempty" json:"max"`
 }
@@ -250,6 +266,12 @@ func before(a, b source) bool {
 
 // The types below only override UnmarshalYAML to remember which line they came
 // from. The "plain" alias stops the override from calling itself.
+
+func (u *Unit) UnmarshalYAML(node *yaml.Node) error {
+	type plain Unit
+	u.at.line = node.Line
+	return strictDecode(node, (*plain)(u))
+}
 
 func (s *NamedSelector) UnmarshalYAML(node *yaml.Node) error {
 	type plain NamedSelector
