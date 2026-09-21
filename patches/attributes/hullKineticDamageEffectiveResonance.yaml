@@ -1,7 +1,7 @@
 new:
   displayName: Structure Effective Kinetic Resonance
   category: Structure
-  highIsGood: true
+  highIsGood: false
 
 effects:
   - on: isHull

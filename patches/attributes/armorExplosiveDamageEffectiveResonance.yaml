@@ -1,7 +1,7 @@
 new:
   displayName: Armor Effective Explosive Resonance
   category: Armor
-  highIsGood: true
+  highIsGood: false
 
 effects:
   - on: isHull
