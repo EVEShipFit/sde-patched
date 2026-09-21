@@ -84,7 +84,26 @@ jobs:
         TAG="v${MAJOR}.${BUILD}.${N}"
         echo "Release: ${TAG}"
 
-        gh release create "${TAG}" --target "${GITHUB_SHA}" --title "${TAG}" --notes "Built from SDE build ${BUILD}." --generate-notes
+        NOTES=$(printf "## What's Changed\n* Update to SDE build %s" "${BUILD}")
+
+        COMMITS=0
+        if [ -n "${PREVIOUS}" ]; then
+          COMMITS=$(gh api "repos/${GITHUB_REPOSITORY}/compare/${PREVIOUS}...${GITHUB_SHA}" --jq '.commits | length')
+        fi
+
+        # Without commits of our own, --generate-notes reaches past the previous
+        # release and repeats its changelog; ask for the notes ourselves instead,
+        # and fold them into the list above so both cases read the same.
+        if [ "${COMMITS}" != "0" ]; then
+          GENERATED=$(gh api "repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
+            -f tag_name="${TAG}" \
+            -f target_commitish="${GITHUB_SHA}" \
+            -f previous_tag_name="${PREVIOUS}" \
+            --jq .body | sed "0,/^## What.s Changed$/d")
+          NOTES=$(printf "%s\n%s" "${NOTES}" "${GENERATED}")
+        fi
+
+        gh release create "${TAG}" --target "${GITHUB_SHA}" --title "${TAG}" --notes "${NOTES}"
         echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
 
   publish:
