@@ -1,6 +1,7 @@
 new:
   displayName: Volley Damage
   category: Miscellaneous
+  unit: Hitpoints
   highIsGood: true
 
 effects:

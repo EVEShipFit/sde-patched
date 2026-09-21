@@ -1,6 +1,7 @@
 new:
   displayName: Effective Hit Points
   category: Structure
+  unit: Hitpoints
   highIsGood: true
 
 effects:

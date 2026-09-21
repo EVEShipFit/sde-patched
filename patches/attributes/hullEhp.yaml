@@ -1,6 +1,7 @@
 new:
   displayName: Structure EHP
   category: Structure
+  unit: Hitpoints
   highIsGood: true
 
 effects:

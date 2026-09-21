@@ -1,6 +1,7 @@
 new:
   displayName: Capacitor Peak Load
   category: Capacitor
+  unit: capacitorPerSecond
   highIsGood: false
 
 effects:

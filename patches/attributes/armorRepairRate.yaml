@@ -1,6 +1,7 @@
 new:
   displayName: Armor Repair Rate
   category: Armor
+  unit: hitpointsPerSecond
   highIsGood: true
 
 effects:

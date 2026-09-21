@@ -1,6 +1,7 @@
 new:
   displayName: Spool Multiplier
   category: Miscellaneous
+  unit: Multiplier
   default: 1
   highIsGood: true
 

@@ -1,5 +1,6 @@
 new:
   displayName: Capacitor Stable Percentage
   category: Capacitor
+  unit: "Absolute Percent"
   default: 100
   highIsGood: true

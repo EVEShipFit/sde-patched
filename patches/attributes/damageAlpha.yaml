@@ -1,6 +1,7 @@
 new:
   displayName: Alpha Damage
   category: Miscellaneous
+  unit: Hitpoints
   highIsGood: true
 
 effects:

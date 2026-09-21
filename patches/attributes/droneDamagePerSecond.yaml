@@ -1,6 +1,7 @@
 new:
   displayName: Drone Damage Per Second
   category: Drones
+  unit: damagePerSecond
   highIsGood: true
 
 effects:

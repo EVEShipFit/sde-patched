@@ -1,6 +1,7 @@
 new:
   displayName: Cycle Time (with reload)
   category: Miscellaneous
+  unit: Milliseconds
   highIsGood: false
 
 effects:

@@ -1,6 +1,7 @@
 new:
   displayName: Capacitor Peak Delta
   category: Capacitor
+  unit: capacitorPerSecond
   highIsGood: true
 
 effects:

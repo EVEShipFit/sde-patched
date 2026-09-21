@@ -1,6 +1,7 @@
 new:
   displayName: Fighter Bay Used
   category: Fighter Attributes
+  unit: Volume
   highIsGood: true
 
 effects:

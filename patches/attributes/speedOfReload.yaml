@@ -1,6 +1,7 @@
 new:
   displayName: Reload Time
   category: Miscellaneous
+  unit: Milliseconds
   highIsGood: false
 
 effects:

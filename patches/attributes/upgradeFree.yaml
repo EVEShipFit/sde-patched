@@ -1,6 +1,7 @@
 new:
   displayName: Calibration Free
   category: Fitting
+  unit: attributePoints
   highIsGood: true
 
 effects:

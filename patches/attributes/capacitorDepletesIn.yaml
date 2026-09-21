@@ -1,4 +1,5 @@
 new:
   displayName: Capacitor Depletes In
   category: Capacitor
+  unit: Time
   highIsGood: true

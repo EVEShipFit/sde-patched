@@ -1,6 +1,7 @@
 new:
   displayName: Sensor Strength
   category: Targeting
+  unit: attributePoints
   highIsGood: true
 
 effects:

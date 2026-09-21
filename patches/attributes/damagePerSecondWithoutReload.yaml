@@ -1,6 +1,7 @@
 new:
   displayName: Damage Per Second (without reload)
   category: Miscellaneous
+  unit: damagePerSecond
   highIsGood: true
 
 effects:

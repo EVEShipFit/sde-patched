@@ -1,6 +1,7 @@
 new:
   displayName: Fighter Attack Missile Damage Per Second
   category: Fighter Abilities
+  unit: damagePerSecond
   highIsGood: true
 
 addTo:
