@@ -21,6 +21,8 @@ func Load(filename string, build int32) (*Data, error) {
 		Types:            map[int32]*Type{},
 		Groups:           map[int32]*Group{},
 		Categories:       map[int32]*Category{},
+		MarketGroups:     map[int32]*MarketGroup{},
+		MetaGroups:       map[int32]*MetaGroup{},
 		DogmaAttributes:  map[int32]*DogmaAttribute{},
 		DogmaEffects:     map[int32]*DogmaEffect{},
 		DbuffCollections: map[int32]*DbuffCollection{},
@@ -34,6 +36,16 @@ func Load(filename string, build int32) (*Data, error) {
 	}
 	if err := decode(&reader.Reader, "groups.jsonl", func(entry *Group) {
 		data.Groups[entry.Key] = entry
+	}); err != nil {
+		return nil, err
+	}
+	if err := decode(&reader.Reader, "marketGroups.jsonl", func(entry *MarketGroup) {
+		data.MarketGroups[entry.Key] = entry
+	}); err != nil {
+		return nil, err
+	}
+	if err := decode(&reader.Reader, "metaGroups.jsonl", func(entry *MetaGroup) {
+		data.MetaGroups[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}

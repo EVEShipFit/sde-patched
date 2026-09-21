@@ -22,6 +22,14 @@ func testData() *sde.Data {
 		Groups: map[int32]*sde.Group{
 			100: {Key: 100, Name: sde.Localized{En: "Combat Drone"}, CategoryID: 18, Published: true},
 		},
+		MarketGroups: map[int32]*sde.MarketGroup{
+			157: {Key: 157, Name: sde.Localized{En: "Drones"}},
+			837: {Key: 837, Name: sde.Localized{En: "Light Scout Drones"}, ParentGroupID: 157},
+		},
+		MetaGroups: map[int32]*sde.MetaGroup{
+			1: {Key: 1, Name: sde.Localized{En: "Tech I"}},
+			2: {Key: 2, Name: sde.Localized{En: "Tech II"}},
+		},
 		Types: map[int32]*sde.Type{
 			2456: {
 				Key:        2456,
@@ -142,6 +150,25 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if ability.Slot() != 2 || ability.AbilityId() != 33 || ability.ChargeCount() != 18 || ability.RearmTimeSeconds() != 4 {
 		t.Errorf("fighter ability = slot %d, ability %d, %d charges, %v rearm", ability.Slot(), ability.AbilityId(), ability.ChargeCount(), ability.RearmTimeSeconds())
+	}
+
+	var marketGroup eve.MarketGroup
+	if !root.MarketGroupsByKey(&marketGroup, 837) {
+		t.Fatal("market group 837 not found")
+	}
+	if got := string(marketGroup.Name()); got != "Light Scout Drones" {
+		t.Errorf("market group name = %q", got)
+	}
+	if marketGroup.ParentGroupId() != 157 {
+		t.Errorf("market group parent = %d, want 157", marketGroup.ParentGroupId())
+	}
+
+	var metaGroup eve.MetaGroup
+	if !root.MetaGroupsByKey(&metaGroup, 2) {
+		t.Fatal("meta group 2 not found")
+	}
+	if got := string(metaGroup.Name()); got != "Tech II" {
+		t.Errorf("meta group name = %q", got)
 	}
 
 	var effect eve.DogmaEffect

@@ -27,6 +27,8 @@ func Write(data *sde.Data, filename string) error {
 	types := writeTypes(builder, data)
 	groups := writeGroups(builder, data)
 	categories := writeCategories(builder, data)
+	marketGroups := writeMarketGroups(builder, data)
+	metaGroups := writeMetaGroups(builder, data)
 	attributes := writeAttributes(builder, data)
 	effects := writeEffects(builder, data)
 	dbuffCollections := writeDbuffCollections(builder, data)
@@ -41,6 +43,8 @@ func Write(data *sde.Data, filename string) error {
 	eve.SdeAddDogmaEffects(builder, effects)
 	eve.SdeAddDbuffCollections(builder, dbuffCollections)
 	eve.SdeAddMutaplasmids(builder, mutaplasmids)
+	eve.SdeAddMarketGroups(builder, marketGroups)
+	eve.SdeAddMetaGroups(builder, metaGroups)
 	builder.FinishWithFileIdentifier(eve.SdeEnd(builder), []byte("ESF1"))
 
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
@@ -273,6 +277,39 @@ func writeCategories(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.U
 	}
 
 	return builder.CreateVectorOfSortedTables(offsets, eve.CategoryKeyCompare)
+}
+
+func writeMarketGroups(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	offsets := make([]flatbuffers.UOffsetT, 0, len(data.MarketGroups))
+
+	for _, key := range sortedKeys(data.MarketGroups) {
+		entry := data.MarketGroups[key]
+		name := builder.CreateString(entry.Name.En)
+
+		eve.MarketGroupStart(builder)
+		eve.MarketGroupAddId(builder, entry.Key)
+		eve.MarketGroupAddName(builder, name)
+		eve.MarketGroupAddParentGroupId(builder, entry.ParentGroupID)
+		offsets = append(offsets, eve.MarketGroupEnd(builder))
+	}
+
+	return builder.CreateVectorOfSortedTables(offsets, eve.MarketGroupKeyCompare)
+}
+
+func writeMetaGroups(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	offsets := make([]flatbuffers.UOffsetT, 0, len(data.MetaGroups))
+
+	for _, key := range sortedKeys(data.MetaGroups) {
+		entry := data.MetaGroups[key]
+		name := builder.CreateString(entry.Name.En)
+
+		eve.MetaGroupStart(builder)
+		eve.MetaGroupAddId(builder, entry.Key)
+		eve.MetaGroupAddName(builder, name)
+		offsets = append(offsets, eve.MetaGroupEnd(builder))
+	}
+
+	return builder.CreateVectorOfSortedTables(offsets, eve.MetaGroupKeyCompare)
 }
 
 func writeAttributes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {

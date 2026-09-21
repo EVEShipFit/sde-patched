@@ -12,6 +12,8 @@ func (d *Data) Clone() *Data {
 		Types:            make(map[int32]*Type, len(d.Types)),
 		Groups:           d.Groups,
 		Categories:       d.Categories,
+		MarketGroups:     d.MarketGroups,
+		MetaGroups:       d.MetaGroups,
 		DogmaAttributes:  make(map[int32]*DogmaAttribute, len(d.DogmaAttributes)),
 		DogmaEffects:     make(map[int32]*DogmaEffect, len(d.DogmaEffects)),
 		DbuffCollections: d.DbuffCollections,

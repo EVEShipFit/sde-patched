@@ -76,6 +76,17 @@ type Category struct {
 	Published bool      `json:"published"`
 }
 
+type MarketGroup struct {
+	Key           int32     `json:"_key"`
+	Name          Localized `json:"name"`
+	ParentGroupID int32     `json:"parentGroupID"`
+}
+
+type MetaGroup struct {
+	Key  int32     `json:"_key"`
+	Name Localized `json:"name"`
+}
+
 type DogmaAttribute struct {
 	Key            int32     `json:"_key"`
 	Name           string    `json:"name"`
@@ -306,6 +317,8 @@ type Data struct {
 	Types            map[int32]*Type
 	Groups           map[int32]*Group
 	Categories       map[int32]*Category
+	MarketGroups     map[int32]*MarketGroup
+	MetaGroups       map[int32]*MetaGroup
 	DogmaAttributes  map[int32]*DogmaAttribute
 	DogmaEffects     map[int32]*DogmaEffect
 	DbuffCollections map[int32]*DbuffCollection
