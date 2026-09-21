@@ -268,8 +268,66 @@ func (rcv *Sde) DbuffCollectionsLength() int {
 	return 0
 }
 
+func (rcv *Sde) MarketGroups(obj *MarketGroup, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Sde) MarketGroupsByKey(obj *MarketGroup, key int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		return obj.LookupByKey(key, x, rcv._tab.Bytes)
+	}
+	return false
+}
+
+func (rcv *Sde) MarketGroupsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(20))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *Sde) MetaGroups(obj *MetaGroup, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Sde) MetaGroupsByKey(obj *MetaGroup, key int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		return obj.LookupByKey(key, x, rcv._tab.Bytes)
+	}
+	return false
+}
+
+func (rcv *Sde) MetaGroupsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(22))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func SdeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(8)
+	builder.StartObject(10)
 }
 func SdeAddBuildNumber(builder *flatbuffers.Builder, buildNumber int32) {
 	builder.PrependInt32Slot(0, buildNumber, 0)
@@ -314,6 +372,18 @@ func SdeAddDbuffCollections(builder *flatbuffers.Builder, dbuffCollections flatb
 	builder.PrependUOffsetTSlot(7, flatbuffers.UOffsetT(dbuffCollections), 0)
 }
 func SdeStartDbuffCollectionsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
+func SdeAddMarketGroups(builder *flatbuffers.Builder, marketGroups flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(8, flatbuffers.UOffsetT(marketGroups), 0)
+}
+func SdeStartMarketGroupsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
+func SdeAddMetaGroups(builder *flatbuffers.Builder, metaGroups flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(9, flatbuffers.UOffsetT(metaGroups), 0)
+}
+func SdeStartMetaGroupsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func SdeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {

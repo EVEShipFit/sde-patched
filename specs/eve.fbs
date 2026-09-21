@@ -120,6 +120,17 @@ table Category {
     published: bool;
 }
 
+table MarketGroup {
+    id: int32 (key);
+    name: string (required);
+    parent_group_id: int32;
+}
+
+table MetaGroup {
+    id: int32 (key);
+    name: string (required);
+}
+
 table DogmaAttribute {
     id: int32 (key);
     name: string (required);
@@ -202,6 +213,8 @@ table Sde {
     dogma_effects: [DogmaEffect];
     mutaplasmids: [Mutaplasmid];
     dbuff_collections: [DbuffCollection];
+    market_groups: [MarketGroup];
+    meta_groups: [MetaGroup];
 }
 
 root_type Sde;
