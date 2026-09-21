@@ -4,6 +4,7 @@ new:
   unit: Multiplier
   default: 1
   highIsGood: true
+  published: false
 
 effects:
   - on: ancillaryArmorRepairModule

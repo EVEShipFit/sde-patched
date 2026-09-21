@@ -3,6 +3,7 @@ new:
   category: Miscellaneous
   unit: Multiplier
   highIsGood: true
+  published: false
 
 effects:
   - name: spoolMultiplierBonus

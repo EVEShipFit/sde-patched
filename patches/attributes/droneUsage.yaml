@@ -3,3 +3,4 @@ new:
   category: Drones
   default: 1
   highIsGood: true
+  published: false
