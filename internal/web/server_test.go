@@ -15,6 +15,9 @@ import (
 
 const goodPatch = `
 new:
+  displayName: Align Time
+  category: Speed and Travel
+  highIsGood: false
   default: 1.5
 
 effects:
@@ -70,6 +73,7 @@ func testData() *sde.Data {
 			587: {Key: 587, Name: sde.Localized{En: "Rifter"}, GroupID: 25, CategoryID: 6, Published: true},
 		},
 		DogmaAttributes: map[int32]*sde.DogmaAttribute{70: {Key: 70, Name: "agility"}},
+		DogmaCategories: map[int32]*sde.DogmaAttributeCategory{17: {Key: 17, Name: "Speed and Travel"}},
 		DogmaEffects:    map[int32]*sde.DogmaEffect{},
 	}
 }
@@ -343,11 +347,11 @@ func TestNotesAndNewPatch(t *testing.T) {
 		t.Errorf("the notes are not at the top:\n%s", text)
 	}
 
-	code, _ := send(t, handler, "POST", "/api/patch/newIdea", `{"notes":"An idea.","new":{"highIsGood":true}}`)
+	code, _ := send(t, handler, "POST", "/api/patch/newIdea", `{"notes":"An idea.","new":{"displayName":"An Idea","category":"Miscellaneous","highIsGood":true}}`)
 	if code != http.StatusOK {
 		t.Fatalf("status = %d", code)
 	}
-	if text := fileText(t, dir, "newIdea.yaml"); text != "# An idea.\n\nnew:\n  highIsGood: true\n" {
+	if text := fileText(t, dir, "newIdea.yaml"); text != "# An idea.\n\nnew:\n  displayName: An Idea\n  category: Miscellaneous\n  highIsGood: true\n" {
 		t.Errorf("the new attribute reads %q", text)
 	}
 
