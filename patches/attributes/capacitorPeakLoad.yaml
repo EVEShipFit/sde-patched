@@ -1,7 +1,7 @@
 new:
   displayName: Capacitor Peak Load
   category: Capacitor
-  highIsGood: true
+  highIsGood: false
 
 effects:
   - name: capacitorPeakLoad

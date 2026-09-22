@@ -1,7 +1,7 @@
 new:
   displayName: Cycle Time (with reload)
   category: Miscellaneous
-  highIsGood: true
+  highIsGood: false
 
 effects:
   - name: speedWithReload
