@@ -1,6 +1,7 @@
 new:
   displayName: Shield EHP
   category: Shield
+  unit: Hitpoints
   highIsGood: true
 
 effects:

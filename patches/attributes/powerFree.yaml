@@ -1,6 +1,7 @@
 new:
   displayName: Powergrid Free
   category: Fitting
+  unit: MegaWatts
   highIsGood: true
 
 effects:

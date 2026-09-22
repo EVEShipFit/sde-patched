@@ -1,6 +1,7 @@
 new:
   displayName: Effective Passive Shield Recharge Rate
   category: Shield
+  unit: hitpointsPerSecond
   default: 2500
   highIsGood: true
 

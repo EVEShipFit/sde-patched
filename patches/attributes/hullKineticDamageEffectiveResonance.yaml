@@ -1,6 +1,7 @@
 new:
   displayName: Structure Effective Kinetic Resonance
   category: Structure
+  unit: "Inverse Absolute Percent"
   highIsGood: false
 
 effects:

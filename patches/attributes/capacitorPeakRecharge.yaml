@@ -1,6 +1,7 @@
 new:
   displayName: Capacitor Peak Recharge
   category: Capacitor
+  unit: capacitorPerSecond
   default: 2.5
   highIsGood: true
 

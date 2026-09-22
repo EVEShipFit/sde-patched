@@ -1,6 +1,7 @@
 new:
   displayName: Charged Repair Multiplier
   category: Armor
+  unit: Multiplier
   default: 1
   highIsGood: true
 

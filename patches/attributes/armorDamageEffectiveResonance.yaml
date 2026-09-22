@@ -1,6 +1,7 @@
 new:
   displayName: Armor Effective Resonance
   category: Armor
+  unit: "Inverse Absolute Percent"
   highIsGood: false
 
 effects:

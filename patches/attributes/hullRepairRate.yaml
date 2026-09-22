@@ -1,6 +1,7 @@
 new:
   displayName: Structure Repair Rate
   category: Structure
+  unit: hitpointsPerSecond
   highIsGood: true
 
 effects:

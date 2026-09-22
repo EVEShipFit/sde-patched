@@ -1,6 +1,7 @@
 new:
   displayName: Cycle Time
   category: Miscellaneous
+  unit: Milliseconds
   highIsGood: false
 
 effects:

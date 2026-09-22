@@ -1,6 +1,7 @@
 new:
   displayName: Capacitor Transfer Rate
   category: Capacitor
+  unit: capacitorPerSecond
   highIsGood: true
 
 effects:

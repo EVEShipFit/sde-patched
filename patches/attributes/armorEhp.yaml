@@ -1,6 +1,7 @@
 new:
   displayName: Armor EHP
   category: Armor
+  unit: Hitpoints
   highIsGood: true
 
 effects:

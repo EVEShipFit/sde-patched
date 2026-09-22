@@ -1,6 +1,7 @@
 new:
   displayName: Drone Bay Used
   category: Drones
+  unit: Volume
   highIsGood: true
 
 effects:

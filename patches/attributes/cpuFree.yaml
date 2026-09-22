@@ -1,6 +1,7 @@
 new:
   displayName: CPU Free
   category: Fitting
+  unit: Teraflops
   highIsGood: true
 
 effects:

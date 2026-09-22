@@ -1,6 +1,7 @@
 new:
   displayName: Shield Boost Rate
   category: Shield
+  unit: hitpointsPerSecond
   highIsGood: true
 
 effects:

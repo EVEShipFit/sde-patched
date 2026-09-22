@@ -1,6 +1,7 @@
 new:
   displayName: Capacitor Injection Amount
   category: Capacitor
+  unit: "capacitor units"
   default: 0
   highIsGood: true
 

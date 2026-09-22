@@ -1,6 +1,7 @@
 new:
   displayName: Structure Effective Resonance
   category: Structure
+  unit: "Inverse Absolute Percent"
   highIsGood: false
 
 effects:

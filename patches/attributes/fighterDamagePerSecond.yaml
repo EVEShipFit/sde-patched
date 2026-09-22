@@ -1,6 +1,7 @@
 new:
   displayName: Fighter Damage Per Second
   category: Fighter Attributes
+  unit: damagePerSecond
   highIsGood: true
 
 effects:
