@@ -105,7 +105,7 @@ async function newAttribute() {
   try {
     await api(`/api/patch/${encodeURIComponent(name)}`, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ new: { highIsGood: true } }),
+      body: JSON.stringify({ new: { displayName: name, category: "Miscellaneous", highIsGood: true } }),
     });
   } catch (err) {
     return alarm(err.message);

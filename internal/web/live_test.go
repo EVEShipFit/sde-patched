@@ -12,6 +12,8 @@ import (
 // is missing.
 const ehpPatch = `
 new:
+  displayName: Armor EHP
+  category: Armor
   highIsGood: true
 
 effects:
@@ -44,7 +46,8 @@ func liveData() *sde.Data {
 			265: {Key: 265, Name: "armorHP", DisplayName: sde.Localized{En: "Armor hitpoints"}, HighIsGood: true, Stackable: true, UnitID: 9},
 			267: {Key: 267, Name: "armorEmDamageResonance", Stackable: true},
 		},
-		DogmaEffects: map[int32]*sde.DogmaEffect{},
+		DogmaCategories: map[int32]*sde.DogmaAttributeCategory{3: {Key: 3, Name: "Armor"}},
+		DogmaEffects:    map[int32]*sde.DogmaEffect{},
 	}
 	return data
 }

@@ -169,6 +169,17 @@ func (spec *Spec) Validate() error {
 		if attribute.New != nil && attribute.Change != nil {
 			report(attribute.at, "%q says both new and change; it is one or the other", attribute.Name)
 		}
+		if attribute.New != nil {
+			if attribute.New.DisplayName == "" {
+				report(attribute.at, "new attribute %q needs a displayName", attribute.Name)
+			}
+			if attribute.New.Category == "" {
+				report(attribute.at, "new attribute %q needs a category", attribute.Name)
+			}
+			if attribute.New.HighIsGood == nil {
+				report(attribute.at, "new attribute %q needs to say whether highIsGood", attribute.Name)
+			}
+		}
 
 		// A single effect defaults to the attribute's name; with more, each
 		// must be named.
