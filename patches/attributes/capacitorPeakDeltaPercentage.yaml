@@ -5,7 +5,6 @@ new:
 effects:
   - on: isHull
     category: passive
-    isWarpSafe: true
     rules:
       - {mul: capacitorPeakDelta}
       - {div: capacitorPeakRecharge}

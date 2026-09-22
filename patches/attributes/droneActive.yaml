@@ -4,6 +4,5 @@ new:
 effects:
   - on: isDrone
     category: active
-    isWarpSafe: true
     rules:
       - {add: droneUsage, domain: shipID}

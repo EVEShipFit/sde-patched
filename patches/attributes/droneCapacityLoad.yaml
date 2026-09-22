@@ -4,6 +4,5 @@ new:
 effects:
   - on: isDrone
     category: passive
-    isWarpSafe: true
     rules:
       - {add: volume, domain: shipID}

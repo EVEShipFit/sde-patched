@@ -5,7 +5,6 @@ effects:
   - name: shieldBoostRate
     on: shieldBoostModule
     category: active
-    isWarpSafe: true
     rules:
       - {from: thousand}
       - {mul: shieldBonus}
@@ -17,7 +16,6 @@ effects:
   - name: remoteShieldBoostRate
     on: remoteShieldBoostModule
     category: active
-    isWarpSafe: true
     resistanceAttribute: remoteRepairImpedance
     rangeAttribute: maxRange
     falloffAttribute: falloffEffectiveness

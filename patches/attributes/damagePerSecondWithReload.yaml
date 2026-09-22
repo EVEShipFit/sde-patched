@@ -5,7 +5,6 @@ effects:
   - name: damagePerSecondWithReload
     on: moduleCycles and holdsCharge
     category: active
-    isWarpSafe: true
     rules:
       - {from: thousand}
       - {mul: damageVolley}
@@ -16,28 +15,24 @@ effects:
   - name: damagePerSecondWithReload2
     on: damagingDrone or (moduleCycles and not holdsCharge)
     category: active
-    isWarpSafe: true
     rules:
       - {add: damagePerSecondWithoutReload, domain: shipID}
 
   - name: damagePerSecondWithReload3
     on: isCharge and attribute("dotMaxDamagePerTick")
     category: passive
-    isWarpSafe: true
     rules:
       - {assign: dotMaxDamagePerTick, domain: otherID}
 
   - name: damagePerSecondWithReload4
     on: isFighter
     category: passive
-    isWarpSafe: true
     rules:
       - {add: damagePerSecondWithReload, domain: shipID}
 
   - name: damagePerSecondWithReload5
     on: spoolsDamage
     category: active
-    isWarpSafe: true
     rules:
       - {mul: spoolMultiplier}
 

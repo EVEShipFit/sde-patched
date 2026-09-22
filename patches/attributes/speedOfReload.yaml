@@ -5,7 +5,6 @@ effects:
   - name: speedOfReload
     on: moduleCycles and holdsCharge
     category: active
-    isWarpSafe: true
     rules:
       - {from: reloadTime}
       - {div: chargeAmount}
@@ -13,6 +12,5 @@ effects:
   - name: speedOfReload2
     on: moduleCycles and holdsCharge and effect("pointDefense")
     category: active
-    isWarpSafe: true
     rules:
       - {mul: chargeRate}

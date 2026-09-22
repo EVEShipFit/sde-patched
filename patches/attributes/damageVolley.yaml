@@ -6,7 +6,6 @@ effects:
   - name: damageVolley
     on: isCharge and hasDamageAttribute
     category: passive
-    isWarpSafe: true
     rules:
       - {add: emDamage, domain: otherID}
       - {add: explosiveDamage, domain: otherID}
@@ -18,14 +17,12 @@ effects:
   - name: damageVolley2
     on: isCharge and attribute("dotMaxDamagePerTick")
     category: passive
-    isWarpSafe: true
     rules:
       - {add: dotMaxDamagePerTick, domain: otherID}
 
   - name: damageVolley3
     on: damagingModule or damagingDrone
     category: passive
-    isWarpSafe: true
     rules:
       - {add: emDamage}
       - {add: explosiveDamage}
@@ -35,6 +32,5 @@ effects:
   - name: damageVolley4
     on: attribute("damageMultiplier") and (damagingModule or damagingDrone)
     category: passive
-    isWarpSafe: true
     rules:
       - {mul: damageMultiplier}

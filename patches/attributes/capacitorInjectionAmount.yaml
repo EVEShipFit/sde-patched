@@ -5,6 +5,5 @@ new:
 effects:
   - on: capacitorBoosterCharge
     category: passive
-    isWarpSafe: true
     rules:
       - {add: capacitorBonus, domain: otherID}

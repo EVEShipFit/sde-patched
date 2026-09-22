@@ -1,7 +1,6 @@
 effects:
   - on: isShip
     category: passive
-    isWarpSafe: true
     rules:
       - {percent: velocityBoost}
 

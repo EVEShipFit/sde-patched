@@ -7,55 +7,47 @@ effects:
   - name: cycleTime
     on: (usesCapacitorInCycles or capacitorBooster) and attribute("duration")
     category: active
-    isWarpSafe: true
     rules:
       - {add: duration}
 
   - name: cycleTime2
     on: usesCapacitorInCycles and attribute("durationHighisGood")
     category: active
-    isWarpSafe: true
     rules:
       - {add: durationHighisGood}
 
   - name: cycleTime3
     on: usesCapacitorInCycles and attribute("speed")
     category: active
-    isWarpSafe: true
     rules:
       - {add: speed}
 
   - name: cycleTime4
     on: usesCapacitorInCycles and attribute("moduleReactivationDelay")
     category: active
-    isWarpSafe: true
     rules:
       - {add: moduleReactivationDelay}
 
   - name: cycleTime5
     on: usesCapacitorInCycles and attribute("durationECMJammerBurstProjector")
     category: active
-    isWarpSafe: true
     rules:
       - {add: durationECMJammerBurstProjector}
 
   - name: cycleTime6
     on: usesCapacitorInCycles and attribute("durationSensorDampeningBurstProjector")
     category: active
-    isWarpSafe: true
     rules:
       - {add: durationSensorDampeningBurstProjector}
 
   - name: cycleTime7
     on: usesCapacitorInCycles and attribute("durationTargetIlluminationBurstProjector")
     category: active
-    isWarpSafe: true
     rules:
       - {add: durationTargetIlluminationBurstProjector}
 
   - name: cycleTime8
     on: usesCapacitorInCycles and attribute("durationWeaponDisruptionBurstProjector")
     category: active
-    isWarpSafe: true
     rules:
       - {add: durationWeaponDisruptionBurstProjector}

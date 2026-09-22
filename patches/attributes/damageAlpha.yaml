@@ -4,6 +4,5 @@ new:
 effects:
   - on: damagingModule
     category: active
-    isWarpSafe: true
     rules:
       - {add: damageVolley, domain: shipID}

@@ -5,7 +5,6 @@ effects:
   - name: capacitorPeakLoad
     on: usesCapacitorInCycles
     category: active
-    isWarpSafe: true
     rules:
       - {from: capacitorNeed}
       - {div: cycleTime}
@@ -15,14 +14,12 @@ effects:
   - name: capacitorPeakLoad2
     on: transfersCapacitorToShip
     category: active
-    isWarpSafe: true
     rules:
       - {sub: powerTransferAmount}
 
   - name: capacitorPeakLoadInjected
     on: capacitorBooster
     category: active
-    isWarpSafe: true
     rules:
       - {sub: capacitorInjectionAmount}
       - {div: cycleTime}
@@ -32,7 +29,6 @@ effects:
   - name: capacitorPeakLoadGiven
     on: remoteCapacitorTransmitter
     category: active
-    isWarpSafe: true
     resistanceAttribute: remoteRepairImpedance
     rangeAttribute: maxRange
     falloffAttribute: falloffEffectiveness
@@ -42,7 +38,6 @@ effects:
   - name: capacitorPeakLoadTaken
     on: energyNeutralizer or energyNosferatu
     category: active
-    isWarpSafe: true
     resistanceAttribute: energyWarfareResistance
     rangeAttribute: maxRange
     falloffAttribute: falloffEffectiveness

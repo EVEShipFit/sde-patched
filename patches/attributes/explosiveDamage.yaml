@@ -1,7 +1,6 @@
 effects:
   - on: name("CharacterType")
     category: passive
-    isWarpSafe: true
     isOffensive: true
     rules:
       - {mul: missileDamageMultiplier, domain: charID, func: ownerRequiredSkillModifier, skill: Missile Launcher Operation}
