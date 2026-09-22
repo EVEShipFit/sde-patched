@@ -136,8 +136,8 @@ func (ctx *Context) changeAttribute(attribute *Attribute) {
 	if edit.DisplayName != "" {
 		entry.DisplayName.En = edit.DisplayName
 	}
-	if edit.UnitID != 0 {
-		entry.UnitID = edit.UnitID
+	if edit.Unit != "" {
+		entry.UnitID = ctx.dogmaUnit(attribute.at, edit.Unit)
 	}
 	if edit.Category != "" {
 		entry.CategoryID = ctx.dogmaCategory(attribute.at, edit.Category)
@@ -162,6 +162,17 @@ func (spec *Spec) Validate() error {
 		if change.Effect == "" {
 			report(change.at, "a change needs an effect to change")
 		}
+	}
+
+	units := map[string]source{}
+	for _, unit := range spec.Units {
+		if unit.Name == "" || unit.DisplayName == "" {
+			report(unit.at, "a unit needs a name and a displayName")
+		}
+		if was, taken := units[unit.Name]; taken {
+			report(unit.at, "there is already a unit named %q, at %s", unit.Name, was)
+		}
+		units[unit.Name] = unit.at
 	}
 
 	seen := map[string]source{}

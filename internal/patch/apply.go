@@ -20,6 +20,7 @@ type Context struct {
 
 	attributeByName     map[string]*sde.DogmaAttribute
 	dogmaCategoryByName map[string]*sde.DogmaAttributeCategory
+	dogmaUnitByName     map[string]*sde.DogmaUnit
 	effectByName        map[string]*sde.DogmaEffect
 	categoryByName      map[string]*sde.Category
 	groupsByName        map[string][]*sde.Group
@@ -132,6 +133,15 @@ func (ctx *Context) clamp() {
 	}
 }
 
+func (ctx *Context) dogmaUnit(at source, name string) int32 {
+	entry, ok := ctx.dogmaUnitByName[name]
+	if !ok {
+		ctx.errorf(at, "no dogma unit named %q", name)
+		return 0
+	}
+	return entry.Key
+}
+
 func (ctx *Context) dogmaCategory(at source, name string) int32 {
 	entry, ok := ctx.dogmaCategoryByName[name]
 	if !ok {
@@ -153,6 +163,7 @@ func (ctx *Context) clampAgainst(at source, name string) int32 {
 func (ctx *Context) index() {
 	ctx.attributeByName = map[string]*sde.DogmaAttribute{}
 	ctx.dogmaCategoryByName = map[string]*sde.DogmaAttributeCategory{}
+	ctx.dogmaUnitByName = map[string]*sde.DogmaUnit{}
 	ctx.effectByName = map[string]*sde.DogmaEffect{}
 	ctx.categoryByName = map[string]*sde.Category{}
 	ctx.groupsByName = map[string][]*sde.Group{}
@@ -164,6 +175,9 @@ func (ctx *Context) index() {
 	}
 	for _, entry := range ctx.Data.DogmaCategories {
 		ctx.dogmaCategoryByName[entry.Name] = entry
+	}
+	for _, entry := range ctx.Data.DogmaUnits {
+		ctx.dogmaUnitByName[entry.Name] = entry
 	}
 	for _, entry := range ctx.Data.DogmaEffects {
 		ctx.effectByName[entry.Name] = entry
@@ -192,8 +206,31 @@ func (ctx *Context) index() {
 	sort.Slice(ctx.sortedTypes, func(i, j int) bool { return ctx.sortedTypes[i].Key < ctx.sortedTypes[j].Key })
 }
 
-// create adds every new attribute and effect, with the IDs from ids.yaml.
+// create adds every new unit, attribute and effect, with the IDs from
+// ids.yaml. Units come first, as an attribute may name one of them.
 func (ctx *Context) create() {
+	for _, unit := range ctx.Spec.Units {
+		if _, exists := ctx.dogmaUnitByName[unit.Name]; exists {
+			ctx.errorf(unit.at, "dogma unit %q already exists", unit.Name)
+			continue
+		}
+
+		id, known := ctx.Spec.IDs.Unit(unit.Name)
+		if !known {
+			ctx.errorf(unit.at, "unit %q has no ID yet; run \"sde-patched ids\"", unit.Name)
+			continue
+		}
+		if _, taken := ctx.Data.DogmaUnits[id]; taken {
+			ctx.errorf(unit.at, "dogma unit ID %d is already taken", id)
+			continue
+		}
+
+		entry := &sde.DogmaUnit{Key: id, Name: unit.Name}
+		entry.DisplayName.En = unit.DisplayName
+		ctx.Data.DogmaUnits[id] = entry
+		ctx.dogmaUnitByName[unit.Name] = entry
+	}
+
 	for _, attribute := range ctx.Spec.Attributes {
 		if attribute.New == nil {
 			if _, exists := ctx.attributeByName[attribute.Name]; !exists {
@@ -223,11 +260,13 @@ func (ctx *Context) create() {
 			HighIsGood:   no(attribute.New.HighIsGood),
 			Stackable:    yes(attribute.New.Stackable),
 			Published:    yes(attribute.New.Published),
-			UnitID:       attribute.New.UnitID,
 		}
 		entry.DisplayName.En = attribute.New.DisplayName
 		if attribute.New.Category != "" {
 			entry.CategoryID = ctx.dogmaCategory(attribute.at, attribute.New.Category)
+		}
+		if attribute.New.Unit != "" {
+			entry.UnitID = ctx.dogmaUnit(attribute.at, attribute.New.Unit)
 		}
 		ctx.Data.DogmaAttributes[id] = entry
 		ctx.attributeByName[attribute.Name] = entry

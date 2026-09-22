@@ -179,3 +179,8 @@ effects:
   upgradeFree: -98
   maxTargets: -99
   maxTargetsCharacter: -100
+
+units:
+  hitpointsPerSecond: -1
+  damagePerSecond: -2
+  capacitorPerSecond: -3

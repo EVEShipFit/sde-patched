@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Every attribute and effect a patch adds gets an ID that never changes, as
+// Everything a patch adds gets an ID that never changes, as
 // consumers store it. The IDs are kept in one file rather than in each
 // declaration.
 //
@@ -26,11 +26,12 @@ const idsNotes = `# Every ID the patches have handed out, kept so that none of t
 # The editor writes this. Nothing here is edited by hand.
 `
 
-// IDs is the ID each name was given, for attributes and for effects. The two
-// are numbered apart, so the same name can be in both.
+// IDs is the ID each name was given, for attributes, effects and units. The
+// three are numbered apart, so the same name can be in more than one.
 type IDs struct {
 	Attributes map[string]int32 `yaml:"attributes"`
 	Effects    map[string]int32 `yaml:"effects"`
+	Units      map[string]int32 `yaml:"units"`
 
 	path string
 }
@@ -39,6 +40,7 @@ func LoadIDs(dir string) (*IDs, error) {
 	ids := &IDs{
 		Attributes: map[string]int32{},
 		Effects:    map[string]int32{},
+		Units:      map[string]int32{},
 		path:       filepath.Join(dir, IDsFile),
 	}
 
@@ -58,6 +60,9 @@ func LoadIDs(dir string) (*IDs, error) {
 	if ids.Effects == nil {
 		ids.Effects = map[string]int32{}
 	}
+	if ids.Units == nil {
+		ids.Units = map[string]int32{}
+	}
 	return ids, nil
 }
 
@@ -68,6 +73,11 @@ func (ids *IDs) Attribute(name string) (int32, bool) {
 
 func (ids *IDs) Effect(name string) (int32, bool) {
 	id, known := ids.Effects[name]
+	return id, known
+}
+
+func (ids *IDs) Unit(name string) (int32, bool) {
+	id, known := ids.Units[name]
 	return id, known
 }
 
@@ -94,6 +104,7 @@ func take(handed map[string]int32, name string) int32 {
 
 func (ids *IDs) TakeAttribute(name string) int32 { return take(ids.Attributes, name) }
 func (ids *IDs) TakeEffect(name string) int32    { return take(ids.Effects, name) }
+func (ids *IDs) TakeUnit(name string) int32      { return take(ids.Units, name) }
 
 // Record gives a number to everything in the spec that has not got one yet,
 // and says how many it handed out. Names are taken in file and line order, so
@@ -112,6 +123,12 @@ func (ids *IDs) Record(spec *Spec) int {
 	for _, effect := range spec.Effects() {
 		if _, known := ids.Effects[effect.EffectName()]; !known && effect.EffectName() != "" {
 			ids.TakeEffect(effect.EffectName())
+			handed++
+		}
+	}
+	for _, unit := range spec.Units {
+		if _, known := ids.Units[unit.Name]; !known && unit.Name != "" {
+			ids.TakeUnit(unit.Name)
 			handed++
 		}
 	}
@@ -135,6 +152,11 @@ func (ids *IDs) Missing(spec *Spec) error {
 			errs = append(errs, fmt.Sprintf("%s: effect %q has no ID yet", effect.at, effect.EffectName()))
 		}
 	}
+	for _, unit := range spec.Units {
+		if _, known := ids.Units[unit.Name]; !known {
+			errs = append(errs, fmt.Sprintf("%s: unit %q has no ID yet", unit.at, unit.Name))
+		}
+	}
 	if len(errs) == 0 {
 		return nil
 	}
@@ -152,6 +174,8 @@ func (ids *IDs) Save() error {
 	write(&out, ids.Attributes)
 	out.WriteString("\neffects:\n")
 	write(&out, ids.Effects)
+	out.WriteString("\nunits:\n")
+	write(&out, ids.Units)
 
 	return os.WriteFile(ids.path, []byte(out.String()), 0o644)
 }

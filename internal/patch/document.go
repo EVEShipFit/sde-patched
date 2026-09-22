@@ -20,12 +20,13 @@ type Document struct {
 	root  *yaml.Node
 }
 
-// The three kinds of file a patches directory holds. Which one a document is
+// The four kinds of file a patches directory holds. Which one a document is
 // decides what it may say, and in what order.
 const (
 	KindAttribute = "attribute"
 	KindSelectors = "selectors"
 	KindEffects   = "effects"
+	KindUnits     = "units"
 )
 
 // sections are the keys each kind of file may hold, in the order a new one is
@@ -34,9 +35,10 @@ var sections = map[string][]string{
 	KindAttribute: {"new", "change", "effects", "addTo"},
 	KindSelectors: {"selectors"},
 	KindEffects:   {"changes", "actions"},
+	KindUnits:     {"units"},
 }
 
-var lists = map[string]bool{"effects": true, "addTo": true, "selectors": true, "changes": true, "actions": true}
+var lists = map[string]bool{"effects": true, "addTo": true, "selectors": true, "changes": true, "actions": true, "units": true}
 
 // Sections are the keys one kind of file may hold.
 func Sections(kind string) []string { return sections[kind] }
@@ -90,6 +92,8 @@ func (d *Document) parse() error {
 		parsed = &selectorFile{}
 	case KindEffects:
 		parsed = &effectFile{}
+	case KindUnits:
+		parsed = &unitFile{}
 	}
 
 	decoder := yaml.NewDecoder(bytes.NewReader(raw))
