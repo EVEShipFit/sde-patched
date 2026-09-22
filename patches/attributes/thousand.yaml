@@ -3,3 +3,4 @@ new:
   category: "NULL"
   default: 1000
   highIsGood: true
+  published: false

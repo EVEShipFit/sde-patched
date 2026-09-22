@@ -3,6 +3,7 @@ new:
   category: Miscellaneous
   default: 1
   highIsGood: true
+  published: false
 
 effects:
   - name: chargeAmount

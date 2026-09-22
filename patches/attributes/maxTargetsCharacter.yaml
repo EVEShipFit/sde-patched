@@ -3,6 +3,7 @@ new:
   category: Targeting
   default: 1e+06
   highIsGood: true
+  published: false
 
 effects:
   - on: name("CharacterType")

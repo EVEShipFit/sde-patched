@@ -3,3 +3,4 @@ new:
   category: Miscellaneous
   default: 0.25
   highIsGood: true
+  published: false
