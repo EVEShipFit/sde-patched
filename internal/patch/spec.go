@@ -101,6 +101,7 @@ type Attribute struct {
 // "leave it alone" rather than "make it zero".
 type Definition struct {
 	DisplayName string   `yaml:"displayName,omitempty" json:"displayName"`
+	Category    string   `yaml:"category,omitempty" json:"category"`
 	Default     *float64 `yaml:"default,omitempty" json:"default"`
 	HighIsGood  *bool    `yaml:"highIsGood,omitempty" json:"highIsGood"`
 	Stackable   *bool    `yaml:"stackable,omitempty" json:"stackable"`

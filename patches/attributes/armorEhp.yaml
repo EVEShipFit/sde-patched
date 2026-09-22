@@ -1,4 +1,6 @@
 new:
+  displayName: Armor EHP
+  category: Armor
   highIsGood: true
 
 effects:

@@ -1,4 +1,6 @@
 new:
+  displayName: Capacitor Transfer Rate
+  category: Capacitor
   highIsGood: true
 
 effects:

@@ -1,4 +1,6 @@
 new:
+  displayName: Shield EHP
+  category: Shield
   highIsGood: true
 
 effects:

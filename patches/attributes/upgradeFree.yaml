@@ -1,4 +1,6 @@
 new:
+  displayName: Calibration Free
+  category: Fitting
   highIsGood: true
 
 effects:

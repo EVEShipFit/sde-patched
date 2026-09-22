@@ -1,3 +1,5 @@
 new:
+  displayName: Kinetic Damage Profile
+  category: Miscellaneous
   default: 0.25
   highIsGood: true

@@ -1,4 +1,6 @@
 new:
+  displayName: Charge Amount
+  category: Miscellaneous
   default: 1
   highIsGood: true
 

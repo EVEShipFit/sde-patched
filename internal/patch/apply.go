@@ -18,12 +18,13 @@ type Context struct {
 	Matched [][]int32
 	Applied map[string][]int32
 
-	attributeByName map[string]*sde.DogmaAttribute
-	effectByName    map[string]*sde.DogmaEffect
-	categoryByName  map[string]*sde.Category
-	groupsByName    map[string][]*sde.Group
-	typesByName     map[string][]*sde.Type
-	selectorByName  map[string]*NamedSelector
+	attributeByName     map[string]*sde.DogmaAttribute
+	dogmaCategoryByName map[string]*sde.DogmaAttributeCategory
+	effectByName        map[string]*sde.DogmaEffect
+	categoryByName      map[string]*sde.Category
+	groupsByName        map[string][]*sde.Group
+	typesByName         map[string][]*sde.Type
+	selectorByName      map[string]*NamedSelector
 
 	sortedTypes []*sde.Type
 	errs        []error
@@ -131,6 +132,15 @@ func (ctx *Context) clamp() {
 	}
 }
 
+func (ctx *Context) dogmaCategory(at source, name string) int32 {
+	entry, ok := ctx.dogmaCategoryByName[name]
+	if !ok {
+		ctx.errorf(at, "no dogma attribute category named %q", name)
+		return 0
+	}
+	return entry.Key
+}
+
 func (ctx *Context) clampAgainst(at source, name string) int32 {
 	entry, ok := ctx.attributeByName[name]
 	if !ok {
@@ -142,6 +152,7 @@ func (ctx *Context) clampAgainst(at source, name string) int32 {
 
 func (ctx *Context) index() {
 	ctx.attributeByName = map[string]*sde.DogmaAttribute{}
+	ctx.dogmaCategoryByName = map[string]*sde.DogmaAttributeCategory{}
 	ctx.effectByName = map[string]*sde.DogmaEffect{}
 	ctx.categoryByName = map[string]*sde.Category{}
 	ctx.groupsByName = map[string][]*sde.Group{}
@@ -150,6 +161,9 @@ func (ctx *Context) index() {
 
 	for _, entry := range ctx.Data.DogmaAttributes {
 		ctx.attributeByName[entry.Name] = entry
+	}
+	for _, entry := range ctx.Data.DogmaCategories {
+		ctx.dogmaCategoryByName[entry.Name] = entry
 	}
 	for _, entry := range ctx.Data.DogmaEffects {
 		ctx.effectByName[entry.Name] = entry
@@ -212,6 +226,9 @@ func (ctx *Context) create() {
 			UnitID:       attribute.New.UnitID,
 		}
 		entry.DisplayName.En = attribute.New.DisplayName
+		if attribute.New.Category != "" {
+			entry.CategoryID = ctx.dogmaCategory(attribute.at, attribute.New.Category)
+		}
 		ctx.Data.DogmaAttributes[id] = entry
 		ctx.attributeByName[attribute.Name] = entry
 	}

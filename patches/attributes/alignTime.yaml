@@ -1,4 +1,6 @@
 new:
+  displayName: Align Time
+  category: Speed and Travel
   default: 1.3862943611198906 # -ln(0.25)
   highIsGood: false
 

@@ -1,3 +1,5 @@
 new:
+  displayName: Capacitor Stable Percentage
+  category: Capacitor
   default: 100
   highIsGood: true

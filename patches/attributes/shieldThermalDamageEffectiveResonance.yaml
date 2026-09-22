@@ -1,4 +1,6 @@
 new:
+  displayName: Shield Effective Thermal Resonance
+  category: Shield
   highIsGood: true
 
 effects:

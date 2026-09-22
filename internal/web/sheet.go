@@ -182,6 +182,7 @@ func (s *Server) handleSheet(w http.ResponseWriter, r *http.Request) {
 	body := map[string]any{
 		"id": attribute.Key, "name": attribute.Name, "displayName": attribute.DisplayName.En,
 		"kind": kindOf(current, attribute.Name), "unitID": attribute.UnitID,
+		"category":     dogmaCategoryName(current, attribute.CategoryID),
 		"defaultValue": number(attribute.DefaultValue),
 		"highIsGood":   attribute.HighIsGood, "stackable": attribute.Stackable,
 		"published": attribute.Published,
@@ -204,6 +205,13 @@ func (s *Server) handleSheet(w http.ResponseWriter, r *http.Request) {
 		body["error"] = err.Error()
 	}
 	write(w, body)
+}
+
+func dogmaCategoryName(current *state, id int32) string {
+	if entry, ok := current.data.DogmaCategories[id]; ok {
+		return entry.Name
+	}
+	return ""
 }
 
 // definitionOf is what the attribute is, and where to write a change to it.

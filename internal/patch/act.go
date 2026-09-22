@@ -139,6 +139,9 @@ func (ctx *Context) changeAttribute(attribute *Attribute) {
 	if edit.UnitID != 0 {
 		entry.UnitID = edit.UnitID
 	}
+	if edit.Category != "" {
+		entry.CategoryID = ctx.dogmaCategory(attribute.at, edit.Category)
+	}
 }
 
 // Validate checks what can be checked without the SDE: that every declaration

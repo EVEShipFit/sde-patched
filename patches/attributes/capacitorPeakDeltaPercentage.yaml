@@ -1,4 +1,6 @@
 new:
+  displayName: Capacitor Peak Delta Percentage
+  category: Capacitor
   default: 100
   highIsGood: true
 

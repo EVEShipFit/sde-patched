@@ -1,4 +1,6 @@
 new:
+  displayName: Cycle Time
+  category: Miscellaneous
   highIsGood: false
 
 effects:

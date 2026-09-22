@@ -1,4 +1,6 @@
 new:
+  displayName: CPU Free
+  category: Fitting
   highIsGood: true
 
 effects:

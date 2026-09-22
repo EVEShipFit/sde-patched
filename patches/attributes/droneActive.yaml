@@ -1,4 +1,6 @@
 new:
+  displayName: Drones Active
+  category: Drones
   highIsGood: true
 
 effects:

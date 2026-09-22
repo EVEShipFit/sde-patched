@@ -1,4 +1,6 @@
 new:
+  displayName: Volley Damage
+  category: Miscellaneous
   highIsGood: true
 
 effects:

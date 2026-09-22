@@ -1,4 +1,6 @@
 new:
+  displayName: Shield Effective Explosive Resonance
+  category: Shield
   highIsGood: true
 
 effects:

@@ -1,4 +1,6 @@
 new:
+  displayName: Passive Shield Recharge Rate
+  category: Shield
   default: 2500
   highIsGood: true
 

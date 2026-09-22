@@ -1,4 +1,6 @@
 new:
+  displayName: Sensor Strength
+  category: Targeting
   highIsGood: true
 
 effects:

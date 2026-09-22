@@ -1,4 +1,6 @@
 new:
+  displayName: Effective Armor Repair Rate
+  category: Armor
   highIsGood: true
 
 effects:

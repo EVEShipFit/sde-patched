@@ -319,6 +319,7 @@ function definitionForm(body) {
   const good = h("input", { type: "checkbox", checked: fields.highIsGood ?? body.highIsGood });
   const stack = h("input", { type: "checkbox", checked: fields.stackable ?? body.stackable });
   const shown = h("input", { value: fields.displayName || body.displayName || "" });
+  const group = h("input", { value: fields.category || body.category || "" });
 
   return h("div", { class: "form" },
     body.definition.section === "change"
@@ -328,6 +329,7 @@ function definitionForm(body) {
     field("Higher is better", good),
     field("No stacking penalty", stack),
     field("Display name", shown),
+    field("Category", group),
     buttons(() => {
       const number = Number(value.value);
       if (!value.value.trim() || !Number.isFinite(number)) return alarm("The default value has to be a number.");
@@ -341,6 +343,7 @@ function definitionForm(body) {
       set("highIsGood", good.checked, body.highIsGood);
       set("stackable", stack.checked, body.stackable);
       set("displayName", shown.value, body.displayName || "");
+      set("category", group.value, body.category || "");
       save(body.definition, fields);
     }));
 }
