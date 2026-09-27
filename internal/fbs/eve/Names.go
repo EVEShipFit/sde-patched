@@ -6,10 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-/// Name lookup, in a file of its own.
-///
-/// An EFT-fit can be written in any of the eight languages EVE supports, so a
-/// name has to be matchable back to a type.
 type Names struct {
 	_tab flatbuffers.Table
 }
@@ -69,9 +65,7 @@ func (rcv *Names) MutateBuildNumber(n int32) bool {
 	return rcv._tab.MutateInt32Slot(4, n)
 }
 
-/// Every name of every type, in every language, lowercased and sorted by
-/// UTF-8 bytes. Lowercasing is per code point and locale-independent, so
-/// that a fit does not have to match the case.
+/// Lowercased per code point, locale-independent; sorted by UTF-8 bytes.
 func (rcv *Names) Names(j int) []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
@@ -89,9 +83,7 @@ func (rcv *Names) NamesLength() int {
 	return 0
 }
 
-/// Every name of every type, in every language, lowercased and sorted by
-/// UTF-8 bytes. Lowercasing is per code point and locale-independent, so
-/// that a fit does not have to match the case.
+/// Lowercased per code point, locale-independent; sorted by UTF-8 bytes.
 func (rcv *Names) TypeIds(j int) int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
