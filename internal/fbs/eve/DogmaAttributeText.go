@@ -6,7 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-/// What the client shows when hovering an attribute.
 type DogmaAttributeText struct {
 	_tab flatbuffers.Table
 }

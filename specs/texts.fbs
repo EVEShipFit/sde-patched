@@ -1,20 +1,13 @@
 namespace eve;
 
-/// What the client shows when hovering an attribute.
 table DogmaAttributeText {
     id: int32 (key);
     tooltip_title: string;
     tooltip_description: string;
 }
 
-/// Text only a user interface shows, in a file of its own.
-///
-/// A dogma-engine needs none of it, so it stays out of sde.dat. Everything
-/// in here is in English.
 table Texts {
     build_number: int32;
-
-    /// Only attributes with a tooltip are in here.
     dogma_attributes: [DogmaAttributeText] (required);
 }
 

@@ -6,10 +6,6 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-/// Text only a user interface shows, in a file of its own.
-///
-/// A dogma-engine needs none of it, so it stays out of sde.dat. Everything
-/// in here is in English.
 type Texts struct {
 	_tab flatbuffers.Table
 }
@@ -69,7 +65,6 @@ func (rcv *Texts) MutateBuildNumber(n int32) bool {
 	return rcv._tab.MutateInt32Slot(4, n)
 }
 
-/// Only attributes with a tooltip are in here.
 func (rcv *Texts) DogmaAttributes(obj *DogmaAttributeText, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
@@ -99,7 +94,6 @@ func (rcv *Texts) DogmaAttributesLength() int {
 	return 0
 }
 
-/// Only attributes with a tooltip are in here.
 func TextsStart(builder *flatbuffers.Builder) {
 	builder.StartObject(2)
 }

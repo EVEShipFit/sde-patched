@@ -131,8 +131,7 @@ func WriteNames(data *sde.Data, filename string) error {
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
 }
 
-// WriteTexts serialises the text only a user interface shows into a
-// flatbuffer file of its own, in English.
+// WriteTexts writes the tooltips of dogma attributes, in English.
 func WriteTexts(data *sde.Data, filename string) error {
 	builder := flatbuffers.NewBuilder(1024 * 1024)
 

@@ -138,7 +138,6 @@ func run(command string, args []string) error {
 		}
 		for _, filename := range []string{*out, *namesOut, *textsOut} {
 			earlier := filepath.Join(args[0], filepath.Base(filename))
-			// An earlier build can predate a file.
 			if _, err := os.Stat(earlier); errors.Is(err, fs.ErrNotExist) {
 				fmt.Println("changed")
 				return nil

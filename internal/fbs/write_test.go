@@ -355,7 +355,6 @@ func TestWriteTextsRoundTrip(t *testing.T) {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
 	}
 
-	// An attribute without a tooltip has no entry at all.
 	if got := root.DogmaAttributesLength(); got != 2 {
 		t.Errorf("attributes length = %d, want 2", got)
 	}

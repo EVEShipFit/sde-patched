@@ -29,8 +29,7 @@ def names_path() -> Path:
 
 
 def texts_path() -> Path:
-    """`texts.dat`: text only a user interface shows, like the tooltips of
-    attributes, in English."""
+    """`texts.dat`: the tooltips of attributes, in English."""
     return Path(str(files(__package__) / "texts.dat"))
 
 
