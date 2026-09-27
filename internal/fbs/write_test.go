@@ -52,7 +52,18 @@ func testData() *sde.Data {
 			1: {Key: 1, Name: sde.Localized{En: "Nothing"}},
 		},
 		DogmaAttributes: map[int32]*sde.DogmaAttribute{
-			9: {Key: 9, Name: "hp", DefaultValue: 0, HighIsGood: true, Stackable: true, UnitID: 113, CategoryID: 4},
+			9: {
+				Key:                9,
+				Name:               "hp",
+				HighIsGood:         true,
+				Stackable:          true,
+				UnitID:             113,
+				CategoryID:         4,
+				TooltipTitle:       sde.Localized{En: "Structure Hitpoints", De: "Strukturhitpoints"},
+				TooltipDescription: sde.Localized{En: "Structure hitpoints do not regenerate naturally"},
+			},
+			37:  {Key: 37, Name: "maxVelocity", TooltipTitle: sde.Localized{En: "Maximum Velocity"}},
+			161: {Key: 161, Name: "volume"},
 		},
 		DogmaUnits: map[int32]*sde.DogmaUnit{
 			113: {Key: 113, Name: "Hitpoints", DisplayName: sde.Localized{En: "HP"}},
@@ -322,5 +333,47 @@ func TestWriteNamesRoundTrip(t *testing.T) {
 		if string(root.Names(i-1)) > string(root.Names(i)) {
 			t.Fatalf("names are not sorted at %d", i)
 		}
+	}
+}
+
+func TestWriteTextsRoundTrip(t *testing.T) {
+	filename := filepath.Join(t.TempDir(), "texts.dat")
+	if err := WriteTexts(testData(), filename); err != nil {
+		t.Fatal(err)
+	}
+
+	raw, err := os.ReadFile(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !eve.TextsBufferHasIdentifier(raw) {
+		t.Fatal("file identifier missing")
+	}
+
+	root := eve.GetRootAsTexts(raw, 0)
+	if root.BuildNumber() != 42 {
+		t.Errorf("build number = %d, want 42", root.BuildNumber())
+	}
+
+	if got := root.DogmaAttributesLength(); got != 2 {
+		t.Errorf("attributes length = %d, want 2", got)
+	}
+
+	var attribute eve.DogmaAttributeText
+	if !root.DogmaAttributesByKey(&attribute, 9) {
+		t.Fatal("attribute 9 not found")
+	}
+	if got := string(attribute.TooltipTitle()); got != "Structure Hitpoints" {
+		t.Errorf("tooltip title = %q", got)
+	}
+	if got := string(attribute.TooltipDescription()); got != "Structure hitpoints do not regenerate naturally" {
+		t.Errorf("tooltip description = %q", got)
+	}
+
+	if !root.DogmaAttributesByKey(&attribute, 37) {
+		t.Fatal("attribute 37 not found")
+	}
+	if attribute.TooltipDescription() != nil {
+		t.Errorf("tooltip description should be absent, not %q", attribute.TooltipDescription())
 	}
 }

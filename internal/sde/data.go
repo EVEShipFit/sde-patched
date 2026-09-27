@@ -99,6 +99,9 @@ type DogmaAttribute struct {
 	MinAttributeID int32     `json:"minAttributeID"`
 	MaxAttributeID int32     `json:"maxAttributeID"`
 	CategoryID     int32     `json:"attributeCategoryID"`
+
+	TooltipTitle       Localized `json:"tooltipTitle"`
+	TooltipDescription Localized `json:"tooltipDescription"`
 }
 
 type DogmaUnit struct {

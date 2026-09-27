@@ -1,0 +1,15 @@
+namespace eve;
+
+table DogmaAttributeText {
+    id: int32 (key);
+    tooltip_title: string;
+    tooltip_description: string;
+}
+
+table Texts {
+    build_number: int32;
+    dogma_attributes: [DogmaAttributeText] (required);
+}
+
+root_type Texts;
+file_identifier "ESFT";

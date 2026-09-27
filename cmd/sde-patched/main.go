@@ -3,8 +3,10 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -21,6 +23,7 @@ var (
 	patchesDir = flag.String("patches-dir", "patches", "directory the patches are read from")
 	out        = flag.String("out", filepath.Join("dist", "sde.dat"), "file to write")
 	namesOut   = flag.String("names-out", filepath.Join("dist", "names.dat"), "name lookup file to write")
+	textsOut   = flag.String("texts-out", filepath.Join("dist", "texts.dat"), "user interface text file to write")
 	buildNum   = flag.Int("build", 0, "SDE build to use; defaults to the latest")
 	full       = flag.Bool("full", false, "explain: list every matched type")
 	typeName   = flag.String("type", "", "explain: show what touches this type")
@@ -32,7 +35,7 @@ func usage() {
 
 commands:
   download   fetch the SDE
-  build      patch the SDE and write the flatbuffer
+  build      patch the SDE and write the flatbuffers
   compare    tell whether the build differs from the one in a directory; "compare <dir>"
   explain    show what a patch does; "explain <name>" or "explain --type <name>"
   patches    list all patches
@@ -112,13 +115,19 @@ func run(command string, args []string) error {
 		if err := fbs.WriteNames(data, *namesOut); err != nil {
 			return err
 		}
+		if err := os.MkdirAll(filepath.Dir(*textsOut), 0o755); err != nil {
+			return err
+		}
+		if err := fbs.WriteTexts(data, *textsOut); err != nil {
+			return err
+		}
 
-		for _, filename := range []string{*out, *namesOut} {
+		for _, filename := range []string{*out, *namesOut, *textsOut} {
 			info, err := os.Stat(filename)
 			if err != nil {
 				return err
 			}
-			fmt.Printf("wrote %s (%.1f MiB)\n", filename, float64(info.Size())/1024/1024)
+			fmt.Printf("wrote %s (%.1f KiB)\n", filename, float64(info.Size())/1024)
 		}
 		fmt.Printf("%d types\n", len(data.Types))
 		return nil
@@ -127,8 +136,13 @@ func run(command string, args []string) error {
 		if len(args) == 0 {
 			return fmt.Errorf("compare needs the directory of an earlier build")
 		}
-		for _, filename := range []string{*out, *namesOut} {
-			equal, err := fbs.Equal(filepath.Join(args[0], filepath.Base(filename)), filename)
+		for _, filename := range []string{*out, *namesOut, *textsOut} {
+			earlier := filepath.Join(args[0], filepath.Base(filename))
+			if _, err := os.Stat(earlier); errors.Is(err, fs.ErrNotExist) {
+				fmt.Println("changed")
+				return nil
+			}
+			equal, err := fbs.Equal(earlier, filename)
 			if err != nil {
 				return err
 			}

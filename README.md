@@ -19,7 +19,7 @@ The main goal is to produce a small data-file, with everything included for dogm
 
 ```bash
 go run ./cmd/sde-patched download        # fetch the latest SDE into sde/
-go run ./cmd/sde-patched build           # write dist/sde.dat and dist/names.dat
+go run ./cmd/sde-patched build           # write dist/sde.dat, dist/names.dat and dist/texts.dat
 go run ./cmd/sde-patched compare old/    # tell whether dist/ differs from old/, ignoring the SDE build
 go run ./cmd/sde-patched patches         # list all patches
 go run ./cmd/sde-patched ids             # give an ID to anything added without one
@@ -41,11 +41,13 @@ It is also not meant as "production-ready" software, but much more as "an easier
 
 ## Output
 
-`build` writes two flatbuffers, described in [specs/](https://github.com/EVEShipFit/sde-patched/tree/main/specs):
+`build` writes three flatbuffers, described in [specs/](https://github.com/EVEShipFit/sde-patched/tree/main/specs):
 - `dist/sde.dat` holds the types, dogma, groups, categories, buffs and mutaplasmids, with English
 names only. It is all a dogma-engine needs.
 - `dist/names.dat` maps a name in any of the eight languages EVE supports back to
 a type ID. Only an EFT-fit importer needs it, and only ever to search.
+- `dist/texts.dat` holds text only a user interface shows, like the tooltips of attributes, in English.
+A dogma-engine never needs it.
 
 ## npm
 
@@ -53,7 +55,7 @@ a type ID. Only an EFT-fit importer needs it, and only ever to search.
 npm install @eveshipfit/sde
 ```
 
-[`@eveshipfit/sde`](https://www.npmjs.com/package/@eveshipfit/sde) ships both files and the schemas, under `dist/` and `specs/`.
+[`@eveshipfit/sde`](https://www.npmjs.com/package/@eveshipfit/sde) ships all three files and the schemas, under `dist/` and `specs/`.
 
 ## Python
 
@@ -61,10 +63,10 @@ npm install @eveshipfit/sde
 pip install eveshipfit-sde
 ```
 
-[`eveshipfit-sde`](https://pypi.org/project/eveshipfit-sde/) ships both files and the schemas, and the paths to them.
+[`eveshipfit-sde`](https://pypi.org/project/eveshipfit-sde/) ships all three files and the schemas, and the paths to them.
 
 ```python
-from eveshipfit_sde import build_number, names_path, sde_path, specs_path
+from eveshipfit_sde import build_number, names_path, sde_path, specs_path, texts_path
 
 dogma.load_sde_from_file(sde_path())
 ```

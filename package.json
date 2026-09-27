@@ -11,8 +11,10 @@
   "files": [
     "dist/sde.dat",
     "dist/names.dat",
+    "dist/texts.dat",
     "specs/eve.fbs",
     "specs/names.fbs",
+    "specs/texts.fbs",
     "LICENSE.EVE"
   ],
   "publishConfig": {
