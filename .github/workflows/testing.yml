@@ -84,7 +84,8 @@ jobs:
         # From elsewhere, or the source tree shadows the installed package.
         cd "${RUNNER_TEMP}"
         python -c "
-        from eveshipfit_sde import names_path, sde_path
+        from eveshipfit_sde import names_path, sde_path, texts_path
         assert sde_path().is_file(), sde_path()
         assert names_path().is_file(), names_path()
+        assert texts_path().is_file(), texts_path()
         "

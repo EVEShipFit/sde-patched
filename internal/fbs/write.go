@@ -3,7 +3,7 @@
 // The eve sub-package is generated; re-generate it after changing the schema.
 package fbs
 
-//go:generate flatc --go -o . ../../specs/eve.fbs ../../specs/names.fbs
+//go:generate flatc --go -o . ../../specs/eve.fbs ../../specs/names.fbs ../../specs/texts.fbs
 
 import (
 	"encoding/binary"
@@ -127,6 +127,42 @@ func WriteNames(data *sde.Data, filename string) error {
 	eve.NamesAddNames(builder, names)
 	eve.NamesAddTypeIds(builder, typeIDs)
 	builder.FinishWithFileIdentifier(eve.NamesEnd(builder), []byte("ESFN"))
+
+	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
+}
+
+// WriteTexts serialises the text only a user interface shows into a
+// flatbuffer file of its own, in English.
+func WriteTexts(data *sde.Data, filename string) error {
+	builder := flatbuffers.NewBuilder(1024 * 1024)
+
+	var offsets []flatbuffers.UOffsetT
+	for _, key := range sortedKeys(data.DogmaAttributes) {
+		entry := data.DogmaAttributes[key]
+		if entry.TooltipTitle.En == "" && entry.TooltipDescription.En == "" {
+			continue
+		}
+
+		var title, description flatbuffers.UOffsetT
+		if entry.TooltipTitle.En != "" {
+			title = builder.CreateSharedString(entry.TooltipTitle.En)
+		}
+		if entry.TooltipDescription.En != "" {
+			description = builder.CreateSharedString(entry.TooltipDescription.En)
+		}
+
+		eve.DogmaAttributeTextStart(builder)
+		eve.DogmaAttributeTextAddId(builder, entry.Key)
+		eve.DogmaAttributeTextAddTooltipTitle(builder, title)
+		eve.DogmaAttributeTextAddTooltipDescription(builder, description)
+		offsets = append(offsets, eve.DogmaAttributeTextEnd(builder))
+	}
+	attributes := builder.CreateVectorOfSortedTables(offsets, eve.DogmaAttributeTextKeyCompare)
+
+	eve.TextsStart(builder)
+	eve.TextsAddBuildNumber(builder, data.BuildNumber)
+	eve.TextsAddDogmaAttributes(builder, attributes)
+	builder.FinishWithFileIdentifier(eve.TextsEnd(builder), []byte("ESFT"))
 
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/EVEShipFit/sde-patched/internal/fbs/eve"
 )
 
-// Equal reports whether two files written by Write or WriteNames hold the
+// Equal reports whether two files written by Write, WriteNames or WriteTexts hold the
 // same data. The SDE build number is ignored, as a new SDE build often changes
 // nothing a dogma-engine uses.
 func Equal(a, b string) (bool, error) {
@@ -34,6 +34,8 @@ func withoutBuildNumber(filename string) ([]byte, error) {
 		eve.GetRootAsSde(raw, 0).MutateBuildNumber(0)
 	case eve.NamesBufferHasIdentifier(raw):
 		eve.GetRootAsNames(raw, 0).MutateBuildNumber(0)
+	case eve.TextsBufferHasIdentifier(raw):
+		eve.GetRootAsTexts(raw, 0).MutateBuildNumber(0)
 	default:
 		return nil, fmt.Errorf("%s: not an SDE export", filename)
 	}

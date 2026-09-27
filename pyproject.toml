@@ -30,8 +30,10 @@ packages = ["eveshipfit_sde"]
 [tool.hatch.build.targets.wheel.force-include]
 "dist/sde.dat" = "eveshipfit_sde/sde.dat"
 "dist/names.dat" = "eveshipfit_sde/names.dat"
+"dist/texts.dat" = "eveshipfit_sde/texts.dat"
 "specs/eve.fbs" = "eveshipfit_sde/specs/eve.fbs"
 "specs/names.fbs" = "eveshipfit_sde/specs/names.fbs"
+"specs/texts.fbs" = "eveshipfit_sde/specs/texts.fbs"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["eveshipfit_sde", "specs", "README.md"]
@@ -39,3 +41,4 @@ only-include = ["eveshipfit_sde", "specs", "README.md"]
 [tool.hatch.build.targets.sdist.force-include]
 "dist/sde.dat" = "dist/sde.dat"
 "dist/names.dat" = "dist/names.dat"
+"dist/texts.dat" = "dist/texts.dat"

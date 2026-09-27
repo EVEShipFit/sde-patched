@@ -162,7 +162,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release upload "${TAG}" dist/sde.dat dist/names.dat --clobber
+        gh release upload "${TAG}" dist/sde.dat dist/names.dat dist/texts.dat --clobber
 
     - name: Create Python package
       run: |

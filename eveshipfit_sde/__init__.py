@@ -1,6 +1,6 @@
 """The static data EVEShip.fit's dogma engine calculates with.
 
-This package holds nothing but the two data files, their schemas, and the
+This package holds nothing but the three data files, their schemas, and the
 paths to them::
 
     from eveshipfit_sde import sde_path
@@ -13,7 +13,7 @@ from importlib.resources import files
 from importlib.metadata import version
 from pathlib import Path
 
-__all__ = ["build_number", "names_path", "sde_path", "specs_path"]
+__all__ = ["build_number", "names_path", "sde_path", "specs_path", "texts_path"]
 
 
 def sde_path() -> Path:
@@ -28,9 +28,15 @@ def names_path() -> Path:
     return Path(str(files(__package__) / "names.dat"))
 
 
+def texts_path() -> Path:
+    """`texts.dat`: text only a user interface shows, like the tooltips of
+    attributes, in English."""
+    return Path(str(files(__package__) / "texts.dat"))
+
+
 def specs_path() -> Path:
-    """The directory holding `eve.fbs` and `names.fbs`, the flatbuffer schemas
-    that describe the two data files."""
+    """The directory holding `eve.fbs`, `names.fbs` and `texts.fbs`, the
+    flatbuffer schemas that describe the three data files."""
     return Path(str(files(__package__) / "specs"))
 
 
