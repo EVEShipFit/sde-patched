@@ -94,15 +94,10 @@ func (rcv *Texts) DogmaAttributesLength() int {
 	return 0
 }
 
-func (rcv *Texts) ReleaseDate(obj *UnixTimestamp) *UnixTimestamp {
+func (rcv *Texts) ReleaseDate() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
-		x := o + rcv._tab.Pos
-		if obj == nil {
-			obj = new(UnixTimestamp)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
 	return nil
 }
@@ -120,7 +115,7 @@ func TextsStartDogmaAttributesVector(builder *flatbuffers.Builder, numElems int)
 	return builder.StartVector(4, numElems, 4)
 }
 func TextsAddReleaseDate(builder *flatbuffers.Builder, releaseDate flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(2, flatbuffers.UOffsetT(releaseDate), 0)
+	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(releaseDate), 0)
 }
 func TextsEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -216,10 +216,6 @@ table Mutaplasmid {
     mappings: [MutaplasmidMapping];
 }
 
-struct UnixTimestamp {
-    seconds: int64;
-}
-
 table Sde {
     build_number: int32;
     types: [Type];
@@ -233,7 +229,7 @@ table Sde {
     meta_groups: [MetaGroup];
     dogma_units: [DogmaUnit];
     dogma_attribute_categories: [DogmaAttributeCategory];
-    release_date: UnixTimestamp;
+    release_date: string;
 }
 
 root_type Sde;

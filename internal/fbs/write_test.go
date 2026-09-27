@@ -142,8 +142,8 @@ func TestWriteRoundTrip(t *testing.T) {
 	if root.BuildNumber() != 42 {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
 	}
-	if got := root.ReleaseDate(nil).Seconds(); got != 1790248367 {
-		t.Errorf("release date = %d, want 1790248367", got)
+	if got := string(root.ReleaseDate()); got != "2026-09-24T11:12:47Z" {
+		t.Errorf("release date = %q, want 2026-09-24T11:12:47Z", got)
 	}
 
 	var entry eve.Type
@@ -315,8 +315,8 @@ func TestWriteNamesRoundTrip(t *testing.T) {
 	if root.BuildNumber() != 42 {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
 	}
-	if got := root.ReleaseDate(nil).Seconds(); got != 1790248367 {
-		t.Errorf("release date = %d, want 1790248367", got)
+	if got := string(root.ReleaseDate()); got != "2026-09-24T11:12:47Z" {
+		t.Errorf("release date = %q, want 2026-09-24T11:12:47Z", got)
 	}
 
 	// The Japanese name has to lead back to the type, same as the English one.
@@ -362,8 +362,8 @@ func TestWriteTextsRoundTrip(t *testing.T) {
 	if root.BuildNumber() != 42 {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
 	}
-	if got := root.ReleaseDate(nil).Seconds(); got != 1790248367 {
-		t.Errorf("release date = %d, want 1790248367", got)
+	if got := string(root.ReleaseDate()); got != "2026-09-24T11:12:47Z" {
+		t.Errorf("release date = %q, want 2026-09-24T11:12:47Z", got)
 	}
 
 	if got := root.DogmaAttributesLength(); got != 2 {

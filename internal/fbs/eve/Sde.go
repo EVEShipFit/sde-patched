@@ -384,15 +384,10 @@ func (rcv *Sde) DogmaAttributeCategoriesLength() int {
 	return 0
 }
 
-func (rcv *Sde) ReleaseDate(obj *UnixTimestamp) *UnixTimestamp {
+func (rcv *Sde) ReleaseDate() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
 	if o != 0 {
-		x := o + rcv._tab.Pos
-		if obj == nil {
-			obj = new(UnixTimestamp)
-		}
-		obj.Init(rcv._tab.Bytes, x)
-		return obj
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
 	return nil
 }
@@ -470,7 +465,7 @@ func SdeStartDogmaAttributeCategoriesVector(builder *flatbuffers.Builder, numEle
 	return builder.StartVector(4, numElems, 4)
 }
 func SdeAddReleaseDate(builder *flatbuffers.Builder, releaseDate flatbuffers.UOffsetT) {
-	builder.PrependStructSlot(12, flatbuffers.UOffsetT(releaseDate), 0)
+	builder.PrependUOffsetTSlot(12, flatbuffers.UOffsetT(releaseDate), 0)
 }
 func SdeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

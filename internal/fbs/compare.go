@@ -33,23 +33,17 @@ func withoutBuild(filename string) ([]byte, error) {
 	case eve.SdeBufferHasIdentifier(raw):
 		root := eve.GetRootAsSde(raw, 0)
 		root.MutateBuildNumber(0)
-		withoutDate(root.ReleaseDate(nil))
+		clear(root.ReleaseDate())
 	case eve.NamesBufferHasIdentifier(raw):
 		root := eve.GetRootAsNames(raw, 0)
 		root.MutateBuildNumber(0)
-		withoutDate(root.ReleaseDate(nil))
+		clear(root.ReleaseDate())
 	case eve.TextsBufferHasIdentifier(raw):
 		root := eve.GetRootAsTexts(raw, 0)
 		root.MutateBuildNumber(0)
-		withoutDate(root.ReleaseDate(nil))
+		clear(root.ReleaseDate())
 	default:
 		return nil, fmt.Errorf("%s: not an SDE export", filename)
 	}
 	return raw, nil
-}
-
-func withoutDate(date *eve.UnixTimestamp) {
-	if date != nil {
-		date.MutateSeconds(0)
-	}
 }
