@@ -6,11 +6,14 @@ table DogmaAttributeText {
     tooltip_description: string;
 }
 
+struct UnixTimestamp {
+    seconds: int64;
+}
+
 table Texts {
     build_number: int32;
     dogma_attributes: [DogmaAttributeText] (required);
-    /// When CCP released this SDE build, in seconds since the Unix epoch.
-    release_date: int64;
+    release_date: UnixTimestamp;
 }
 
 root_type Texts;

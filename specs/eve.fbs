@@ -216,6 +216,10 @@ table Mutaplasmid {
     mappings: [MutaplasmidMapping];
 }
 
+struct UnixTimestamp {
+    seconds: int64;
+}
+
 table Sde {
     build_number: int32;
     types: [Type];
@@ -229,8 +233,7 @@ table Sde {
     meta_groups: [MetaGroup];
     dogma_units: [DogmaUnit];
     dogma_attribute_categories: [DogmaAttributeCategory];
-    /// When CCP released this SDE build, in seconds since the Unix epoch.
-    release_date: int64;
+    release_date: UnixTimestamp;
 }
 
 root_type Sde;

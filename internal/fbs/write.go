@@ -38,7 +38,7 @@ func Write(data *sde.Data, filename string) error {
 
 	eve.SdeStart(builder)
 	eve.SdeAddBuildNumber(builder, data.BuildNumber)
-	eve.SdeAddReleaseDate(builder, data.ReleaseDate.Unix())
+	eve.SdeAddReleaseDate(builder, eve.CreateUnixTimestamp(builder, data.ReleaseDate.Unix()))
 	eve.SdeAddTypes(builder, types)
 	eve.SdeAddGroups(builder, groups)
 	eve.SdeAddCategories(builder, categories)
@@ -125,7 +125,7 @@ func WriteNames(data *sde.Data, filename string) error {
 
 	eve.NamesStart(builder)
 	eve.NamesAddBuildNumber(builder, data.BuildNumber)
-	eve.NamesAddReleaseDate(builder, data.ReleaseDate.Unix())
+	eve.NamesAddReleaseDate(builder, eve.CreateUnixTimestamp(builder, data.ReleaseDate.Unix()))
 	eve.NamesAddNames(builder, names)
 	eve.NamesAddTypeIds(builder, typeIDs)
 	builder.FinishWithFileIdentifier(eve.NamesEnd(builder), []byte("ESFN"))
@@ -162,7 +162,7 @@ func WriteTexts(data *sde.Data, filename string) error {
 
 	eve.TextsStart(builder)
 	eve.TextsAddBuildNumber(builder, data.BuildNumber)
-	eve.TextsAddReleaseDate(builder, data.ReleaseDate.Unix())
+	eve.TextsAddReleaseDate(builder, eve.CreateUnixTimestamp(builder, data.ReleaseDate.Unix()))
 	eve.TextsAddDogmaAttributes(builder, attributes)
 	builder.FinishWithFileIdentifier(eve.TextsEnd(builder), []byte("ESFT"))
 

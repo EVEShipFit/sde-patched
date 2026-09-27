@@ -94,18 +94,17 @@ func (rcv *Texts) DogmaAttributesLength() int {
 	return 0
 }
 
-/// When CCP released this SDE build, in seconds since the Unix epoch.
-func (rcv *Texts) ReleaseDate() int64 {
+func (rcv *Texts) ReleaseDate(obj *UnixTimestamp) *UnixTimestamp {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		x := o + rcv._tab.Pos
+		if obj == nil {
+			obj = new(UnixTimestamp)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
 	}
-	return 0
-}
-
-/// When CCP released this SDE build, in seconds since the Unix epoch.
-func (rcv *Texts) MutateReleaseDate(n int64) bool {
-	return rcv._tab.MutateInt64Slot(8, n)
+	return nil
 }
 
 func TextsStart(builder *flatbuffers.Builder) {
@@ -120,8 +119,8 @@ func TextsAddDogmaAttributes(builder *flatbuffers.Builder, dogmaAttributes flatb
 func TextsStartDogmaAttributesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func TextsAddReleaseDate(builder *flatbuffers.Builder, releaseDate int64) {
-	builder.PrependInt64Slot(2, releaseDate, 0)
+func TextsAddReleaseDate(builder *flatbuffers.Builder, releaseDate flatbuffers.UOffsetT) {
+	builder.PrependStructSlot(2, flatbuffers.UOffsetT(releaseDate), 0)
 }
 func TextsEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

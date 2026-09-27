@@ -384,18 +384,17 @@ func (rcv *Sde) DogmaAttributeCategoriesLength() int {
 	return 0
 }
 
-/// When CCP released this SDE build, in seconds since the Unix epoch.
-func (rcv *Sde) ReleaseDate() int64 {
+func (rcv *Sde) ReleaseDate(obj *UnixTimestamp) *UnixTimestamp {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(28))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		x := o + rcv._tab.Pos
+		if obj == nil {
+			obj = new(UnixTimestamp)
+		}
+		obj.Init(rcv._tab.Bytes, x)
+		return obj
 	}
-	return 0
-}
-
-/// When CCP released this SDE build, in seconds since the Unix epoch.
-func (rcv *Sde) MutateReleaseDate(n int64) bool {
-	return rcv._tab.MutateInt64Slot(28, n)
+	return nil
 }
 
 func SdeStart(builder *flatbuffers.Builder) {
@@ -470,8 +469,8 @@ func SdeAddDogmaAttributeCategories(builder *flatbuffers.Builder, dogmaAttribute
 func SdeStartDogmaAttributeCategoriesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func SdeAddReleaseDate(builder *flatbuffers.Builder, releaseDate int64) {
-	builder.PrependInt64Slot(12, releaseDate, 0)
+func SdeAddReleaseDate(builder *flatbuffers.Builder, releaseDate flatbuffers.UOffsetT) {
+	builder.PrependStructSlot(12, flatbuffers.UOffsetT(releaseDate), 0)
 }
 func SdeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
