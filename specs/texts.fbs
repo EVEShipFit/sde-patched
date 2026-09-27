@@ -9,6 +9,7 @@ table DogmaAttributeText {
 table Texts {
     build_number: int32;
     dogma_attributes: [DogmaAttributeText] (required);
+    release_date: string;
 }
 
 root_type Texts;

@@ -76,7 +76,7 @@ dogma.load_sde_from_file(sde_path())
 ## Releasing
 
 Every day at 12:00 UTC, `main` is built against the latest SDE.
-When the result differs from the latest release, the SDE build number aside, a new release is made and published on npm and PyPI.
+When the result differs from the latest release, the SDE build number and release date aside, a new release is made and published on npm and PyPI.
 A change to the patches is released this way too.
 
 ## Patches

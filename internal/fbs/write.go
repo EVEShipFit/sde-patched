@@ -12,6 +12,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 
@@ -35,9 +36,11 @@ func Write(data *sde.Data, filename string) error {
 	effects := writeEffects(builder, data)
 	dbuffCollections := writeDbuffCollections(builder, data)
 	mutaplasmids := writeMutaplasmids(builder, data)
+	releaseDate := writeReleaseDate(builder, data)
 
 	eve.SdeStart(builder)
 	eve.SdeAddBuildNumber(builder, data.BuildNumber)
+	eve.SdeAddReleaseDate(builder, releaseDate)
 	eve.SdeAddTypes(builder, types)
 	eve.SdeAddGroups(builder, groups)
 	eve.SdeAddCategories(builder, categories)
@@ -121,9 +124,11 @@ func WriteNames(data *sde.Data, filename string) error {
 		builder.PrependInt32(entries[i].typeID)
 	}
 	typeIDs := builder.EndVector(len(entries))
+	releaseDate := writeReleaseDate(builder, data)
 
 	eve.NamesStart(builder)
 	eve.NamesAddBuildNumber(builder, data.BuildNumber)
+	eve.NamesAddReleaseDate(builder, releaseDate)
 	eve.NamesAddNames(builder, names)
 	eve.NamesAddTypeIds(builder, typeIDs)
 	builder.FinishWithFileIdentifier(eve.NamesEnd(builder), []byte("ESFN"))
@@ -157,13 +162,19 @@ func WriteTexts(data *sde.Data, filename string) error {
 		offsets = append(offsets, eve.DogmaAttributeTextEnd(builder))
 	}
 	attributes := builder.CreateVectorOfSortedTables(offsets, eve.DogmaAttributeTextKeyCompare)
+	releaseDate := writeReleaseDate(builder, data)
 
 	eve.TextsStart(builder)
 	eve.TextsAddBuildNumber(builder, data.BuildNumber)
+	eve.TextsAddReleaseDate(builder, releaseDate)
 	eve.TextsAddDogmaAttributes(builder, attributes)
 	builder.FinishWithFileIdentifier(eve.TextsEnd(builder), []byte("ESFT"))
 
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
+}
+
+func writeReleaseDate(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	return builder.CreateString(data.ReleaseDate.UTC().Format(time.RFC3339))
 }
 
 func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {

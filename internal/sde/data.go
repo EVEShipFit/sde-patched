@@ -3,6 +3,7 @@ package sde
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/EVEShipFit/sde-patched/internal/fbs/eve"
 )
@@ -329,6 +330,7 @@ type Mutaplasmid struct {
 // Data is the part of the SDE this tool uses.
 type Data struct {
 	BuildNumber      int32
+	ReleaseDate      time.Time
 	Types            map[int32]*Type
 	Groups           map[int32]*Group
 	Categories       map[int32]*Category

@@ -32,11 +32,14 @@ func TestEqual(t *testing.T) {
 			}
 
 			original := written("original", func(*sde.Data) {})
-			rebuilt := written("rebuilt", func(data *sde.Data) { data.BuildNumber = 43 })
+			rebuilt := written("rebuilt", func(data *sde.Data) {
+				data.BuildNumber = 43
+				data.ReleaseDate = data.ReleaseDate.AddDate(0, 0, 1)
+			})
 			changed := written("changed", writer.change)
 
 			if equal, err := Equal(original, rebuilt); err != nil || !equal {
-				t.Errorf("only the build number changed: equal = %v, err = %v", equal, err)
+				t.Errorf("only the build changed: equal = %v, err = %v", equal, err)
 			}
 			if equal, err := Equal(original, changed); err != nil || equal {
 				t.Errorf("the data changed: equal = %v, err = %v", equal, err)

@@ -229,6 +229,7 @@ table Sde {
     meta_groups: [MetaGroup];
     dogma_units: [DogmaUnit];
     dogma_attribute_categories: [DogmaAttributeCategory];
+    release_date: string;
 }
 
 root_type Sde;

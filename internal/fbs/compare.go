@@ -9,21 +9,21 @@ import (
 )
 
 // Equal reports whether two files written by Write, WriteNames or WriteTexts hold the
-// same data. The SDE build number is ignored, as a new SDE build often changes
-// nothing a dogma-engine uses.
+// same data. The SDE build number and release date are ignored, as a new SDE
+// build often changes nothing a dogma-engine uses.
 func Equal(a, b string) (bool, error) {
-	rawA, err := withoutBuildNumber(a)
+	rawA, err := withoutBuild(a)
 	if err != nil {
 		return false, err
 	}
-	rawB, err := withoutBuildNumber(b)
+	rawB, err := withoutBuild(b)
 	if err != nil {
 		return false, err
 	}
 	return bytes.Equal(rawA, rawB), nil
 }
 
-func withoutBuildNumber(filename string) ([]byte, error) {
+func withoutBuild(filename string) ([]byte, error) {
 	raw, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -31,11 +31,17 @@ func withoutBuildNumber(filename string) ([]byte, error) {
 
 	switch {
 	case eve.SdeBufferHasIdentifier(raw):
-		eve.GetRootAsSde(raw, 0).MutateBuildNumber(0)
+		root := eve.GetRootAsSde(raw, 0)
+		root.MutateBuildNumber(0)
+		clear(root.ReleaseDate())
 	case eve.NamesBufferHasIdentifier(raw):
-		eve.GetRootAsNames(raw, 0).MutateBuildNumber(0)
+		root := eve.GetRootAsNames(raw, 0)
+		root.MutateBuildNumber(0)
+		clear(root.ReleaseDate())
 	case eve.TextsBufferHasIdentifier(raw):
-		eve.GetRootAsTexts(raw, 0).MutateBuildNumber(0)
+		root := eve.GetRootAsTexts(raw, 0)
+		root.MutateBuildNumber(0)
+		clear(root.ReleaseDate())
 	default:
 		return nil, fmt.Errorf("%s: not an SDE export", filename)
 	}

@@ -5,6 +5,7 @@ table Names {
     /// Lowercased per code point, locale-independent; sorted by UTF-8 bytes.
     names: [string] (required);
     type_ids: [int32] (required);
+    release_date: string;
 }
 
 root_type Names;
