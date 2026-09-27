@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/EVEShipFit/sde-patched/internal/fbs/eve"
 	"github.com/EVEShipFit/sde-patched/internal/sde"
@@ -16,6 +17,7 @@ func ptr[T any](value T) *T { return &value }
 func testData() *sde.Data {
 	return &sde.Data{
 		BuildNumber: 42,
+		ReleaseDate: time.Date(2026, 9, 24, 11, 12, 47, 0, time.UTC),
 		Categories: map[int32]*sde.Category{
 			18: {Key: 18, Name: sde.Localized{En: "Drone"}, Published: true},
 		},
@@ -139,6 +141,9 @@ func TestWriteRoundTrip(t *testing.T) {
 	root := eve.GetRootAsSde(raw, 0)
 	if root.BuildNumber() != 42 {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
+	}
+	if root.ReleaseDate() != 1790248367 {
+		t.Errorf("release date = %d, want 1790248367", root.ReleaseDate())
 	}
 
 	var entry eve.Type
@@ -310,6 +315,9 @@ func TestWriteNamesRoundTrip(t *testing.T) {
 	if root.BuildNumber() != 42 {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
 	}
+	if root.ReleaseDate() != 1790248367 {
+		t.Errorf("release date = %d, want 1790248367", root.ReleaseDate())
+	}
 
 	// The Japanese name has to lead back to the type, same as the English one.
 	if got := lookupName(root, "ホブゴブリンII"); got != 2456 {
@@ -353,6 +361,9 @@ func TestWriteTextsRoundTrip(t *testing.T) {
 	root := eve.GetRootAsTexts(raw, 0)
 	if root.BuildNumber() != 42 {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
+	}
+	if root.ReleaseDate() != 1790248367 {
+		t.Errorf("release date = %d, want 1790248367", root.ReleaseDate())
 	}
 
 	if got := root.DogmaAttributesLength(); got != 2 {

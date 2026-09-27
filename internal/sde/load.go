@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 )
 
 // Load reads the parts of the SDE zip we need. Files are streamed, as the
@@ -31,6 +32,13 @@ func Load(filename string, build int32) (*Data, error) {
 		Mutaplasmids:     map[int32]*Mutaplasmid{},
 	}
 
+	if err := decode(&reader.Reader, "_sde.jsonl", func(entry *sdeEntry) {
+		if entry.Key == "sde" {
+			data.ReleaseDate = entry.ReleaseDate
+		}
+	}); err != nil {
+		return nil, err
+	}
 	if err := decode(&reader.Reader, "categories.jsonl", func(entry *Category) {
 		data.Categories[entry.Key] = entry
 	}); err != nil {
@@ -128,6 +136,11 @@ func Load(filename string, build int32) (*Data, error) {
 	}
 
 	return data, nil
+}
+
+type sdeEntry struct {
+	Key         string    `json:"_key"`
+	ReleaseDate time.Time `json:"releaseDate"`
 }
 
 type typeDogmaEntry struct {

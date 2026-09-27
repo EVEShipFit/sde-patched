@@ -9,6 +9,7 @@ package sde
 func (d *Data) Clone() *Data {
 	clone := &Data{
 		BuildNumber:      d.BuildNumber,
+		ReleaseDate:      d.ReleaseDate,
 		Types:            make(map[int32]*Type, len(d.Types)),
 		Groups:           d.Groups,
 		Categories:       d.Categories,

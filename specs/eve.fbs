@@ -229,6 +229,8 @@ table Sde {
     meta_groups: [MetaGroup];
     dogma_units: [DogmaUnit];
     dogma_attribute_categories: [DogmaAttributeCategory];
+    /// When CCP released this SDE build, in seconds since the Unix epoch.
+    release_date: int64;
 }
 
 root_type Sde;

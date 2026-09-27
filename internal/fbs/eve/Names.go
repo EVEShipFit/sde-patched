@@ -110,8 +110,22 @@ func (rcv *Names) MutateTypeIds(j int, n int32) bool {
 	return false
 }
 
+/// When CCP released this SDE build, in seconds since the Unix epoch.
+func (rcv *Names) ReleaseDate() int64 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+/// When CCP released this SDE build, in seconds since the Unix epoch.
+func (rcv *Names) MutateReleaseDate(n int64) bool {
+	return rcv._tab.MutateInt64Slot(10, n)
+}
+
 func NamesStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func NamesAddBuildNumber(builder *flatbuffers.Builder, buildNumber int32) {
 	builder.PrependInt32Slot(0, buildNumber, 0)
@@ -127,6 +141,9 @@ func NamesAddTypeIds(builder *flatbuffers.Builder, typeIds flatbuffers.UOffsetT)
 }
 func NamesStartTypeIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func NamesAddReleaseDate(builder *flatbuffers.Builder, releaseDate int64) {
+	builder.PrependInt64Slot(3, releaseDate, 0)
 }
 func NamesEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

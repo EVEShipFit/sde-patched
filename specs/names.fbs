@@ -5,6 +5,8 @@ table Names {
     /// Lowercased per code point, locale-independent; sorted by UTF-8 bytes.
     names: [string] (required);
     type_ids: [int32] (required);
+    /// When CCP released this SDE build, in seconds since the Unix epoch.
+    release_date: int64;
 }
 
 root_type Names;

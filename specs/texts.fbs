@@ -9,6 +9,8 @@ table DogmaAttributeText {
 table Texts {
     build_number: int32;
     dogma_attributes: [DogmaAttributeText] (required);
+    /// When CCP released this SDE build, in seconds since the Unix epoch.
+    release_date: int64;
 }
 
 root_type Texts;
