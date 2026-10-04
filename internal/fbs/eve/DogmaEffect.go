@@ -317,8 +317,20 @@ func (rcv *DogmaEffect) ModifiersLength() int {
 	return 0
 }
 
+func (rcv *DogmaEffect) IconId() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(44))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *DogmaEffect) MutateIconId(n int32) bool {
+	return rcv._tab.MutateInt32Slot(44, n)
+}
+
 func DogmaEffectStart(builder *flatbuffers.Builder) {
-	builder.StartObject(20)
+	builder.StartObject(21)
 }
 func DogmaEffectAddId(builder *flatbuffers.Builder, id int32) {
 	builder.PrependInt32Slot(0, id, 0)
@@ -382,6 +394,9 @@ func DogmaEffectAddModifiers(builder *flatbuffers.Builder, modifiers flatbuffers
 }
 func DogmaEffectStartModifiersVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(20, numElems, 4)
+}
+func DogmaEffectAddIconId(builder *flatbuffers.Builder, iconId int32) {
+	builder.PrependInt32Slot(20, iconId, 0)
 }
 func DogmaEffectEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

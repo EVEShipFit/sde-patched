@@ -61,6 +61,7 @@ func testData() *sde.Data {
 				Stackable:          true,
 				UnitID:             113,
 				CategoryID:         4,
+				IconID:             67,
 				TooltipTitle:       sde.Localized{En: "Structure Hitpoints", De: "Strukturhitpoints"},
 				TooltipDescription: sde.Localized{En: "Structure hitpoints do not regenerate naturally"},
 			},
@@ -80,6 +81,7 @@ func testData() *sde.Data {
 				Name:             "droneLoad",
 				EffectCategoryID: int32(eve.EffectCategoryPassive),
 				IsWarpSafe:       true,
+				IconID:           1042,
 				Modifiers: []sde.Modifier{{
 					Domain:               eve.ModifierDomainShipID,
 					Func:                 eve.ModifierFuncItemModifier,
@@ -201,6 +203,9 @@ func TestWriteRoundTrip(t *testing.T) {
 	if attribute.UnitId() != 113 || attribute.CategoryId() != 4 {
 		t.Errorf("attribute unit = %d, category = %d", attribute.UnitId(), attribute.CategoryId())
 	}
+	if got := attribute.IconId(); got != 67 {
+		t.Errorf("attribute icon = %d", got)
+	}
 
 	var unit eve.DogmaUnit
 	if !root.DogmaUnitsByKey(&unit, 113) {
@@ -237,6 +242,9 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if got := effect.EffectCategory(); got != eve.EffectCategoryPassive {
 		t.Errorf("effect category = %v", got)
+	}
+	if got := effect.IconId(); got != 1042 {
+		t.Errorf("effect icon = %d", got)
 	}
 
 	var modifier eve.Modifier

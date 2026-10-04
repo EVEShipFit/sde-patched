@@ -143,6 +143,7 @@ table DogmaAttribute {
     min_attribute_id: int32;
     max_attribute_id: int32;
     category_id: int32;
+    icon_id: int32;
 }
 
 table DogmaUnit {
@@ -180,6 +181,7 @@ table DogmaEffect {
     tracking_speed_attribute_id: int32;
 
     modifiers: [Modifier];
+    icon_id: int32;
 }
 
 struct DbuffModifier {
