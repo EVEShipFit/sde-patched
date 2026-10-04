@@ -382,6 +382,7 @@ func writeAttributes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.U
 		eve.DogmaAttributeAddMinAttributeId(builder, entry.MinAttributeID)
 		eve.DogmaAttributeAddMaxAttributeId(builder, entry.MaxAttributeID)
 		eve.DogmaAttributeAddCategoryId(builder, entry.CategoryID)
+		eve.DogmaAttributeAddIconId(builder, entry.IconID)
 		offsets = append(offsets, eve.DogmaAttributeEnd(builder))
 	}
 
@@ -466,6 +467,7 @@ func writeEffects(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOff
 		eve.DogmaEffectAddResistanceAttributeId(builder, entry.ResistanceAttributeID)
 		eve.DogmaEffectAddTrackingSpeedAttributeId(builder, entry.TrackingSpeedAttributeID)
 		eve.DogmaEffectAddModifiers(builder, modifiers)
+		eve.DogmaEffectAddIconId(builder, entry.IconID)
 		offsets = append(offsets, eve.DogmaEffectEnd(builder))
 	}
 

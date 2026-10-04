@@ -202,8 +202,20 @@ func (rcv *DogmaAttribute) MutateCategoryId(n int32) bool {
 	return rcv._tab.MutateInt32Slot(24, n)
 }
 
+func (rcv *DogmaAttribute) IconId() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(26))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *DogmaAttribute) MutateIconId(n int32) bool {
+	return rcv._tab.MutateInt32Slot(26, n)
+}
+
 func DogmaAttributeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(11)
+	builder.StartObject(12)
 }
 func DogmaAttributeAddId(builder *flatbuffers.Builder, id int32) {
 	builder.PrependInt32Slot(0, id, 0)
@@ -237,6 +249,9 @@ func DogmaAttributeAddMaxAttributeId(builder *flatbuffers.Builder, maxAttributeI
 }
 func DogmaAttributeAddCategoryId(builder *flatbuffers.Builder, categoryId int32) {
 	builder.PrependInt32Slot(10, categoryId, 0)
+}
+func DogmaAttributeAddIconId(builder *flatbuffers.Builder, iconId int32) {
+	builder.PrependInt32Slot(11, iconId, 0)
 }
 func DogmaAttributeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

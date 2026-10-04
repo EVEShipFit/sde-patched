@@ -100,6 +100,7 @@ type DogmaAttribute struct {
 	MinAttributeID int32     `json:"minAttributeID"`
 	MaxAttributeID int32     `json:"maxAttributeID"`
 	CategoryID     int32     `json:"attributeCategoryID"`
+	IconID         int32     `json:"iconID"`
 
 	TooltipTitle       Localized `json:"tooltipTitle"`
 	TooltipDescription Localized `json:"tooltipDescription"`
@@ -200,6 +201,7 @@ type DogmaEffect struct {
 	ResistanceAttributeID         int32      `json:"resistanceAttributeID"`
 	TrackingSpeedAttributeID      int32      `json:"trackingSpeedAttributeID"`
 	Modifiers                     []Modifier `json:"modifierInfo"`
+	IconID                        int32      `json:"iconID"`
 }
 
 // DbuffModifier is one rule of a buff. Unlike an effect's modifier it names no
