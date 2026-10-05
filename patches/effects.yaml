@@ -7,9 +7,7 @@ changes:
   - {effect: online, category: online}
 
   # The SDE puts the damaging fighter abilities in "target", which a
-  # dogma-engine never applies to the fighter itself.
+  # dogma-engine never applies to the fighter itself. And in-game, the fitting
+  # window counts the damage of a fighter's missiles.
   - {effect: fighterAbilityAttackM, category: active}
-  - {effect: fighterAbilityMissiles, category: active}
-
-  # In-game, the fitting window counts the damage of a fighter's missiles.
-  - {effect: fighterAbilityMissiles, default: true}
+  - {effect: fighterAbilityMissiles, category: active, default: true}

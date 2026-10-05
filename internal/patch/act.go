@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
 
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
@@ -293,13 +294,17 @@ func (a *Action) String() string {
 }
 
 func (c *Change) String() string {
+	var to []string
 	if c.Category != nil {
-		return fmt.Sprintf("change effect %q to category %s", c.Effect, *c.Category)
+		to = append(to, "category "+*c.Category)
 	}
 	if c.Default != nil {
-		return fmt.Sprintf("change effect %q to default %t", c.Effect, *c.Default)
+		to = append(to, fmt.Sprintf("default %t", *c.Default))
 	}
-	return fmt.Sprintf("change effect %q", c.Effect)
+	if len(to) == 0 {
+		return fmt.Sprintf("change effect %q", c.Effect)
+	}
+	return fmt.Sprintf("change effect %q to %s", c.Effect, strings.Join(to, " and "))
 }
 
 func (a *AddTo) String() string {
