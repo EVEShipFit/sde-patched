@@ -5,10 +5,12 @@
 // the attribute, so the name is never written inside it, and every rule in it
 // writes that attribute and nothing else.
 //
-// Three files are not an attribute. patches/selectors.yaml holds the filters
+// Four files are not an attribute. patches/selectors.yaml holds the filters
 // more than one attribute needs, patches/effects.yaml holds the handful of
-// changes that belong to an effect of CCP's rather than to any one value, and
-// patches/units.yaml holds the units the SDE has none of.
+// changes that belong to an effect of CCP's rather than to any one value,
+// patches/units.yaml holds the units the SDE has none of, and
+// patches/fighterAbilities.yaml holds which effect each fighter ability is,
+// which the SDE does not say.
 //
 // Nothing is looked up while reading; a file only writes down the intent, and
 // Apply resolves it against the SDE.
@@ -34,6 +36,8 @@ type Spec struct {
 	Attributes []*Attribute
 	Changes    []*Change
 	Actions    []*Action
+
+	FighterAbilities []*FighterAbility
 
 	IDs *IDs
 }
@@ -81,6 +85,19 @@ type selectorFile struct {
 type effectFile struct {
 	Changes []*Change `yaml:"changes,omitempty" json:"changes"`
 	Actions []*Action `yaml:"actions,omitempty" json:"actions"`
+}
+
+// fighterAbilityFile is patches/fighterAbilities.yaml.
+type fighterAbilityFile struct {
+	Abilities []*FighterAbility `yaml:"abilities,omitempty" json:"abilities"`
+}
+
+// FighterAbility is which effect of CCP's a fighter ability is.
+type FighterAbility struct {
+	at source
+
+	Ability int32  `yaml:"ability" json:"ability"`
+	Effect  string `yaml:"effect" json:"effect"`
 }
 
 // NamedSelector is a filter that more than one attribute needs.
@@ -219,9 +236,8 @@ const AnySkill = "*"
 type Change struct {
 	at source
 
-	Effect    string  `yaml:"effect" json:"effect"`
-	Category  *string `yaml:"category,omitempty" json:"category"`
-	Abilities []int32 `yaml:"abilities,omitempty" json:"abilities"`
+	Effect   string  `yaml:"effect" json:"effect"`
+	Category *string `yaml:"category,omitempty" json:"category"`
 }
 
 // Action changes every type that On matches. Giving an effect out is not an
@@ -313,6 +329,12 @@ func (a *Action) UnmarshalYAML(node *yaml.Node) error {
 	type plain Action
 	a.at.line = node.Line
 	return strictDecode(node, (*plain)(a))
+}
+
+func (f *FighterAbility) UnmarshalYAML(node *yaml.Node) error {
+	type plain FighterAbility
+	f.at.line = node.Line
+	return strictDecode(node, (*plain)(f))
 }
 
 // strictDecode rejects keys the target does not have, as one is nearly always

@@ -88,7 +88,7 @@ func load(t *testing.T, files tree) *Spec {
 	}
 	for name, text := range files {
 		path := filepath.Join(dir, AttributesDir, name+".yaml")
-		if name == "selectors" || name == "effects" || name == "units" {
+		if name == "selectors" || name == "effects" || name == "units" || name == "fighterAbilities" {
 			path = filepath.Join(dir, name+".yaml")
 		}
 		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
@@ -316,7 +316,7 @@ func TestFighterAbilities(t *testing.T) {
 	}
 
 	data := fighterData()
-	spec := load(t, tree{"effects": "changes:\n  - {effect: fighterAbilityMicroWarpDrive, abilities: [4]}\n"})
+	spec := load(t, tree{"fighterAbilities": "abilities:\n  - {ability: 4, effect: fighterAbilityMicroWarpDrive}\n"})
 	if _, err := Apply(spec, data); err != nil {
 		t.Fatal(err)
 	}
@@ -325,17 +325,18 @@ func TestFighterAbilities(t *testing.T) {
 	}
 
 	tests := []struct {
-		name    string
-		effects string
-		want    string
+		name  string
+		files tree
+		want  string
 	}{
-		{"unknown ability", "changes:\n  - {effect: online, abilities: [99]}\n", "no fighter ability with ID 99"},
-		{"no effect", "changes:\n  - {effect: online, category: online}\n", `fighter ability 4 of "Templar I" is none of its effects`},
-		{"wrong effect", "changes:\n  - {effect: online, abilities: [4]}\n", `fighter ability 4 of "Templar I" is none of its effects`},
+		{"unknown ability", tree{"fighterAbilities": "abilities:\n  - {ability: 99, effect: online}\n"}, "no fighter ability with ID 99"},
+		{"unknown effect", tree{"fighterAbilities": "abilities:\n  - {ability: 4, effect: nope}\n"}, `no dogma effect named "nope"`},
+		{"no effect", tree{"effects": "changes:\n  - {effect: online, category: online}\n"}, `fighter ability 4 of "Templar I" is none of its effects`},
+		{"wrong effect", tree{"fighterAbilities": "abilities:\n  - {ability: 4, effect: online}\n"}, `fighter ability 4 of "Templar I" is none of its effects`},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := Apply(load(t, tree{"effects": test.effects}), fighterData())
+			_, err := Apply(load(t, test.files), fighterData())
 			if err == nil || !strings.Contains(err.Error(), test.want) {
 				t.Fatalf("got %v, want %q", err, test.want)
 			}
@@ -440,6 +441,16 @@ func TestValidate(t *testing.T) {
 			name:  "no category",
 			files: tree{"x": "effects: [{on: published(), rules: [{mul: agility}]}]\n"},
 			want:  "needs a category",
+		},
+		{
+			name:  "fighter ability without an effect",
+			files: tree{"fighterAbilities": "abilities: [{ability: 4}]\n"},
+			want:  "needs an ability and an effect",
+		},
+		{
+			name:  "fighter ability twice",
+			files: tree{"fighterAbilities": "abilities: [{ability: 4, effect: a}, {ability: 4, effect: b}]\n"},
+			want:  "fighter ability 4 already has an effect",
 		},
 	}
 

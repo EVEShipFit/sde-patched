@@ -11,12 +11,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// The four things a patches directory holds.
+// The five things a patches directory holds.
 const (
-	AttributesDir = "attributes"
-	SelectorsFile = "selectors.yaml"
-	EffectsFile   = "effects.yaml"
-	UnitsFile     = "units.yaml"
+	AttributesDir        = "attributes"
+	SelectorsFile        = "selectors.yaml"
+	EffectsFile          = "effects.yaml"
+	UnitsFile            = "units.yaml"
+	FighterAbilitiesFile = "fighterAbilities.yaml"
 )
 
 // Load reads a patches directory into one Spec. Attribute files are read in
@@ -38,6 +39,9 @@ func Load(dir string) (*Spec, error) {
 	if err := spec.addEffects(filepath.Join(dir, EffectsFile)); err != nil {
 		return nil, err
 	}
+	if err := spec.addFighterAbilities(filepath.Join(dir, FighterAbilitiesFile)); err != nil {
+		return nil, err
+	}
 
 	names, err := filepath.Glob(filepath.Join(dir, AttributesDir, "*.yaml"))
 	if err != nil {
@@ -51,7 +55,8 @@ func Load(dir string) (*Spec, error) {
 		}
 	}
 
-	if len(spec.Attributes) == 0 && len(spec.Selectors) == 0 && len(spec.Changes) == 0 && len(spec.Actions) == 0 {
+	if len(spec.Attributes) == 0 && len(spec.Selectors) == 0 && len(spec.Changes) == 0 && len(spec.Actions) == 0 &&
+		len(spec.FighterAbilities) == 0 {
 		return nil, fmt.Errorf("%s holds no patches", dir)
 	}
 	return spec, nil
@@ -151,6 +156,26 @@ func (spec *Spec) addEffects(filename string) error {
 	for _, action := range parsed.Actions {
 		action.at.file = EffectsFile
 		spec.Actions = append(spec.Actions, action)
+	}
+	return nil
+}
+
+func (spec *Spec) addFighterAbilities(filename string) error {
+	raw, err := os.ReadFile(filename)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	var parsed fighterAbilityFile
+	if err := decode(raw, &parsed); err != nil {
+		return atLine(FighterAbilitiesFile, err)
+	}
+	for _, ability := range parsed.Abilities {
+		ability.at.file = FighterAbilitiesFile
+		spec.FighterAbilities = append(spec.FighterAbilities, ability)
 	}
 	return nil
 }

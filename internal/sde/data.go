@@ -43,7 +43,7 @@ type FighterAbility struct {
 	Key         int32     `json:"_key"`
 	DisplayName Localized `json:"displayName"`
 
-	// Set by patches/effects.yaml.
+	// Set by patches/fighterAbilities.yaml.
 	EffectID int32 `json:"-"`
 }
 

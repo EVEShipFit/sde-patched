@@ -1,0 +1,36 @@
+# Which effect each fighter ability is. The SDE does not say.
+
+abilities:
+  - {ability: 2, effect: fighterAbilityStasisWebifier}
+  - {ability: 4, effect: fighterAbilityMicroWarpDrive}
+  - {ability: 5, effect: fighterAbilityMicroJumpDrive}
+  - {ability: 7, effect: fighterAbilityLaunchBomb}
+  - {ability: 9, effect: fighterAbilityAfterburner}
+  - {ability: 10, effect: fighterAbilityWarpDisruption}
+  - {ability: 11, effect: fighterAbilityEnergyNeutralizer}
+  - {ability: 12, effect: fighterAbilityECM}
+  - {ability: 13, effect: fighterAbilityEvasiveManeuvers}
+  - {ability: 14, effect: fighterAbilityMissiles}
+  - {ability: 16, effect: fighterAbilityTackle}
+  - {ability: 17, effect: fighterAbilityAttackM}
+  - {ability: 18, effect: fighterAbilityMissiles}
+  - {ability: 19, effect: fighterAbilityMissiles}
+  - {ability: 20, effect: fighterAbilityMissiles}
+  - {ability: 21, effect: fighterAbilityMissiles}
+  - {ability: 22, effect: fighterAbilityAttackM}
+  - {ability: 23, effect: fighterAbilityAttackM}
+  - {ability: 24, effect: fighterAbilityAttackM}
+  - {ability: 25, effect: fighterAbilityAttackM}
+  - {ability: 26, effect: fighterAbilityAttackM}
+  - {ability: 27, effect: fighterAbilityAttackM}
+  - {ability: 29, effect: fighterAbilityMissiles}
+  - {ability: 30, effect: fighterAbilityMissiles}
+  - {ability: 31, effect: fighterAbilityMissiles}
+  - {ability: 32, effect: fighterAbilityMissiles}
+  - {ability: 33, effect: fighterAbilityMissiles}
+  - {ability: 34, effect: fighterAbilityMissiles}
+  - {ability: 35, effect: fighterAbilityMissiles}
+  - {ability: 36, effect: fighterAbilityMissiles}
+  - {ability: 38, effect: fighterAbilityKamikaze}
+  - {ability: 44, effect: fighterAbilityAttackM}
+  - {ability: 45, effect: fighterAbilityAttackM}

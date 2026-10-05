@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"maps"
 	"slices"
-	"strings"
 
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
@@ -105,15 +104,21 @@ func (ctx *Context) change(change *Change) {
 			entry.EffectCategoryID = int32(category)
 		}
 	}
+}
 
-	for _, id := range change.Abilities {
-		ability, ok := ctx.Data.FighterAbilities[id]
-		if !ok {
-			ctx.errorf(change.at, "no fighter ability with ID %d", id)
-			continue
-		}
-		ability.EffectID = entry.Key
+// linkAbility says which effect a fighter ability is.
+func (ctx *Context) linkAbility(link *FighterAbility) {
+	ability, ok := ctx.Data.FighterAbilities[link.Ability]
+	if !ok {
+		ctx.errorf(link.at, "no fighter ability with ID %d", link.Ability)
+		return
 	}
+	entry, ok := ctx.effectByName[link.Effect]
+	if !ok {
+		ctx.errorf(link.at, "no dogma effect named %q", link.Effect)
+		return
+	}
+	ability.EffectID = entry.Key
 }
 
 // checkAbilities makes sure every ability of a fighter is one of its effects.
@@ -125,7 +130,7 @@ func (ctx *Context) checkAbilities() {
 			if !ok || !slices.ContainsFunc(item.DogmaEffects, func(effect sde.TypeDogmaEffect) bool {
 				return effect.EffectID == ability.EffectID
 			}) {
-				ctx.errorf(source{file: EffectsFile}, "fighter ability %d of %q is none of its effects", used.AbilityID, item.Name.En)
+				ctx.errorf(source{file: FighterAbilitiesFile}, "fighter ability %d of %q is none of its effects", used.AbilityID, item.Name.En)
 			}
 		}
 	}
@@ -189,6 +194,17 @@ func (spec *Spec) Validate() error {
 		if change.Effect == "" {
 			report(change.at, "a change needs an effect to change")
 		}
+	}
+
+	abilities := map[int32]source{}
+	for _, ability := range spec.FighterAbilities {
+		if ability.Ability == 0 || ability.Effect == "" {
+			report(ability.at, "a fighter ability needs an ability and an effect")
+		}
+		if was, taken := abilities[ability.Ability]; taken {
+			report(ability.at, "fighter ability %d already has an effect, at %s", ability.Ability, was)
+		}
+		abilities[ability.Ability] = ability.at
 	}
 
 	units := map[string]source{}
@@ -267,17 +283,10 @@ func (a *Action) String() string {
 }
 
 func (c *Change) String() string {
-	var parts []string
 	if c.Category != nil {
-		parts = append(parts, fmt.Sprintf("to category %s", *c.Category))
+		return fmt.Sprintf("change effect %q to category %s", c.Effect, *c.Category)
 	}
-	if len(c.Abilities) > 0 {
-		parts = append(parts, fmt.Sprintf("as fighter abilities %v", c.Abilities))
-	}
-	if len(parts) == 0 {
-		return fmt.Sprintf("change effect %q", c.Effect)
-	}
-	return fmt.Sprintf("change effect %q %s", c.Effect, strings.Join(parts, " and "))
+	return fmt.Sprintf("change effect %q", c.Effect)
 }
 
 func (a *AddTo) String() string {
