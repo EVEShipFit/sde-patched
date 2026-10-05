@@ -104,6 +104,16 @@ func (ctx *Context) change(change *Change) {
 			entry.EffectCategoryID = int32(category)
 		}
 	}
+
+	if change.Default != nil {
+		for _, item := range ctx.sortedTypes {
+			for i := range item.DogmaEffects {
+				if item.DogmaEffects[i].EffectID == entry.Key {
+					item.DogmaEffects[i].IsDefault = *change.Default
+				}
+			}
+		}
+	}
 }
 
 // linkAbility says which effect a fighter ability is.
@@ -285,6 +295,9 @@ func (a *Action) String() string {
 func (c *Change) String() string {
 	if c.Category != nil {
 		return fmt.Sprintf("change effect %q to category %s", c.Effect, *c.Category)
+	}
+	if c.Default != nil {
+		return fmt.Sprintf("change effect %q to default %t", c.Effect, *c.Default)
 	}
 	return fmt.Sprintf("change effect %q", c.Effect)
 }

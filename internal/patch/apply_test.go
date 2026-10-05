@@ -273,7 +273,7 @@ effects: [{on: attribute("agility"), category: passive, rules: [{mul: agility}]}
 // effects, both belong in the attribute's own file.
 func TestChange(t *testing.T) {
 	spec := load(t, tree{
-		"effects": "changes:\n  - {effect: online, category: online}\n",
+		"effects": "changes:\n  - {effect: online, category: online, default: true}\n",
 		"agility": `
 change:
   default: 2
@@ -287,12 +287,16 @@ addTo:
 	})
 
 	data := testData()
+	data.Types[2456].DogmaEffects = []sde.TypeDogmaEffect{{EffectID: 16}}
 	if _, err := Apply(spec, data); err != nil {
 		t.Fatal(err)
 	}
 
 	if got := data.DogmaEffects[16].EffectCategoryID; got != 4 {
 		t.Errorf("online category = %d, want 4", got)
+	}
+	if !data.Types[2456].DogmaEffects[0].IsDefault {
+		t.Errorf("online is not a default effect of Hobgoblin II")
 	}
 	if got := data.DogmaAttributes[70]; got.DefaultValue != 2 || !got.HighIsGood {
 		t.Errorf("agility = %+v, want default 2 and highIsGood", got)

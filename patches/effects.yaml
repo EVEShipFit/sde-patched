@@ -10,3 +10,6 @@ changes:
   # dogma-engine never applies to the fighter itself.
   - {effect: fighterAbilityAttackM, category: active}
   - {effect: fighterAbilityMissiles, category: active}
+
+  # In-game, the fitting window counts the damage of a fighter's missiles.
+  - {effect: fighterAbilityMissiles, default: true}
