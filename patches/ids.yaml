@@ -179,8 +179,6 @@ effects:
   upgradeFree: -98
   maxTargets: -99
   maxTargetsCharacter: -100
-  fighterAbilityAttackMissileDamagePerSecond: -101
-  fighterAbilityMissilesDamagePerSecond: -102
 
 units:
   hitpointsPerSecond: -1

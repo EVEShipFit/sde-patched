@@ -4,9 +4,8 @@ new:
   unit: damagePerSecond
   highIsGood: true
 
-effects:
-  - on: effect("fighterAbilityAttackM")
-    category: passive
+addTo:
+  - effect: fighterAbilityAttackM
     rules:
       - {add: fighterAbilityAttackMissileDamageEM}
       - {add: fighterAbilityAttackMissileDamageTherm}
