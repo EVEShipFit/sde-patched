@@ -76,6 +76,10 @@ func Apply(spec *Spec, data *sde.Data) (*Context, error) {
 	for _, change := range spec.Changes {
 		ctx.change(change)
 	}
+	for _, ability := range spec.FighterAbilities {
+		ctx.linkAbility(ability)
+	}
+	ctx.checkAbilities()
 	for _, attribute := range spec.Attributes {
 		if attribute.Change != nil {
 			ctx.changeAttribute(attribute)

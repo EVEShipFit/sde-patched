@@ -3,6 +3,8 @@ package patch
 import (
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
 
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
@@ -104,6 +106,36 @@ func (ctx *Context) change(change *Change) {
 	}
 }
 
+// linkAbility says which effect a fighter ability is.
+func (ctx *Context) linkAbility(link *FighterAbility) {
+	ability, ok := ctx.Data.FighterAbilities[link.Ability]
+	if !ok {
+		ctx.errorf(link.at, "no fighter ability with ID %d", link.Ability)
+		return
+	}
+	entry, ok := ctx.effectByName[link.Effect]
+	if !ok {
+		ctx.errorf(link.at, "no dogma effect named %q", link.Effect)
+		return
+	}
+	ability.EffectID = entry.Key
+}
+
+// checkAbilities makes sure every ability of a fighter is one of its effects.
+func (ctx *Context) checkAbilities() {
+	for _, key := range slices.Sorted(maps.Keys(ctx.Data.Types)) {
+		item := ctx.Data.Types[key]
+		for _, used := range item.FighterAbilities {
+			ability, ok := ctx.Data.FighterAbilities[used.AbilityID]
+			if !ok || !slices.ContainsFunc(item.DogmaEffects, func(effect sde.TypeDogmaEffect) bool {
+				return effect.EffectID == ability.EffectID
+			}) {
+				ctx.errorf(source{file: FighterAbilitiesFile}, "fighter ability %d of %q is none of its effects", used.AbilityID, item.Name.En)
+			}
+		}
+	}
+}
+
 // addTo appends rules to an effect CCP already has.
 func (ctx *Context) addTo(added *AddTo) {
 	entry, ok := ctx.effectByName[added.Effect]
@@ -162,6 +194,17 @@ func (spec *Spec) Validate() error {
 		if change.Effect == "" {
 			report(change.at, "a change needs an effect to change")
 		}
+	}
+
+	abilities := map[int32]source{}
+	for _, ability := range spec.FighterAbilities {
+		if ability.Ability == 0 || ability.Effect == "" {
+			report(ability.at, "a fighter ability needs an ability and an effect")
+		}
+		if was, taken := abilities[ability.Ability]; taken {
+			report(ability.at, "fighter ability %d already has an effect, at %s", ability.Ability, was)
+		}
+		abilities[ability.Ability] = ability.at
 	}
 
 	units := map[string]source{}
