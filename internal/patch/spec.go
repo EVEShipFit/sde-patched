@@ -238,6 +238,8 @@ type Change struct {
 
 	Effect   string  `yaml:"effect" json:"effect"`
 	Category *string `yaml:"category,omitempty" json:"category"`
+	// Default sets whether every type with the effect runs it by default.
+	Default *bool `yaml:"default,omitempty" json:"default"`
 }
 
 // Action changes every type that On matches. Giving an effect out is not an

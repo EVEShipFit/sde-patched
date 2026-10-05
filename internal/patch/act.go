@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
 
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
@@ -102,6 +103,16 @@ func (ctx *Context) change(change *Change) {
 			ctx.errorf(change.at, "%s", err)
 		} else {
 			entry.EffectCategoryID = int32(category)
+		}
+	}
+
+	if change.Default != nil {
+		for _, item := range ctx.sortedTypes {
+			for i := range item.DogmaEffects {
+				if item.DogmaEffects[i].EffectID == entry.Key {
+					item.DogmaEffects[i].IsDefault = *change.Default
+				}
+			}
 		}
 	}
 }
@@ -283,10 +294,17 @@ func (a *Action) String() string {
 }
 
 func (c *Change) String() string {
+	var to []string
 	if c.Category != nil {
-		return fmt.Sprintf("change effect %q to category %s", c.Effect, *c.Category)
+		to = append(to, "category "+*c.Category)
 	}
-	return fmt.Sprintf("change effect %q", c.Effect)
+	if c.Default != nil {
+		to = append(to, fmt.Sprintf("default %t", *c.Default))
+	}
+	if len(to) == 0 {
+		return fmt.Sprintf("change effect %q", c.Effect)
+	}
+	return fmt.Sprintf("change effect %q to %s", c.Effect, strings.Join(to, " and "))
 }
 
 func (a *AddTo) String() string {
