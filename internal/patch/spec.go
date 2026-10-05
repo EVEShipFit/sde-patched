@@ -219,8 +219,9 @@ const AnySkill = "*"
 type Change struct {
 	at source
 
-	Effect   string  `yaml:"effect" json:"effect"`
-	Category *string `yaml:"category,omitempty" json:"category"`
+	Effect    string  `yaml:"effect" json:"effect"`
+	Category  *string `yaml:"category,omitempty" json:"category"`
+	Abilities []int32 `yaml:"abilities,omitempty" json:"abilities"`
 }
 
 // Action changes every type that On matches. Giving an effect out is not an

@@ -392,8 +392,37 @@ func (rcv *Sde) ReleaseDate() []byte {
 	return nil
 }
 
+func (rcv *Sde) FighterAbilities(obj *FighterAbility, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Sde) FighterAbilitiesByKey(obj *FighterAbility, key int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		return obj.LookupByKey(key, x, rcv._tab.Bytes)
+	}
+	return false
+}
+
+func (rcv *Sde) FighterAbilitiesLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(30))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func SdeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(13)
+	builder.StartObject(14)
 }
 func SdeAddBuildNumber(builder *flatbuffers.Builder, buildNumber int32) {
 	builder.PrependInt32Slot(0, buildNumber, 0)
@@ -466,6 +495,12 @@ func SdeStartDogmaAttributeCategoriesVector(builder *flatbuffers.Builder, numEle
 }
 func SdeAddReleaseDate(builder *flatbuffers.Builder, releaseDate flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(12, flatbuffers.UOffsetT(releaseDate), 0)
+}
+func SdeAddFighterAbilities(builder *flatbuffers.Builder, fighterAbilities flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(13, flatbuffers.UOffsetT(fighterAbilities), 0)
+}
+func SdeStartFighterAbilitiesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func SdeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

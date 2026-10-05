@@ -7,6 +7,18 @@ changes:
   - {effect: online, category: online}
 
   # The SDE puts the damaging fighter abilities in "target", which a
-  # dogma-engine never applies to the fighter itself.
-  - {effect: fighterAbilityAttackM, category: active}
-  - {effect: fighterAbilityMissiles, category: active}
+  # dogma-engine never applies to the fighter itself. Nor does it say which
+  # effect a fighter ability is.
+  - {effect: fighterAbilityAttackM, category: active, abilities: [22, 23, 24, 25, 26, 27, 44, 45]}
+  - {effect: fighterAbilityMissiles, category: active, abilities: [18, 19, 20, 21, 29, 30, 31, 32, 33, 34, 35, 36]}
+  - {effect: fighterAbilityAfterburner, abilities: [9]}
+  - {effect: fighterAbilityECM, abilities: [12]}
+  - {effect: fighterAbilityEnergyNeutralizer, abilities: [11]}
+  - {effect: fighterAbilityEvasiveManeuvers, abilities: [13]}
+  - {effect: fighterAbilityKamikaze, abilities: [38]}
+  - {effect: fighterAbilityLaunchBomb, abilities: [7]}
+  - {effect: fighterAbilityMicroJumpDrive, abilities: [5]}
+  - {effect: fighterAbilityMicroWarpDrive, abilities: [4]}
+  - {effect: fighterAbilityStasisWebifier, abilities: [2]}
+  - {effect: fighterAbilityTackle, abilities: [16]}
+  - {effect: fighterAbilityWarpDisruption, abilities: [10]}

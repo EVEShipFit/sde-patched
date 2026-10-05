@@ -302,6 +302,47 @@ addTo:
 	}
 }
 
+func TestFighterAbilities(t *testing.T) {
+	fighterData := func() *sde.Data {
+		data := testData()
+		data.DogmaEffects[6441] = &sde.DogmaEffect{Key: 6441, Name: "fighterAbilityMicroWarpDrive"}
+		data.FighterAbilities = map[int32]*sde.FighterAbility{4: {Key: 4, DisplayName: sde.Localized{En: "Microwarpdrive"}}}
+		data.Types[23055] = &sde.Type{
+			Key: 23055, Name: sde.Localized{En: "Templar I"},
+			DogmaEffects:     []sde.TypeDogmaEffect{{EffectID: 6441}},
+			FighterAbilities: []sde.TypeFighterAbility{{Slot: 1, AbilityID: 4}},
+		}
+		return data
+	}
+
+	data := fighterData()
+	spec := load(t, tree{"effects": "changes:\n  - {effect: fighterAbilityMicroWarpDrive, abilities: [4]}\n"})
+	if _, err := Apply(spec, data); err != nil {
+		t.Fatal(err)
+	}
+	if got := data.FighterAbilities[4].EffectID; got != 6441 {
+		t.Errorf("ability 4 is effect %d, want 6441", got)
+	}
+
+	tests := []struct {
+		name    string
+		effects string
+		want    string
+	}{
+		{"unknown ability", "changes:\n  - {effect: online, abilities: [99]}\n", "no fighter ability with ID 99"},
+		{"no effect", "changes:\n  - {effect: online, category: online}\n", `fighter ability 4 of "Templar I" is none of its effects`},
+		{"wrong effect", "changes:\n  - {effect: online, abilities: [4]}\n", `fighter ability 4 of "Templar I" is none of its effects`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := Apply(load(t, tree{"effects": test.effects}), fighterData())
+			if err == nil || !strings.Contains(err.Error(), test.want) {
+				t.Fatalf("got %v, want %q", err, test.want)
+			}
+		})
+	}
+}
+
 func TestErrors(t *testing.T) {
 	tests := []struct {
 		name  string

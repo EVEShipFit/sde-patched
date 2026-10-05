@@ -39,6 +39,14 @@ type TypeFighterAbility struct {
 	RearmTimeSeconds float64
 }
 
+type FighterAbility struct {
+	Key         int32     `json:"_key"`
+	DisplayName Localized `json:"displayName"`
+
+	// Set by patches/effects.yaml.
+	EffectID int32 `json:"-"`
+}
+
 type Type struct {
 	Key           int32     `json:"_key"`
 	Name          Localized `json:"name"`
@@ -344,4 +352,5 @@ type Data struct {
 	DogmaEffects     map[int32]*DogmaEffect
 	DbuffCollections map[int32]*DbuffCollection
 	Mutaplasmids     map[int32]*Mutaplasmid
+	FighterAbilities map[int32]*FighterAbility
 }

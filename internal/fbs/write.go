@@ -30,6 +30,7 @@ func Write(data *sde.Data, filename string) error {
 	categories := writeCategories(builder, data)
 	marketGroups := writeMarketGroups(builder, data)
 	metaGroups := writeMetaGroups(builder, data)
+	fighterAbilities := writeFighterAbilities(builder, data)
 	attributes := writeAttributes(builder, data)
 	units := writeDogmaUnits(builder, data)
 	attributeCategories := writeAttributeCategories(builder, data)
@@ -52,6 +53,7 @@ func Write(data *sde.Data, filename string) error {
 	eve.SdeAddMetaGroups(builder, metaGroups)
 	eve.SdeAddDogmaUnits(builder, units)
 	eve.SdeAddDogmaAttributeCategories(builder, attributeCategories)
+	eve.SdeAddFighterAbilities(builder, fighterAbilities)
 	builder.FinishWithFileIdentifier(eve.SdeEnd(builder), []byte("ESF1"))
 
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
@@ -360,6 +362,23 @@ func writeMetaGroups(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.U
 	}
 
 	return builder.CreateVectorOfSortedTables(offsets, eve.MetaGroupKeyCompare)
+}
+
+func writeFighterAbilities(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	offsets := make([]flatbuffers.UOffsetT, 0, len(data.FighterAbilities))
+
+	for _, key := range sortedKeys(data.FighterAbilities) {
+		entry := data.FighterAbilities[key]
+		name := builder.CreateString(entry.DisplayName.En)
+
+		eve.FighterAbilityStart(builder)
+		eve.FighterAbilityAddId(builder, entry.Key)
+		eve.FighterAbilityAddName(builder, name)
+		eve.FighterAbilityAddEffectId(builder, entry.EffectID)
+		offsets = append(offsets, eve.FighterAbilityEnd(builder))
+	}
+
+	return builder.CreateVectorOfSortedTables(offsets, eve.FighterAbilityKeyCompare)
 }
 
 func writeAttributes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {

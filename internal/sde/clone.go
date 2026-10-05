@@ -21,6 +21,7 @@ func (d *Data) Clone() *Data {
 		DogmaEffects:     make(map[int32]*DogmaEffect, len(d.DogmaEffects)),
 		DbuffCollections: d.DbuffCollections,
 		Mutaplasmids:     d.Mutaplasmids,
+		FighterAbilities: make(map[int32]*FighterAbility, len(d.FighterAbilities)),
 	}
 
 	for id, entry := range d.Types {
@@ -32,6 +33,10 @@ func (d *Data) Clone() *Data {
 	for id, entry := range d.DogmaAttributes {
 		copied := *entry
 		clone.DogmaAttributes[id] = &copied
+	}
+	for id, entry := range d.FighterAbilities {
+		copied := *entry
+		clone.FighterAbilities[id] = &copied
 	}
 	for id, entry := range d.DogmaEffects {
 		copied := *entry

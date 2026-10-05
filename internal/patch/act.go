@@ -3,6 +3,9 @@ package patch
 import (
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
+	"strings"
 
 	"github.com/EVEShipFit/sde-patched/internal/sde"
 )
@@ -100,6 +103,30 @@ func (ctx *Context) change(change *Change) {
 			ctx.errorf(change.at, "%s", err)
 		} else {
 			entry.EffectCategoryID = int32(category)
+		}
+	}
+
+	for _, id := range change.Abilities {
+		ability, ok := ctx.Data.FighterAbilities[id]
+		if !ok {
+			ctx.errorf(change.at, "no fighter ability with ID %d", id)
+			continue
+		}
+		ability.EffectID = entry.Key
+	}
+}
+
+// checkAbilities makes sure every ability of a fighter is one of its effects.
+func (ctx *Context) checkAbilities() {
+	for _, key := range slices.Sorted(maps.Keys(ctx.Data.Types)) {
+		item := ctx.Data.Types[key]
+		for _, used := range item.FighterAbilities {
+			ability, ok := ctx.Data.FighterAbilities[used.AbilityID]
+			if !ok || !slices.ContainsFunc(item.DogmaEffects, func(effect sde.TypeDogmaEffect) bool {
+				return effect.EffectID == ability.EffectID
+			}) {
+				ctx.errorf(source{file: EffectsFile}, "fighter ability %d of %q is none of its effects", used.AbilityID, item.Name.En)
+			}
 		}
 	}
 }
@@ -240,10 +267,17 @@ func (a *Action) String() string {
 }
 
 func (c *Change) String() string {
+	var parts []string
 	if c.Category != nil {
-		return fmt.Sprintf("change effect %q to category %s", c.Effect, *c.Category)
+		parts = append(parts, fmt.Sprintf("to category %s", *c.Category))
 	}
-	return fmt.Sprintf("change effect %q", c.Effect)
+	if len(c.Abilities) > 0 {
+		parts = append(parts, fmt.Sprintf("as fighter abilities %v", c.Abilities))
+	}
+	if len(parts) == 0 {
+		return fmt.Sprintf("change effect %q", c.Effect)
+	}
+	return fmt.Sprintf("change effect %q %s", c.Effect, strings.Join(parts, " and "))
 }
 
 func (a *AddTo) String() string {

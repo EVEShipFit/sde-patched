@@ -104,6 +104,9 @@ func testData() *sde.Data {
 				},
 			},
 		},
+		FighterAbilities: map[int32]*sde.FighterAbility{
+			26: {Key: 26, DisplayName: sde.Localized{En: "Autocannon", De: "Maschinenkanone"}, EffectID: 6465},
+		},
 		Mutaplasmids: map[int32]*sde.Mutaplasmid{
 			60461: {
 				Key:        60461,
@@ -194,6 +197,17 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if got := string(metaGroup.Name()); got != "Tech II" {
 		t.Errorf("meta group name = %q", got)
+	}
+
+	var fighterAbility eve.FighterAbility
+	if !root.FighterAbilitiesByKey(&fighterAbility, 26) {
+		t.Fatal("fighter ability 26 not found")
+	}
+	if got := string(fighterAbility.Name()); got != "Autocannon" {
+		t.Errorf("fighter ability name = %q", got)
+	}
+	if got := fighterAbility.EffectId(); got != 6465 {
+		t.Errorf("fighter ability effect = %d", got)
 	}
 
 	var attribute eve.DogmaAttribute

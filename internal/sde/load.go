@@ -24,6 +24,7 @@ func Load(filename string, build int32) (*Data, error) {
 		Categories:       map[int32]*Category{},
 		MarketGroups:     map[int32]*MarketGroup{},
 		MetaGroups:       map[int32]*MetaGroup{},
+		FighterAbilities: map[int32]*FighterAbility{},
 		DogmaAttributes:  map[int32]*DogmaAttribute{},
 		DogmaUnits:       map[int32]*DogmaUnit{},
 		DogmaCategories:  map[int32]*DogmaAttributeCategory{},
@@ -98,6 +99,12 @@ func Load(filename string, build int32) (*Data, error) {
 		}
 		item.DogmaAttributes = entry.DogmaAttributes
 		item.DogmaEffects = entry.DogmaEffects
+	}); err != nil {
+		return nil, err
+	}
+
+	if err := decode(&reader.Reader, "fighterAbilities.jsonl", func(entry *FighterAbility) {
+		data.FighterAbilities[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
