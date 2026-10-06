@@ -293,8 +293,36 @@ func (rcv *Type) FighterAbilitiesLength() int {
 	return 0
 }
 
+/// The modes of a ship, lowest ID first.
+func (rcv *Type) ModeTypeIds(j int) int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetInt32(a + flatbuffers.UOffsetT(j*4))
+	}
+	return 0
+}
+
+func (rcv *Type) ModeTypeIdsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+/// The modes of a ship, lowest ID first.
+func (rcv *Type) MutateModeTypeIds(j int, n int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateInt32(a+flatbuffers.UOffsetT(j*4), n)
+	}
+	return false
+}
+
 func TypeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(16)
+	builder.StartObject(17)
 }
 func TypeAddId(builder *flatbuffers.Builder, id int32) {
 	builder.PrependInt32Slot(0, id, 0)
@@ -356,6 +384,12 @@ func TypeAddFighterAbilities(builder *flatbuffers.Builder, fighterAbilities flat
 }
 func TypeStartFighterAbilitiesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(20, numElems, 4)
+}
+func TypeAddModeTypeIds(builder *flatbuffers.Builder, modeTypeIds flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(16, flatbuffers.UOffsetT(modeTypeIds), 0)
+}
+func TypeStartModeTypeIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func TypeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

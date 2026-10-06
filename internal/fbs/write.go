@@ -181,6 +181,7 @@ func writeReleaseDate(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.
 
 func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
 	offsets := make([]flatbuffers.UOffsetT, 0, len(data.Types))
+	modes := shipModes(data)
 
 	// Many types carry identical dogma, so identical vectors are shared.
 	attributeVectors := map[string]flatbuffers.UOffsetT{}
@@ -237,6 +238,8 @@ func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffse
 			abilities = builder.EndVector(len(entry.FighterAbilities))
 		}
 
+		modeTypeIDs := writeInt32s(builder, modes[key])
+
 		eve.TypeStart(builder)
 		eve.TypeAddId(builder, entry.Key)
 		eve.TypeAddName(builder, name)
@@ -268,6 +271,9 @@ func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffse
 		if abilities != 0 {
 			eve.TypeAddFighterAbilities(builder, abilities)
 		}
+		if modeTypeIDs != 0 {
+			eve.TypeAddModeTypeIds(builder, modeTypeIDs)
+		}
 		offsets = append(offsets, eve.TypeEnd(builder))
 	}
 
@@ -298,16 +304,21 @@ func effectCacheKey(entries []sde.TypeDogmaEffect) string {
 
 func writeGroups(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
 	offsets := make([]flatbuffers.UOffsetT, 0, len(data.Groups))
+	typeIDs := typeIDsBy(data, func(entry *sde.Type) int32 { return entry.GroupID })
 
 	for _, key := range sortedKeys(data.Groups) {
 		entry := data.Groups[key]
 		name := builder.CreateString(entry.Name.En)
+		types := writeInt32s(builder, typeIDs[key])
 
 		eve.GroupStart(builder)
 		eve.GroupAddId(builder, entry.Key)
 		eve.GroupAddName(builder, name)
 		eve.GroupAddCategoryId(builder, entry.CategoryID)
 		eve.GroupAddPublished(builder, entry.Published)
+		if types != 0 {
+			eve.GroupAddTypeIds(builder, types)
+		}
 		offsets = append(offsets, eve.GroupEnd(builder))
 	}
 
@@ -333,19 +344,46 @@ func writeCategories(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.U
 
 func writeMarketGroups(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
 	offsets := make([]flatbuffers.UOffsetT, 0, len(data.MarketGroups))
+	typeIDs := typeIDsBy(data, func(entry *sde.Type) int32 { return entry.MarketGroupID })
 
 	for _, key := range sortedKeys(data.MarketGroups) {
 		entry := data.MarketGroups[key]
 		name := builder.CreateString(entry.Name.En)
+		types := writeInt32s(builder, typeIDs[key])
 
 		eve.MarketGroupStart(builder)
 		eve.MarketGroupAddId(builder, entry.Key)
 		eve.MarketGroupAddName(builder, name)
 		eve.MarketGroupAddParentGroupId(builder, entry.ParentGroupID)
+		if types != 0 {
+			eve.MarketGroupAddTypeIds(builder, types)
+		}
 		offsets = append(offsets, eve.MarketGroupEnd(builder))
 	}
 
 	return builder.CreateVectorOfSortedTables(offsets, eve.MarketGroupKeyCompare)
+}
+
+// typeIDsBy lists the IDs of all types by the key `by` gives them, lowest ID first.
+func typeIDsBy(data *sde.Data, by func(*sde.Type) int32) map[int32][]int32 {
+	typeIDs := map[int32][]int32{}
+	for _, key := range sortedKeys(data.Types) {
+		group := by(data.Types[key])
+		typeIDs[group] = append(typeIDs[group], key)
+	}
+	return typeIDs
+}
+
+// writeInt32s returns 0 for an empty list.
+func writeInt32s(builder *flatbuffers.Builder, values []int32) flatbuffers.UOffsetT {
+	if len(values) == 0 {
+		return 0
+	}
+	builder.StartVector(4, len(values), 4)
+	for i := len(values) - 1; i >= 0; i-- {
+		builder.PrependInt32(values[i])
+	}
+	return builder.EndVector(len(values))
 }
 
 func writeMetaGroups(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {

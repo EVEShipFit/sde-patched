@@ -105,6 +105,9 @@ table Type {
     dogma_attributes: [TypeDogmaAttribute];
     dogma_effects: [TypeDogmaEffect];
     fighter_abilities: [TypeFighterAbility];
+
+    /// The modes of a ship, lowest ID first.
+    mode_type_ids: [int32];
 }
 
 table Group {
@@ -112,6 +115,9 @@ table Group {
     name: string (required);
     category_id: int32;
     published: bool;
+
+    /// Lowest ID first.
+    type_ids: [int32];
 }
 
 table Category {
@@ -124,6 +130,9 @@ table MarketGroup {
     id: int32 (key);
     name: string (required);
     parent_group_id: int32;
+
+    /// Lowest ID first.
+    type_ids: [int32];
 }
 
 table MetaGroup {
