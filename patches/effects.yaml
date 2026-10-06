@@ -11,3 +11,6 @@ changes:
   # default, so a fit counts their damage without picking abilities.
   - {effect: fighterAbilityAttackM, category: active}
   - {effect: fighterAbilityMissiles, category: active, default: true}
+
+  # The SDE gives disintegrators no falloff, though they have one in game.
+  - {effect: targetDisintegratorAttack, falloffAttribute: falloff}

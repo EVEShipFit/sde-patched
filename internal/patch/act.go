@@ -106,6 +106,10 @@ func (ctx *Context) change(change *Change) {
 		}
 	}
 
+	if change.FalloffAttribute != "" {
+		entry.FalloffAttributeID = ctx.attributeID(change.at, change.FalloffAttribute)
+	}
+
 	if change.Default != nil {
 		for _, item := range ctx.sortedTypes {
 			for i := range item.DogmaEffects {
@@ -300,6 +304,9 @@ func (c *Change) String() string {
 	}
 	if c.Default != nil {
 		to = append(to, fmt.Sprintf("default %t", *c.Default))
+	}
+	if c.FalloffAttribute != "" {
+		to = append(to, "falloff "+c.FalloffAttribute)
 	}
 	if len(to) == 0 {
 		return fmt.Sprintf("change effect %q", c.Effect)
