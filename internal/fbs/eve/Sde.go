@@ -421,8 +421,20 @@ func (rcv *Sde) FighterAbilitiesLength() int {
 	return 0
 }
 
+func (rcv *Sde) MajorVersion() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Sde) MutateMajorVersion(n int32) bool {
+	return rcv._tab.MutateInt32Slot(32, n)
+}
+
 func SdeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(14)
+	builder.StartObject(15)
 }
 func SdeAddBuildNumber(builder *flatbuffers.Builder, buildNumber int32) {
 	builder.PrependInt32Slot(0, buildNumber, 0)
@@ -501,6 +513,9 @@ func SdeAddFighterAbilities(builder *flatbuffers.Builder, fighterAbilities flatb
 }
 func SdeStartFighterAbilitiesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func SdeAddMajorVersion(builder *flatbuffers.Builder, majorVersion int32) {
+	builder.PrependInt32Slot(14, majorVersion, 0)
 }
 func SdeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

@@ -29,7 +29,7 @@ go run ./cmd/sde-patched serve           # edit the patches in a browser
 ```
 
 `build` downloads the SDE when there is none yet, and uses the one on disk otherwise.
-Use `--build <number>` to pin a version.
+Use `--build <number>` to pin a version, and `--major <number>` to stamp the major version of the release into `sde.dat`.
 
 ## Editing
 
