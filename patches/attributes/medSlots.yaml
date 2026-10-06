@@ -1,0 +1,4 @@
+addTo:
+  - effect: slotModifier
+    rules:
+      - {add: medSlotModifier, domain: shipID}
