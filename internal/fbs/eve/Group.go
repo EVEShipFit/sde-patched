@@ -122,7 +122,6 @@ func (rcv *Group) MutatePublished(n bool) bool {
 	return rcv._tab.MutateBoolSlot(10, n)
 }
 
-/// Lowest ID first.
 func (rcv *Group) TypeIds(j int) int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {
@@ -140,7 +139,6 @@ func (rcv *Group) TypeIdsLength() int {
 	return 0
 }
 
-/// Lowest ID first.
 func (rcv *Group) MutateTypeIds(j int, n int32) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
 	if o != 0 {

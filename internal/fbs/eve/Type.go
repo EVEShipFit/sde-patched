@@ -293,7 +293,6 @@ func (rcv *Type) FighterAbilitiesLength() int {
 	return 0
 }
 
-/// The modes of a ship, lowest ID first.
 func (rcv *Type) ModeTypeIds(j int) int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
 	if o != 0 {
@@ -311,7 +310,6 @@ func (rcv *Type) ModeTypeIdsLength() int {
 	return 0
 }
 
-/// The modes of a ship, lowest ID first.
 func (rcv *Type) MutateModeTypeIds(j int, n int32) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(36))
 	if o != 0 {

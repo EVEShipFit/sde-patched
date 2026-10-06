@@ -110,7 +110,6 @@ func (rcv *MarketGroup) MutateParentGroupId(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-/// Lowest ID first.
 func (rcv *MarketGroup) TypeIds(j int) int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
@@ -128,7 +127,6 @@ func (rcv *MarketGroup) TypeIdsLength() int {
 	return 0
 }
 
-/// Lowest ID first.
 func (rcv *MarketGroup) MutateTypeIds(j int, n int32) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
