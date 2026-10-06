@@ -1,0 +1,4 @@
+addTo:
+  - effect: hardPointModifierEffect
+    rules:
+      - {add: turretHardPointModifier, domain: shipID}

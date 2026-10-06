@@ -1,0 +1,4 @@
+addTo:
+  - effect: hardPointModifierEffect
+    rules:
+      - {add: launcherHardPointModifier, domain: shipID}
