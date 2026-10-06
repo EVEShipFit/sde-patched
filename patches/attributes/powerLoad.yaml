@@ -1,3 +1,6 @@
+change:
+  highIsGood: false
+
 effects:
   - on: isModule
     category: online
