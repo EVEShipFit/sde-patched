@@ -122,8 +122,34 @@ func (rcv *Group) MutatePublished(n bool) bool {
 	return rcv._tab.MutateBoolSlot(10, n)
 }
 
+func (rcv *Group) TypeIds(j int) int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetInt32(a + flatbuffers.UOffsetT(j*4))
+	}
+	return 0
+}
+
+func (rcv *Group) TypeIdsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *Group) MutateTypeIds(j int, n int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateInt32(a+flatbuffers.UOffsetT(j*4), n)
+	}
+	return false
+}
+
 func GroupStart(builder *flatbuffers.Builder) {
-	builder.StartObject(4)
+	builder.StartObject(5)
 }
 func GroupAddId(builder *flatbuffers.Builder, id int32) {
 	builder.PrependInt32Slot(0, id, 0)
@@ -136,6 +162,12 @@ func GroupAddCategoryId(builder *flatbuffers.Builder, categoryId int32) {
 }
 func GroupAddPublished(builder *flatbuffers.Builder, published bool) {
 	builder.PrependBoolSlot(3, published, false)
+}
+func GroupAddTypeIds(builder *flatbuffers.Builder, typeIds flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(typeIds), 0)
+}
+func GroupStartTypeIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func GroupEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

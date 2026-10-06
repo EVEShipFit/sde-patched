@@ -110,8 +110,34 @@ func (rcv *MarketGroup) MutateParentGroupId(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
+func (rcv *MarketGroup) TypeIds(j int) int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.GetInt32(a + flatbuffers.UOffsetT(j*4))
+	}
+	return 0
+}
+
+func (rcv *MarketGroup) TypeIdsLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+func (rcv *MarketGroup) MutateTypeIds(j int, n int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		a := rcv._tab.Vector(o)
+		return rcv._tab.MutateInt32(a+flatbuffers.UOffsetT(j*4), n)
+	}
+	return false
+}
+
 func MarketGroupStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func MarketGroupAddId(builder *flatbuffers.Builder, id int32) {
 	builder.PrependInt32Slot(0, id, 0)
@@ -121,6 +147,12 @@ func MarketGroupAddName(builder *flatbuffers.Builder, name flatbuffers.UOffsetT)
 }
 func MarketGroupAddParentGroupId(builder *flatbuffers.Builder, parentGroupId int32) {
 	builder.PrependInt32Slot(2, parentGroupId, 0)
+}
+func MarketGroupAddTypeIds(builder *flatbuffers.Builder, typeIds flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(typeIds), 0)
+}
+func MarketGroupStartTypeIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func MarketGroupEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

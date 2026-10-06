@@ -34,12 +34,13 @@ func testData() *sde.Data {
 		},
 		Types: map[int32]*sde.Type{
 			2456: {
-				Key:        2456,
-				Name:       sde.Localized{En: "Hobgoblin II", De: "Hobgoblin II", Ja: "ホブゴブリンII"},
-				GroupID:    100,
-				CategoryID: 18,
-				Published:  true,
-				Mass:       ptr(4000.0),
+				Key:           2456,
+				Name:          sde.Localized{En: "Hobgoblin II", De: "Hobgoblin II", Ja: "ホブゴブリンII"},
+				GroupID:       100,
+				CategoryID:    18,
+				MarketGroupID: 837,
+				Published:     true,
+				Mass:          ptr(4000.0),
 				DogmaAttributes: []sde.TypeDogmaAttribute{
 					{AttributeID: 9, Value: 168},
 				},
@@ -189,6 +190,21 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if marketGroup.ParentGroupId() != 157 {
 		t.Errorf("market group parent = %d, want 157", marketGroup.ParentGroupId())
+	}
+
+	if marketGroup.TypeIdsLength() != 1 || marketGroup.TypeIds(0) != 2456 {
+		t.Errorf("market group types = %d", marketGroup.TypeIdsLength())
+	}
+	if !root.MarketGroupsByKey(&marketGroup, 157) || marketGroup.TypeIdsLength() != 0 {
+		t.Error("market group 157 should hold no types")
+	}
+
+	var group eve.Group
+	if !root.GroupsByKey(&group, 100) {
+		t.Fatal("group 100 not found")
+	}
+	if group.TypeIdsLength() != 1 || group.TypeIds(0) != 2456 {
+		t.Errorf("group types = %d", group.TypeIdsLength())
 	}
 
 	var metaGroup eve.MetaGroup
@@ -408,5 +424,28 @@ func TestWriteTextsRoundTrip(t *testing.T) {
 	}
 	if attribute.TooltipDescription() != nil {
 		t.Errorf("tooltip description should be absent, not %q", attribute.TooltipDescription())
+	}
+}
+
+func TestShipModes(t *testing.T) {
+	data := &sde.Data{Types: map[int32]*sde.Type{
+		1: {Key: 1, Name: sde.Localized{En: "Jackdaw"}, CategoryID: categoryShip, Published: true},
+		2: {Key: 2, Name: sde.Localized{En: "Jackdaw Sharpshooter Mode"}, GroupID: groupShipModifiers},
+		3: {Key: 3, Name: sde.Localized{En: "Jackdaw Defense Mode"}, GroupID: groupShipModifiers},
+		4: {Key: 4, Name: sde.Localized{En: "Navy Jackdaw"}, CategoryID: categoryShip, Published: true},
+		5: {Key: 5, Name: sde.Localized{En: "Navy Jackdaw Defense Mode"}, GroupID: groupShipModifiers},
+		6: {Key: 6, Name: sde.Localized{En: "Unknown Defense Mode"}, GroupID: groupShipModifiers},
+		7: {Key: 7, Name: sde.Localized{En: "Jackdaw Blueprint Mode"}},
+	}}
+
+	modes := shipModes(data)
+	if got := modes[1]; len(got) != 2 || got[0] != 2 || got[1] != 3 {
+		t.Errorf("modes of Jackdaw = %v, want [2 3]", got)
+	}
+	if got := modes[4]; len(got) != 1 || got[0] != 5 {
+		t.Errorf("modes of Navy Jackdaw = %v, want [5]", got)
+	}
+	if len(modes) != 2 {
+		t.Errorf("%d ships with modes, want 2", len(modes))
 	}
 }

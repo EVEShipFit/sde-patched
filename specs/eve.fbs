@@ -105,6 +105,8 @@ table Type {
     dogma_attributes: [TypeDogmaAttribute];
     dogma_effects: [TypeDogmaEffect];
     fighter_abilities: [TypeFighterAbility];
+
+    mode_type_ids: [int32];
 }
 
 table Group {
@@ -112,6 +114,8 @@ table Group {
     name: string (required);
     category_id: int32;
     published: bool;
+
+    type_ids: [int32];
 }
 
 table Category {
@@ -124,6 +128,8 @@ table MarketGroup {
     id: int32 (key);
     name: string (required);
     parent_group_id: int32;
+
+    type_ids: [int32];
 }
 
 table MetaGroup {
