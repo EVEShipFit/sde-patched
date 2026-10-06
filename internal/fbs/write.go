@@ -41,6 +41,7 @@ func Write(data *sde.Data, filename string) error {
 
 	eve.SdeStart(builder)
 	eve.SdeAddBuildNumber(builder, data.BuildNumber)
+	eve.SdeAddMajorVersion(builder, data.MajorVersion)
 	eve.SdeAddReleaseDate(builder, releaseDate)
 	eve.SdeAddTypes(builder, types)
 	eve.SdeAddGroups(builder, groups)

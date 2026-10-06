@@ -4,7 +4,8 @@ import "testing"
 
 func TestClone(t *testing.T) {
 	original := &Data{
-		BuildNumber: 7,
+		BuildNumber:  7,
+		MajorVersion: 11,
 		Types: map[int32]*Type{
 			1: {
 				Key:             1,
@@ -49,5 +50,8 @@ func TestClone(t *testing.T) {
 	}
 	if clone.BuildNumber != 7 {
 		t.Errorf("build number = %d, want 7", clone.BuildNumber)
+	}
+	if clone.MajorVersion != 11 {
+		t.Errorf("major version = %d, want 11", clone.MajorVersion)
 	}
 }

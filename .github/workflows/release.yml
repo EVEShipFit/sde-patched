@@ -35,26 +35,35 @@ jobs:
 
     - name: Build SDE export
       id: build
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         BUILD=$(curl -sSfL https://developers.eveonline.com/static-data/tranquility/latest.jsonl | jq -r 'select(._key == "sde") | .buildNumber')
         echo "SDE build: ${BUILD}"
 
-        go run ./cmd/sde-patched build --build "${BUILD}"
+        PREVIOUS=$(gh release view --json tagName --jq .tagName 2>/dev/null || true)
+        MAJOR=1
+        if [ -n "${PREVIOUS}" ]; then
+          echo "Latest release: ${PREVIOUS}"
+          MAJOR=$(echo "${PREVIOUS}" | cut -b2- | cut -d. -f1)
+        fi
+
+        go run ./cmd/sde-patched build --build "${BUILD}" --major "${MAJOR}"
         echo "build=${BUILD}" >> "${GITHUB_OUTPUT}"
+        echo "major=${MAJOR}" >> "${GITHUB_OUTPUT}"
+        echo "previous=${PREVIOUS}" >> "${GITHUB_OUTPUT}"
 
     - name: Compare with latest release
       id: compare
       env:
         GH_TOKEN: ${{ github.token }}
+        PREVIOUS: ${{ steps.build.outputs.previous }}
       run: |
-        PREVIOUS=$(gh release view --json tagName --jq .tagName 2>/dev/null || true)
         if [ -z "${PREVIOUS}" ]; then
           echo "No release yet"
           echo "changed=true" >> "${GITHUB_OUTPUT}"
           exit 0
         fi
-        echo "Latest release: ${PREVIOUS}"
-        echo "previous=${PREVIOUS}" >> "${GITHUB_OUTPUT}"
 
         gh release download "${PREVIOUS}" --pattern '*.dat' --dir previous
         RESULT=$(go run ./cmd/sde-patched compare previous)
@@ -70,13 +79,12 @@ jobs:
       # Tags are v<major>.<SDE build>.<n>; n counts releases of the same SDE build.
       env:
         GH_TOKEN: ${{ github.token }}
-        PREVIOUS: ${{ steps.compare.outputs.previous }}
+        PREVIOUS: ${{ steps.build.outputs.previous }}
         BUILD: ${{ steps.build.outputs.build }}
+        MAJOR: ${{ steps.build.outputs.major }}
       run: |
-        MAJOR=1
         N=0
         if [ -n "${PREVIOUS}" ]; then
-          MAJOR=$(echo "${PREVIOUS}" | cut -b2- | cut -d. -f1)
           if [ "$(echo "${PREVIOUS}" | cut -d. -f2)" = "${BUILD}" ]; then
             N=$(( $(echo "${PREVIOUS}" | cut -d. -f3) + 1 ))
           fi
@@ -145,6 +153,7 @@ jobs:
       # Tags are v<major>.<SDE build>.<n>, so a release always builds the SDE it names.
       run: |
         VERSION=$(echo "${TAG}" | cut -b2-)
+        MAJOR=$(echo "${VERSION}" | cut -d. -f1)
         BUILD=$(echo "${VERSION}" | cut -d. -f2)
         echo "Version: ${VERSION}"
         echo "SDE build: ${BUILD}"
@@ -152,11 +161,12 @@ jobs:
         npm version --no-git-tag-version "${VERSION}"
         sed -i 's/^version = "0.0.0"$/version = "'${VERSION}'"/' pyproject.toml
         echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+        echo "major=${MAJOR}" >> "${GITHUB_OUTPUT}"
         echo "build=${BUILD}" >> "${GITHUB_OUTPUT}"
 
     - name: Build SDE export
       run: |
-        go run ./cmd/sde-patched build --build ${{ steps.version.outputs.build }}
+        go run ./cmd/sde-patched build --build ${{ steps.version.outputs.build }} --major ${{ steps.version.outputs.major }}
 
     - name: Upload to GitHub release
       env:

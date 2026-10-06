@@ -16,8 +16,9 @@ func ptr[T any](value T) *T { return &value }
 
 func testData() *sde.Data {
 	return &sde.Data{
-		BuildNumber: 42,
-		ReleaseDate: time.Date(2026, 9, 24, 11, 12, 47, 0, time.UTC),
+		BuildNumber:  42,
+		MajorVersion: 11,
+		ReleaseDate:  time.Date(2026, 9, 24, 11, 12, 47, 0, time.UTC),
 		Categories: map[int32]*sde.Category{
 			18: {Key: 18, Name: sde.Localized{En: "Drone"}, Published: true},
 		},
@@ -147,6 +148,9 @@ func TestWriteRoundTrip(t *testing.T) {
 	root := eve.GetRootAsSde(raw, 0)
 	if root.BuildNumber() != 42 {
 		t.Errorf("build number = %d, want 42", root.BuildNumber())
+	}
+	if root.MajorVersion() != 11 {
+		t.Errorf("major version = %d, want 11", root.MajorVersion())
 	}
 	if got := string(root.ReleaseDate()); got != "2026-09-24T11:12:47Z" {
 		t.Errorf("release date = %q, want 2026-09-24T11:12:47Z", got)

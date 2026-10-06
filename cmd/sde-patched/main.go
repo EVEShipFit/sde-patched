@@ -25,6 +25,7 @@ var (
 	namesOut   = flag.String("names-out", filepath.Join("dist", "names.dat"), "name lookup file to write")
 	textsOut   = flag.String("texts-out", filepath.Join("dist", "texts.dat"), "user interface text file to write")
 	buildNum   = flag.Int("build", 0, "SDE build to use; defaults to the latest")
+	major      = flag.Int("major", 0, "build: major version of the release")
 	full       = flag.Bool("full", false, "explain: list every matched type")
 	typeName   = flag.String("type", "", "explain: show what touches this type")
 	addr       = flag.String("addr", "localhost:8080", "serve: address to listen on")
@@ -103,6 +104,7 @@ func run(command string, args []string) error {
 		if _, err := patch.Apply(spec, data); err != nil {
 			return err
 		}
+		data.MajorVersion = int32(*major)
 		if err := os.MkdirAll(filepath.Dir(*out), 0o755); err != nil {
 			return err
 		}

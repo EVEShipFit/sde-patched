@@ -340,6 +340,7 @@ type Mutaplasmid struct {
 // Data is the part of the SDE this tool uses.
 type Data struct {
 	BuildNumber      int32
+	MajorVersion     int32
 	ReleaseDate      time.Time
 	Types            map[int32]*Type
 	Groups           map[int32]*Group
