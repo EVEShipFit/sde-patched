@@ -421,7 +421,6 @@ func (rcv *Sde) FighterAbilitiesLength() int {
 	return 0
 }
 
-/// The major version of the release; 0 outside a release.
 func (rcv *Sde) MajorVersion() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(32))
 	if o != 0 {
@@ -430,7 +429,6 @@ func (rcv *Sde) MajorVersion() int32 {
 	return 0
 }
 
-/// The major version of the release; 0 outside a release.
 func (rcv *Sde) MutateMajorVersion(n int32) bool {
 	return rcv._tab.MutateInt32Slot(32, n)
 }
