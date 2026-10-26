@@ -251,6 +251,7 @@ func writeTypes(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffse
 		eve.TypeAddMarketGroupId(builder, entry.MarketGroupID)
 		eve.TypeAddMetaGroupId(builder, entry.MetaGroupID)
 		eve.TypeAddRaceId(builder, entry.RaceID)
+		eve.TypeAddVariationParentTypeId(builder, entry.VariationParentTypeID)
 		if entry.Capacity != nil {
 			eve.TypeAddCapacity(builder, float32(*entry.Capacity))
 		}

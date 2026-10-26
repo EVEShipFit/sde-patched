@@ -48,18 +48,19 @@ type FighterAbility struct {
 }
 
 type Type struct {
-	Key           int32     `json:"_key"`
-	Name          Localized `json:"name"`
-	GroupID       int32     `json:"groupID"`
-	Published     bool      `json:"published"`
-	FactionID     int32     `json:"factionID"`
-	MarketGroupID int32     `json:"marketGroupID"`
-	MetaGroupID   int32     `json:"metaGroupID"`
-	RaceID        int32     `json:"raceID"`
-	Capacity      *float64  `json:"capacity"`
-	Mass          *float64  `json:"mass"`
-	Radius        *float64  `json:"radius"`
-	Volume        *float64  `json:"volume"`
+	Key                   int32     `json:"_key"`
+	Name                  Localized `json:"name"`
+	GroupID               int32     `json:"groupID"`
+	Published             bool      `json:"published"`
+	FactionID             int32     `json:"factionID"`
+	MarketGroupID         int32     `json:"marketGroupID"`
+	MetaGroupID           int32     `json:"metaGroupID"`
+	RaceID                int32     `json:"raceID"`
+	VariationParentTypeID int32     `json:"variationParentTypeID"`
+	Capacity              *float64  `json:"capacity"`
+	Mass                  *float64  `json:"mass"`
+	Radius                *float64  `json:"radius"`
+	Volume                *float64  `json:"volume"`
 
 	// Merged in from typeDogma.jsonl; patches treat this as part of the type.
 	DogmaAttributes []TypeDogmaAttribute `json:"-"`
