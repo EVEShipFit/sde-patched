@@ -108,7 +108,6 @@ table Type {
 
     mode_type_ids: [int32];
 
-    /// The type this is a variation of, like the Tech I of a Tech II module.
     variation_parent_type_id: int32;
 }
 
