@@ -319,8 +319,20 @@ func (rcv *Type) MutateModeTypeIds(j int, n int32) bool {
 	return false
 }
 
+func (rcv *Type) VariationParentTypeId() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(38))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *Type) MutateVariationParentTypeId(n int32) bool {
+	return rcv._tab.MutateInt32Slot(38, n)
+}
+
 func TypeStart(builder *flatbuffers.Builder) {
-	builder.StartObject(17)
+	builder.StartObject(18)
 }
 func TypeAddId(builder *flatbuffers.Builder, id int32) {
 	builder.PrependInt32Slot(0, id, 0)
@@ -388,6 +400,9 @@ func TypeAddModeTypeIds(builder *flatbuffers.Builder, modeTypeIds flatbuffers.UO
 }
 func TypeStartModeTypeIdsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
+}
+func TypeAddVariationParentTypeId(builder *flatbuffers.Builder, variationParentTypeId int32) {
+	builder.PrependInt32Slot(17, variationParentTypeId, 0)
 }
 func TypeEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

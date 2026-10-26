@@ -35,13 +35,14 @@ func testData() *sde.Data {
 		},
 		Types: map[int32]*sde.Type{
 			2456: {
-				Key:           2456,
-				Name:          sde.Localized{En: "Hobgoblin II", De: "Hobgoblin II", Ja: "ホブゴブリンII"},
-				GroupID:       100,
-				CategoryID:    18,
-				MarketGroupID: 837,
-				Published:     true,
-				Mass:          ptr(4000.0),
+				Key:                   2456,
+				Name:                  sde.Localized{En: "Hobgoblin II", De: "Hobgoblin II", Ja: "ホブゴブリンII"},
+				GroupID:               100,
+				CategoryID:            18,
+				MarketGroupID:         837,
+				VariationParentTypeID: 2454,
+				Published:             true,
+				Mass:                  ptr(4000.0),
 				DogmaAttributes: []sde.TypeDogmaAttribute{
 					{AttributeID: 9, Value: 168},
 				},
@@ -171,6 +172,9 @@ func TestWriteRoundTrip(t *testing.T) {
 	}
 	if got := entry.CategoryId(); got != 18 {
 		t.Errorf("categoryID = %d, want 18", got)
+	}
+	if got := entry.VariationParentTypeId(); got != 2454 {
+		t.Errorf("variation parent = %d, want 2454", got)
 	}
 
 	if entry.DogmaAttributesLength() != 1 || entry.DogmaEffectsLength() != 1 {
