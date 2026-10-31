@@ -133,15 +133,17 @@ type Attribute struct {
 // Every field is a pointer, because leaving one out of a change has to mean
 // "leave it alone" rather than "make it zero".
 type Definition struct {
-	DisplayName string   `yaml:"displayName,omitempty" json:"displayName"`
-	Category    string   `yaml:"category,omitempty" json:"category"`
-	Unit        string   `yaml:"unit,omitempty" json:"unit"`
-	Default     *float64 `yaml:"default,omitempty" json:"default"`
-	HighIsGood  *bool    `yaml:"highIsGood,omitempty" json:"highIsGood"`
-	Stackable   *bool    `yaml:"stackable,omitempty" json:"stackable"`
-	Published   *bool    `yaml:"published,omitempty" json:"published"`
-	Min         string   `yaml:"min,omitempty" json:"min"`
-	Max         string   `yaml:"max,omitempty" json:"max"`
+	DisplayName        string   `yaml:"displayName,omitempty" json:"displayName"`
+	TooltipTitle       string   `yaml:"tooltipTitle,omitempty" json:"tooltipTitle"`
+	TooltipDescription string   `yaml:"tooltipDescription,omitempty" json:"tooltipDescription"`
+	Category           string   `yaml:"category,omitempty" json:"category"`
+	Unit               string   `yaml:"unit,omitempty" json:"unit"`
+	Default            *float64 `yaml:"default,omitempty" json:"default"`
+	HighIsGood         *bool    `yaml:"highIsGood,omitempty" json:"highIsGood"`
+	Stackable          *bool    `yaml:"stackable,omitempty" json:"stackable"`
+	Published          *bool    `yaml:"published,omitempty" json:"published"`
+	Min                string   `yaml:"min,omitempty" json:"min"`
+	Max                string   `yaml:"max,omitempty" json:"max"`
 }
 
 func value(number *float64) float64 {

@@ -1,5 +1,7 @@
 new:
   displayName: Align Time
+  tooltipTitle: Align Time
+  tooltipDescription: Time to enter Warp from full stop
   category: Speed and Travel
   unit: Time
   default: 1.3862943611198906 # -ln(0.25)

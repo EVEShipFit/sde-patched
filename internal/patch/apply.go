@@ -266,6 +266,8 @@ func (ctx *Context) create() {
 			Published:    yes(attribute.New.Published),
 		}
 		entry.DisplayName.En = attribute.New.DisplayName
+		entry.TooltipTitle.En = attribute.New.TooltipTitle
+		entry.TooltipDescription.En = attribute.New.TooltipDescription
 		if attribute.New.Category != "" {
 			entry.CategoryID = ctx.dogmaCategory(attribute.at, attribute.New.Category)
 		}

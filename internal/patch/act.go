@@ -179,6 +179,12 @@ func (ctx *Context) changeAttribute(attribute *Attribute) {
 	if edit.DisplayName != "" {
 		entry.DisplayName.En = edit.DisplayName
 	}
+	if edit.TooltipTitle != "" {
+		entry.TooltipTitle.En = edit.TooltipTitle
+	}
+	if edit.TooltipDescription != "" {
+		entry.TooltipDescription.En = edit.TooltipDescription
+	}
 	if edit.Unit != "" {
 		entry.UnitID = ctx.dogmaUnit(attribute.at, edit.Unit)
 	}
