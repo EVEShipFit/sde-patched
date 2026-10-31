@@ -193,6 +193,23 @@ jobs:
         fi
         npm publish
 
+    - name: Create token for eveship.fit
+      id: token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.DISPATCH_APP_CLIENT_ID }}
+        private-key: ${{ secrets.DISPATCH_APP_PRIVATE_KEY }}
+        owner: EVEShipFit
+        repositories: eveship.fit
+        permission-actions: write
+
+    - name: Rebuild eveship.fit
+      env:
+        GH_TOKEN: ${{ steps.token.outputs.token }}
+      run: |
+        gh workflow run ci.yml --repo EVEShipFit/eveship.fit --ref main
+        gh workflow run production.yml --repo EVEShipFit/eveship.fit
+
   pypi:
     name: Publish to PyPI
     needs: publish
