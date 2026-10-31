@@ -31,6 +31,7 @@ func Load(filename string, build int32) (*Data, error) {
 		DogmaEffects:     map[int32]*DogmaEffect{},
 		DbuffCollections: map[int32]*DbuffCollection{},
 		Mutaplasmids:     map[int32]*Mutaplasmid{},
+		TypeBonuses:      map[int32]*TypeBonuses{},
 	}
 
 	if err := decode(&reader.Reader, "_sde.jsonl", func(entry *sdeEntry) {
@@ -132,6 +133,12 @@ func Load(filename string, build int32) (*Data, error) {
 
 	if err := decode(&reader.Reader, "dynamicItemAttributes.jsonl", func(entry *Mutaplasmid) {
 		data.Mutaplasmids[entry.Key] = entry
+	}); err != nil {
+		return nil, err
+	}
+
+	if err := decode(&reader.Reader, "typeBonus.jsonl", func(entry *TypeBonuses) {
+		data.TypeBonuses[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}

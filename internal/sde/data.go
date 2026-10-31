@@ -338,6 +338,26 @@ type Mutaplasmid struct {
 	Mappings   []MutaplasmidMapping   `json:"inputOutputMapping"`
 }
 
+type TypeBonus struct {
+	Bonus      *float64  `json:"bonus"`
+	Text       Localized `json:"bonusText"`
+	Importance int32     `json:"importance"`
+	UnitID     int32     `json:"unitID"`
+}
+
+type TypeBonusSkill struct {
+	SkillTypeID int32       `json:"_key"`
+	Bonuses     []TypeBonus `json:"_value"`
+}
+
+// TypeBonuses is the bonus text EVE shows for a ship.
+type TypeBonuses struct {
+	Key         int32            `json:"_key"`
+	Skills      []TypeBonusSkill `json:"types"`
+	RoleBonuses []TypeBonus      `json:"roleBonuses"`
+	MiscBonuses []TypeBonus      `json:"miscBonuses"`
+}
+
 // Data is the part of the SDE this tool uses.
 type Data struct {
 	BuildNumber      int32
@@ -355,4 +375,5 @@ type Data struct {
 	DbuffCollections map[int32]*DbuffCollection
 	Mutaplasmids     map[int32]*Mutaplasmid
 	FighterAbilities map[int32]*FighterAbility
+	TypeBonuses      map[int32]*TypeBonuses
 }
