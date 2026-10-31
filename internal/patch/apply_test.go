@@ -46,7 +46,7 @@ func testData() *sde.Data {
 func TestUnitsAndCategories(t *testing.T) {
 	spec := load(t, tree{
 		"units":     "units: [{name: hitpointsPerSecond, displayName: HP/s}]\n",
-		"repairing": "new: {displayName: Repairing, category: Armor, unit: hitpointsPerSecond, highIsGood: true}\n",
+		"repairing": "new: {displayName: Repairing, tooltipTitle: Repairing, tooltipDescription: HP back per second, category: Armor, unit: hitpointsPerSecond, highIsGood: true}\n",
 		"armorHP":   "new: {displayName: Armor HP, category: Armor, unit: Hitpoints, highIsGood: true}\n",
 	})
 	if err := spec.Validate(); err != nil {
@@ -67,6 +67,9 @@ func TestUnitsAndCategories(t *testing.T) {
 	ours := data.DogmaAttributes[ctx.AttributeID("repairing")]
 	if ours.UnitID != unit.Key || ours.CategoryID != 3 {
 		t.Errorf("repairing has unit %d and category %d", ours.UnitID, ours.CategoryID)
+	}
+	if ours.TooltipTitle.En != "Repairing" || ours.TooltipDescription.En != "HP back per second" {
+		t.Errorf("repairing has tooltip %q / %q", ours.TooltipTitle.En, ours.TooltipDescription.En)
 	}
 	if theirs := data.DogmaAttributes[ctx.AttributeID("armorHP")]; theirs.UnitID != 113 {
 		t.Errorf("an attribute naming one of CCP's units has unit %d", theirs.UnitID)
