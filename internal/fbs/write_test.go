@@ -117,6 +117,19 @@ func testData() *sde.Data {
 				Mappings:   []sde.MutaplasmidMapping{{ApplicableTypes: []int32{2456, 2454}, ResultingType: 60478}},
 			},
 		},
+		TypeBonuses: map[int32]*sde.TypeBonuses{
+			2456: {
+				Key: 2456,
+				Skills: []sde.TypeBonusSkill{{SkillTypeID: 3436, Bonuses: []sde.TypeBonus{
+					{Bonus: ptr(7.5), UnitID: 105, Importance: 1, Text: sde.Localized{En: "bonus to <a href=showinfo:3436>Drone</a> damage"}},
+				}}},
+				MiscBonuses: []sde.TypeBonus{
+					{Bonus: ptr(66.6), UnitID: 105, Importance: 2, Text: sde.Localized{En: "bonus while <i>Defense Mode</i> is enabled"}},
+					{Importance: 1, Text: sde.Localized{En: "<b><u>Defense Mode</b></u>"}},
+				},
+			},
+			99999: {Key: 99999, RoleBonuses: []sde.TypeBonus{{Importance: 1, Text: sde.Localized{En: "Not a type"}}}},
+		},
 	}
 }
 
@@ -432,6 +445,51 @@ func TestWriteTextsRoundTrip(t *testing.T) {
 	}
 	if attribute.TooltipDescription() != nil {
 		t.Errorf("tooltip description should be absent, not %q", attribute.TooltipDescription())
+	}
+}
+
+func TestWriteTextsTypeBonuses(t *testing.T) {
+	filename := filepath.Join(t.TempDir(), "texts.dat")
+	if err := WriteTexts(testData(), filename); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := eve.GetRootAsTexts(raw, 0)
+
+	if got := root.TypeBonusesLength(); got != 1 {
+		t.Errorf("type bonuses length = %d, want 1", got)
+	}
+
+	var bonuses eve.TypeBonuses
+	if !root.TypeBonusesByKey(&bonuses, 2456) {
+		t.Fatal("type 2456 not found")
+	}
+	if bonuses.RoleBonusesLength() != 0 {
+		t.Errorf("role bonuses length = %d, want 0", bonuses.RoleBonusesLength())
+	}
+
+	var skill eve.TypeBonusSkill
+	if bonuses.SkillsLength() != 1 || !bonuses.Skills(&skill, 0) {
+		t.Fatalf("skills length = %d, want 1", bonuses.SkillsLength())
+	}
+	var bonus eve.TypeBonus
+	skill.Bonuses(&bonus, 0)
+	if skill.SkillTypeId() != 3436 || *bonus.Bonus() != 7.5 || bonus.UnitId() != 105 {
+		t.Errorf("skill bonus = %d, %v, %d", skill.SkillTypeId(), *bonus.Bonus(), bonus.UnitId())
+	}
+
+	if bonuses.MiscBonusesLength() != 2 {
+		t.Fatalf("misc bonuses length = %d, want 2", bonuses.MiscBonusesLength())
+	}
+	bonuses.MiscBonuses(&bonus, 0)
+	if got := string(bonus.Text()); got != "<b><u>Defense Mode</b></u>" {
+		t.Errorf("first misc bonus = %q", got)
+	}
+	if bonus.Bonus() != nil {
+		t.Errorf("bonus should be absent, not %v", *bonus.Bonus())
 	}
 }
 

@@ -102,8 +102,37 @@ func (rcv *Texts) ReleaseDate() []byte {
 	return nil
 }
 
+func (rcv *Texts) TypeBonuses(obj *TypeBonuses, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Texts) TypeBonusesByKey(obj *TypeBonuses, key int32) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		return obj.LookupByKey(key, x, rcv._tab.Bytes)
+	}
+	return false
+}
+
+func (rcv *Texts) TypeBonusesLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func TextsStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func TextsAddBuildNumber(builder *flatbuffers.Builder, buildNumber int32) {
 	builder.PrependInt32Slot(0, buildNumber, 0)
@@ -116,6 +145,12 @@ func TextsStartDogmaAttributesVector(builder *flatbuffers.Builder, numElems int)
 }
 func TextsAddReleaseDate(builder *flatbuffers.Builder, releaseDate flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(releaseDate), 0)
+}
+func TextsAddTypeBonuses(builder *flatbuffers.Builder, typeBonuses flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(typeBonuses), 0)
+}
+func TextsStartTypeBonusesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func TextsEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

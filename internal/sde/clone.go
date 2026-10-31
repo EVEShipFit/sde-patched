@@ -23,6 +23,7 @@ func (d *Data) Clone() *Data {
 		DbuffCollections: d.DbuffCollections,
 		Mutaplasmids:     d.Mutaplasmids,
 		FighterAbilities: make(map[int32]*FighterAbility, len(d.FighterAbilities)),
+		TypeBonuses:      d.TypeBonuses,
 	}
 
 	for id, entry := range d.Types {

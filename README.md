@@ -46,7 +46,7 @@ It is also not meant as "production-ready" software, but much more as "an easier
 names only. It is all a dogma-engine needs.
 - `dist/names.dat` maps a name in any of the eight languages EVE supports back to
 a type ID. Only an EFT-fit importer needs it, and only ever to search.
-- `dist/texts.dat` holds text only a user interface shows, like the tooltips of attributes, in English.
+- `dist/texts.dat` holds text only a user interface shows, like the tooltips of attributes and the bonuses of ships, in English.
 A dogma-engine never needs it.
 
 ## npm

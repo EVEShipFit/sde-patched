@@ -6,10 +6,29 @@ table DogmaAttributeText {
     tooltip_description: string;
 }
 
+table TypeBonus {
+    bonus: float32 = null;
+    unit_id: int32;
+    text: string (required);
+}
+
+table TypeBonusSkill {
+    skill_type_id: int32;
+    bonuses: [TypeBonus] (required);
+}
+
+table TypeBonuses {
+    id: int32 (key);
+    skills: [TypeBonusSkill];
+    role_bonuses: [TypeBonus];
+    misc_bonuses: [TypeBonus];
+}
+
 table Texts {
     build_number: int32;
     dogma_attributes: [DogmaAttributeText] (required);
     release_date: string;
+    type_bonuses: [TypeBonuses];
 }
 
 root_type Texts;

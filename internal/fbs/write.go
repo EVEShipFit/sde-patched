@@ -139,7 +139,7 @@ func WriteNames(data *sde.Data, filename string) error {
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
 }
 
-// WriteTexts writes the tooltips of dogma attributes, in English.
+// WriteTexts writes the tooltips of dogma attributes and the bonuses of types, in English.
 func WriteTexts(data *sde.Data, filename string) error {
 	builder := flatbuffers.NewBuilder(1024 * 1024)
 
@@ -165,15 +165,74 @@ func WriteTexts(data *sde.Data, filename string) error {
 		offsets = append(offsets, eve.DogmaAttributeTextEnd(builder))
 	}
 	attributes := builder.CreateVectorOfSortedTables(offsets, eve.DogmaAttributeTextKeyCompare)
+	typeBonuses := writeTypeBonuses(builder, data)
 	releaseDate := writeReleaseDate(builder, data)
 
 	eve.TextsStart(builder)
 	eve.TextsAddBuildNumber(builder, data.BuildNumber)
 	eve.TextsAddReleaseDate(builder, releaseDate)
 	eve.TextsAddDogmaAttributes(builder, attributes)
+	eve.TextsAddTypeBonuses(builder, typeBonuses)
 	builder.FinishWithFileIdentifier(eve.TextsEnd(builder), []byte("ESFT"))
 
 	return os.WriteFile(filename, builder.FinishedBytes(), 0o644)
+}
+
+func writeTypeBonuses(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
+	var offsets []flatbuffers.UOffsetT
+	for _, key := range sortedKeys(data.TypeBonuses) {
+		if _, ok := data.Types[key]; !ok {
+			continue
+		}
+		entry := data.TypeBonuses[key]
+
+		var skills []flatbuffers.UOffsetT
+		for _, skill := range entry.Skills {
+			bonuses := writeBonusList(builder, skill.Bonuses)
+			eve.TypeBonusSkillStart(builder)
+			eve.TypeBonusSkillAddSkillTypeId(builder, skill.SkillTypeID)
+			eve.TypeBonusSkillAddBonuses(builder, bonuses)
+			skills = append(skills, eve.TypeBonusSkillEnd(builder))
+		}
+
+		var skillVector, roleBonuses, miscBonuses flatbuffers.UOffsetT
+		if len(skills) > 0 {
+			skillVector = writeOffsets(builder, skills)
+		}
+		if len(entry.RoleBonuses) > 0 {
+			roleBonuses = writeBonusList(builder, entry.RoleBonuses)
+		}
+		if len(entry.MiscBonuses) > 0 {
+			miscBonuses = writeBonusList(builder, entry.MiscBonuses)
+		}
+
+		eve.TypeBonusesStart(builder)
+		eve.TypeBonusesAddId(builder, key)
+		eve.TypeBonusesAddSkills(builder, skillVector)
+		eve.TypeBonusesAddRoleBonuses(builder, roleBonuses)
+		eve.TypeBonusesAddMiscBonuses(builder, miscBonuses)
+		offsets = append(offsets, eve.TypeBonusesEnd(builder))
+	}
+	return builder.CreateVectorOfSortedTables(offsets, eve.TypeBonusesKeyCompare)
+}
+
+// writeBonusList writes bonuses in the order EVE shows them.
+func writeBonusList(builder *flatbuffers.Builder, bonuses []sde.TypeBonus) flatbuffers.UOffsetT {
+	sorted := slices.Clone(bonuses)
+	slices.SortStableFunc(sorted, func(a, b sde.TypeBonus) int { return int(a.Importance - b.Importance) })
+
+	offsets := make([]flatbuffers.UOffsetT, 0, len(sorted))
+	for _, bonus := range sorted {
+		text := builder.CreateSharedString(bonus.Text.En)
+		eve.TypeBonusStart(builder)
+		if bonus.Bonus != nil {
+			eve.TypeBonusAddBonus(builder, float32(*bonus.Bonus))
+		}
+		eve.TypeBonusAddUnitId(builder, bonus.UnitID)
+		eve.TypeBonusAddText(builder, text)
+		offsets = append(offsets, eve.TypeBonusEnd(builder))
+	}
+	return writeOffsets(builder, offsets)
 }
 
 func writeReleaseDate(builder *flatbuffers.Builder, data *sde.Data) flatbuffers.UOffsetT {
@@ -377,6 +436,14 @@ func typeIDsBy(data *sde.Data, by func(*sde.Type) int32) map[int32][]int32 {
 }
 
 // writeInt32s returns 0 for an empty list.
+func writeOffsets(builder *flatbuffers.Builder, offsets []flatbuffers.UOffsetT) flatbuffers.UOffsetT {
+	builder.StartVector(4, len(offsets), 4)
+	for i := len(offsets) - 1; i >= 0; i-- {
+		builder.PrependUOffsetT(offsets[i])
+	}
+	return builder.EndVector(len(offsets))
+}
+
 func writeInt32s(builder *flatbuffers.Builder, values []int32) flatbuffers.UOffsetT {
 	if len(values) == 0 {
 		return 0

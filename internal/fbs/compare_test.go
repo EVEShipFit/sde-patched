@@ -13,9 +13,10 @@ func TestEqual(t *testing.T) {
 		write  func(*sde.Data, string) error
 		change func(*sde.Data)
 	}{
-		"sde.dat":   {Write, renameType},
-		"names.dat": {WriteNames, renameType},
-		"texts.dat": {WriteTexts, func(data *sde.Data) { data.DogmaAttributes[9].TooltipTitle.En = "Hull Hitpoints" }},
+		"sde.dat":           {Write, renameType},
+		"names.dat":         {WriteNames, renameType},
+		"texts.dat":         {WriteTexts, func(data *sde.Data) { data.DogmaAttributes[9].TooltipTitle.En = "Hull Hitpoints" }},
+		"texts.dat bonuses": {WriteTexts, func(data *sde.Data) { data.TypeBonuses[2456].Skills[0].Bonuses[0].Bonus = ptr(10.0) }},
 	}
 
 	for name, writer := range writers {
