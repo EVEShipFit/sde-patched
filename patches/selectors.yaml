@@ -118,7 +118,9 @@ selectors:
   # Modulated Deep Core Miner II does too and holds a crystal.
   - name: holdsCharge
     description: a module that holds a charge, and so reloads
-    match: isModule and attribute("chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5")
+    match: >-
+      isModule and attribute("capacity")
+      and attribute("chargeGroup1", "chargeGroup2", "chargeGroup3", "chargeGroup4", "chargeGroup5")
 
   - name: cyclingDamageDealer
     description: anything that deals damage in cycles

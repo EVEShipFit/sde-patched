@@ -73,6 +73,24 @@ type Type struct {
 	CategoryID int32 `json:"-"`
 }
 
+// Fields are the attributes the SDE keeps on the type and not in its dogma.
+func (t *Type) Fields() map[int32]float64 {
+	result := map[int32]float64{}
+	if t.Mass != nil {
+		result[4] = *t.Mass
+	}
+	if t.Capacity != nil {
+		result[38] = *t.Capacity
+	}
+	if t.Volume != nil {
+		result[161] = *t.Volume
+	}
+	if t.Radius != nil {
+		result[162] = *t.Radius
+	}
+	return result
+}
+
 type Group struct {
 	Key        int32     `json:"_key"`
 	Name       Localized `json:"name"`
