@@ -61,6 +61,12 @@ selectors:
     description: a ship or a structure; what modules are fitted to
     match: isShip or isStructure
 
+  - name: rechargesShield
+    match: isHull and attribute("shieldRechargeRate")
+
+  - name: rechargesCapacitor
+    match: isHull and attribute("rechargeRate")
+
   - name: isModule
     match: category("Module", "Structure Module")
 
