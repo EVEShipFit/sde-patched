@@ -19,26 +19,6 @@ import (
 // for the ship it is fitted to, or for the pilot, need a fit; they are
 // reported rather than dropped.
 
-// fields are the four attributes a dogma engine fills in from the type
-// itself, as the SDE keeps them on the type and not in its dogma. A rule that
-// reads one of them is not reading a default.
-func fields(entry *sde.Type) map[int32]float64 {
-	result := map[int32]float64{}
-	if entry.Mass != nil {
-		result[4] = *entry.Mass
-	}
-	if entry.Capacity != nil {
-		result[38] = *entry.Capacity
-	}
-	if entry.Volume != nil {
-		result[161] = *entry.Volume
-	}
-	if entry.Radius != nil {
-		result[162] = *entry.Radius
-	}
-	return result
-}
-
 // order is the sequence dogma applies operations in. Two rules on the same
 // attribute only commute inside one step of it.
 var order = []eve.ModifierOperation{
@@ -105,7 +85,7 @@ func newLive(current *state, pristine *sde.Data, entry *sde.Type, active bool) *
 		it.base[attribute.AttributeID] = attribute.Value
 		it.origin[attribute.AttributeID] = "type"
 	}
-	for id, value := range fields(entry) {
+	for id, value := range entry.Fields() {
 		if _, have := it.base[id]; !have {
 			it.base[id] = value
 			it.origin[id] = "type"

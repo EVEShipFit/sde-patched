@@ -133,6 +133,11 @@ func (s *call) matches(entry *sde.Type) bool {
 				return true
 			}
 		}
+		for id := range entry.Fields() {
+			if s.ids[id] {
+				return true
+			}
+		}
 		return false
 
 	default:
