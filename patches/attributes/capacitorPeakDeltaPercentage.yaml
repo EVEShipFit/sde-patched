@@ -6,7 +6,7 @@ new:
   highIsGood: true
 
 effects:
-  - on: isHull
+  - on: rechargesCapacitor
     category: passive
     rules:
       - {mul: capacitorPeakDelta}

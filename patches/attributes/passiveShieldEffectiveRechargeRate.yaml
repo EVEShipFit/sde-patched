@@ -6,7 +6,7 @@ new:
   highIsGood: true
 
 effects:
-  - on: isHull
+  - on: rechargesShield
     category: passive
     rules:
       - {div: shieldRechargeRate}
