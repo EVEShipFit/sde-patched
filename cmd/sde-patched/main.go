@@ -25,6 +25,7 @@ var (
 	namesOut   = flag.String("names-out", filepath.Join("dist", "names.dat"), "name lookup file to write")
 	textsOut   = flag.String("texts-out", filepath.Join("dist", "texts.dat"), "user interface text file to write")
 	buildNum   = flag.Int("build", 0, "SDE build to use; defaults to the latest")
+	server     = flag.String("server", "tranquility", "server the SDE is from: tranquility or singularity")
 	major      = flag.Int("major", 0, "build: major version of the release")
 	full       = flag.Bool("full", false, "explain: list every matched type")
 	typeName   = flag.String("type", "", "explain: show what touches this type")
@@ -217,14 +218,14 @@ func loadPatches() (*patch.Spec, error) {
 func download() (string, int32, error) {
 	build := int32(*buildNum)
 	if build == 0 {
-		latest, err := sde.LatestBuild()
+		latest, err := sde.LatestBuild(*server)
 		if err != nil {
 			return "", 0, err
 		}
 		build = latest
 	}
 
-	filename, err := sde.Download(*sdeDir, build)
+	filename, err := sde.Download(*sdeDir, *server, build)
 	if err != nil {
 		return "", 0, err
 	}
@@ -249,7 +250,7 @@ func load() (*sde.Data, error) {
 		return sde.Load(filename, downloaded)
 	}
 
-	filename, err := sde.Download(*sdeDir, build)
+	filename, err := sde.Download(*sdeDir, *server, build)
 	if err != nil {
 		return nil, err
 	}

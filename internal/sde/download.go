@@ -11,22 +11,23 @@ import (
 )
 
 const (
-	latestURL   = "https://developers.eveonline.com/static-data/tranquility/latest.jsonl"
-	downloadURL = "https://developers.eveonline.com/static-data/tranquility/eve-online-static-data-%d-jsonl.zip"
+	latestURL   = "https://developers.eveonline.com/static-data/%s/latest.jsonl"
+	downloadURL = "https://developers.eveonline.com/static-data/%s/eve-online-static-data-%d-jsonl.zip"
 )
 
 var client = &http.Client{Timeout: 30 * time.Minute}
 
-// LatestBuild returns the build number of the SDE currently on Tranquility.
-func LatestBuild() (int32, error) {
-	resp, err := client.Get(latestURL)
+// LatestBuild returns the build number of the SDE currently on the given server.
+func LatestBuild(server string) (int32, error) {
+	url := fmt.Sprintf(latestURL, server)
+	resp, err := client.Get(url)
 	if err != nil {
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return 0, fmt.Errorf("%s: %s", latestURL, resp.Status)
+		return 0, fmt.Errorf("%s: %s", url, resp.Status)
 	}
 
 	decoder := json.NewDecoder(resp.Body)
@@ -45,12 +46,12 @@ func LatestBuild() (int32, error) {
 			return record.BuildNumber, nil
 		}
 	}
-	return 0, fmt.Errorf("%s: no record with key 'sde'", latestURL)
+	return 0, fmt.Errorf("%s: no record with key 'sde'", url)
 }
 
-// Download fetches the JSONL SDE of the given build into dir, and returns the
-// path to it. An already downloaded build is not fetched again.
-func Download(dir string, build int32) (string, error) {
+// Download fetches the JSONL SDE of the given build and server into dir, and
+// returns the path to it. An already downloaded build is not fetched again.
+func Download(dir string, server string, build int32) (string, error) {
 	filename := filepath.Join(dir, fmt.Sprintf("eve-online-static-data-%d-jsonl.zip", build))
 
 	if _, err := os.Stat(filename); err == nil {
@@ -61,7 +62,7 @@ func Download(dir string, build int32) (string, error) {
 		return "", err
 	}
 
-	url := fmt.Sprintf(downloadURL, build)
+	url := fmt.Sprintf(downloadURL, server, build)
 	resp, err := client.Get(url)
 	if err != nil {
 		return "", err
