@@ -29,7 +29,7 @@ go run ./cmd/sde-patched serve           # edit the patches in a browser
 ```
 
 `build` downloads the SDE when there is none yet, and uses the one on disk otherwise.
-Use `--build <number>` to pin a version, and `--major <number>` to stamp the major version of the release into `sde.dat`.
+Use `--build <number>` to pin a version, `--server singularity` to use the SDE of the test server, and `--major <number>` to stamp the major version of the release into `sde.dat`.
 
 ## Editing
 
@@ -78,6 +78,9 @@ dogma.load_sde_from_file(sde_path())
 Every day at 12:00 UTC, `main` is built against the latest SDE.
 When the result differs from the latest release, the SDE build number and release date aside, a new release is made and published on npm and PyPI.
 A change to the patches is released this way too.
+
+To preview the SDE of Singularity, run the Release workflow by hand with `server` set to `singularity`.
+It is published on npm only, under the `singularity` tag, and deployed to [sisi.eveship.fit](https://sisi.eveship.fit).
 
 ## Patches
 

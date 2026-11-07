@@ -2,6 +2,14 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      server:
+        description: Server to take the SDE from
+        type: choice
+        options:
+        - tranquility
+        - singularity
+        default: tranquility
   release:
     types:
     - published
@@ -16,7 +24,7 @@ jobs:
   check:
     name: Scheduled build
     # A release made by hand skips this; it is published as-is.
-    if: github.event_name != 'release' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'release' && github.ref == 'refs/heads/main' && inputs.server != 'singularity'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -255,3 +263,81 @@ jobs:
       run: |
         gh workflow run ci.yml --repo EVEShipFit/eveship.fit --ref main
         gh workflow run production.yml --repo EVEShipFit/eveship.fit
+
+  singularity:
+    name: Singularity preview
+    # Only on npm, under its own tag; a GitHub release would become the latest release.
+    if: inputs.server == 'singularity' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Install Go toolchain
+      uses: actions/setup-go@v7
+      with:
+        go-version-file: go.mod
+
+    - name: Install Node toolchain
+      uses: actions/setup-node@v7
+      with:
+        node-version: lts/*
+        registry-url: https://registry.npmjs.org
+
+    - name: Set version
+      id: version
+      env:
+        GH_TOKEN: ${{ github.token }}
+      # v<major>.<SDE build>.0-singularity.<run>, below the release of the same build.
+      run: |
+        BUILD=$(curl -sSfL https://developers.eveonline.com/static-data/singularity/latest.jsonl | jq -r 'select(._key == "sde") | .buildNumber')
+        MAJOR=$(gh release view --json tagName --jq .tagName | cut -b2- | cut -d. -f1)
+        VERSION="${MAJOR}.${BUILD}.0-singularity.${GITHUB_RUN_NUMBER}"
+        echo "Version: ${VERSION}"
+
+        npm version --no-git-tag-version "${VERSION}"
+        echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+        echo "major=${MAJOR}" >> "${GITHUB_OUTPUT}"
+        echo "build=${BUILD}" >> "${GITHUB_OUTPUT}"
+
+    - name: Build SDE export
+      run: |
+        go run ./cmd/sde-patched build --server singularity --build ${{ steps.version.outputs.build }} --major ${{ steps.version.outputs.major }}
+
+    - name: Publish to NPM
+      run: npm publish --tag singularity
+
+    - name: Wait for NPM
+      env:
+        VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        for _ in $(seq 30); do
+          if curl -sSf -H 'Accept: application/vnd.npm.install-v1+json' https://registry.npmjs.org/@eveshipfit/sde \
+              | jq -e --arg v "${VERSION}" '.versions[$v]' > /dev/null; then
+            exit 0
+          fi
+          sleep 30
+        done
+        echo "::error::@eveshipfit/sde@${VERSION} did not show up on NPM"
+        exit 1
+
+    - name: Create token for eveship.fit
+      id: token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.DISPATCH_APP_CLIENT_ID }}
+        private-key: ${{ secrets.DISPATCH_APP_PRIVATE_KEY }}
+        owner: EVEShipFit
+        repositories: eveship.fit
+        permission-actions: write
+
+    - name: Deploy sisi.eveship.fit
+      env:
+        GH_TOKEN: ${{ steps.token.outputs.token }}
+        VERSION: ${{ steps.version.outputs.version }}
+      run: gh workflow run singularity.yml --repo EVEShipFit/eveship.fit --ref main -f sde="${VERSION}"
