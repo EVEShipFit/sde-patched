@@ -80,7 +80,7 @@ When the result differs from the latest release, the SDE build number and releas
 A change to the patches is released this way too.
 
 To preview the SDE of Singularity, run the Release workflow by hand with `server` set to `singularity`.
-It is published on npm only, under the `singularity` tag, and deployed to [sisi.eveship.fit](https://sisi.eveship.fit).
+It is published on npm only, under the `singularity` tag.
 
 ## Patches
 
