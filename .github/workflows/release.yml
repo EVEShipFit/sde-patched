@@ -46,7 +46,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        BUILD=$(curl -sSfL https://developers.eveonline.com/static-data/tranquility/latest.jsonl | jq -r 'select(._key == "sde") | .buildNumber')
+        BUILD=$(curl -sSfL https://sde.evetech.net/tranquility/latest/ | jq -r .buildNumber)
         echo "SDE build: ${BUILD}"
 
         PREVIOUS=$(gh release view --json tagName --jq .tagName 2>/dev/null || true)
@@ -295,7 +295,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       # v<major>.<SDE build>.0-singularity.<run>, below the release of the same build.
       run: |
-        BUILD=$(curl -sSfL https://developers.eveonline.com/static-data/singularity/latest.jsonl | jq -r 'select(._key == "sde") | .buildNumber')
+        BUILD=$(curl -sSfL https://sde.evetech.net/singularity/latest/ | jq -r .buildNumber)
         MAJOR=$(gh release view --json tagName --jq .tagName | cut -b2- | cut -d. -f1)
         VERSION="${MAJOR}.${BUILD}.0-singularity.${GITHUB_RUN_NUMBER}"
         echo "Version: ${VERSION}"

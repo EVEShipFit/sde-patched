@@ -1,22 +1,36 @@
 package sde
 
 import (
-	"archive/zip"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"time"
 )
 
-// Load reads the parts of the SDE zip we need. Files are streamed, as the
-// archive does not fit comfortably in memory.
-func Load(filename string, build int32) (*Data, error) {
-	reader, err := zip.OpenReader(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer reader.Close()
+var tables = []string{
+	"_sde",
+	"categories",
+	"groups",
+	"marketGroups",
+	"metaGroups",
+	"types",
+	"dogmaAttributes",
+	"dogmaUnits",
+	"dogmaAttributeCategories",
+	"dogmaEffects",
+	"dbuffCollections",
+	"typeDogma",
+	"fighterAbilities",
+	"fighterAbilitiesByType",
+	"dynamicItemAttributes",
+	"typeBonus",
+}
 
+// Load reads the tables Download put in dir.
+func Load(dir string, build int32) (*Data, error) {
 	data := &Data{
 		BuildNumber:      build,
 		Types:            map[int32]*Type{},
@@ -34,66 +48,66 @@ func Load(filename string, build int32) (*Data, error) {
 		TypeBonuses:      map[int32]*TypeBonuses{},
 	}
 
-	if err := decode(&reader.Reader, "_sde.jsonl", func(entry *sdeEntry) {
+	if err := decode(dir, "_sde", func(entry *sdeEntry) {
 		if entry.Key == "sde" {
 			data.ReleaseDate = entry.ReleaseDate
 		}
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "categories.jsonl", func(entry *Category) {
+	if err := decode(dir, "categories", func(entry *Category) {
 		data.Categories[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "groups.jsonl", func(entry *Group) {
+	if err := decode(dir, "groups", func(entry *Group) {
 		data.Groups[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "marketGroups.jsonl", func(entry *MarketGroup) {
+	if err := decode(dir, "marketGroups", func(entry *MarketGroup) {
 		data.MarketGroups[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "metaGroups.jsonl", func(entry *MetaGroup) {
+	if err := decode(dir, "metaGroups", func(entry *MetaGroup) {
 		data.MetaGroups[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "types.jsonl", func(entry *Type) {
+	if err := decode(dir, "types", func(entry *Type) {
 		data.Types[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "dogmaAttributes.jsonl", func(entry *DogmaAttribute) {
+	if err := decode(dir, "dogmaAttributes", func(entry *DogmaAttribute) {
 		data.DogmaAttributes[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "dogmaUnits.jsonl", func(entry *DogmaUnit) {
+	if err := decode(dir, "dogmaUnits", func(entry *DogmaUnit) {
 		data.DogmaUnits[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "dogmaAttributeCategories.jsonl", func(entry *DogmaAttributeCategory) {
+	if err := decode(dir, "dogmaAttributeCategories", func(entry *DogmaAttributeCategory) {
 		data.DogmaCategories[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
-	if err := decode(&reader.Reader, "dogmaEffects.jsonl", func(entry *DogmaEffect) {
+	if err := decode(dir, "dogmaEffects", func(entry *DogmaEffect) {
 		data.DogmaEffects[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
 
-	if err := decode(&reader.Reader, "dbuffCollections.jsonl", func(entry *DbuffCollection) {
+	if err := decode(dir, "dbuffCollections", func(entry *DbuffCollection) {
 		data.DbuffCollections[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
 
-	if err := decode(&reader.Reader, "typeDogma.jsonl", func(entry *typeDogmaEntry) {
+	if err := decode(dir, "typeDogma", func(entry *typeDogmaEntry) {
 		item, ok := data.Types[entry.Key]
 		if !ok {
 			return
@@ -104,13 +118,13 @@ func Load(filename string, build int32) (*Data, error) {
 		return nil, err
 	}
 
-	if err := decode(&reader.Reader, "fighterAbilities.jsonl", func(entry *FighterAbility) {
+	if err := decode(dir, "fighterAbilities", func(entry *FighterAbility) {
 		data.FighterAbilities[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
 
-	if err := decode(&reader.Reader, "fighterAbilitiesByType.jsonl", func(entry *fighterAbilitiesEntry) {
+	if err := decode(dir, "fighterAbilitiesByType", func(entry *fighterAbilitiesEntry) {
 		item, ok := data.Types[entry.Key]
 		if !ok {
 			return
@@ -131,13 +145,13 @@ func Load(filename string, build int32) (*Data, error) {
 		return nil, err
 	}
 
-	if err := decode(&reader.Reader, "dynamicItemAttributes.jsonl", func(entry *Mutaplasmid) {
+	if err := decode(dir, "dynamicItemAttributes", func(entry *Mutaplasmid) {
 		data.Mutaplasmids[entry.Key] = entry
 	}); err != nil {
 		return nil, err
 	}
 
-	if err := decode(&reader.Reader, "typeBonus.jsonl", func(entry *TypeBonuses) {
+	if err := decode(dir, "typeBonus", func(entry *TypeBonuses) {
 		data.TypeBonuses[entry.Key] = entry
 	}); err != nil {
 		return nil, err
@@ -153,19 +167,19 @@ func Load(filename string, build int32) (*Data, error) {
 }
 
 type sdeEntry struct {
-	Key         string    `json:"_key"`
+	Key         string    `json:"key"`
 	ReleaseDate time.Time `json:"releaseDate"`
 }
 
 type typeDogmaEntry struct {
-	Key             int32                `json:"_key"`
+	Key             int32                `json:"typeID"`
 	DogmaAttributes []TypeDogmaAttribute `json:"dogmaAttributes"`
 	DogmaEffects    []TypeDogmaEffect    `json:"dogmaEffects"`
 }
 
 // The SDE gives each ability slot its own key rather than a list.
 type fighterAbilitiesEntry struct {
-	Key   int32               `json:"_key"`
+	Key   int32               `json:"typeID"`
 	Slot0 *fighterAbilitySlot `json:"abilitySlot0"`
 	Slot1 *fighterAbilitySlot `json:"abilitySlot1"`
 	Slot2 *fighterAbilitySlot `json:"abilitySlot2"`
@@ -180,20 +194,26 @@ type fighterAbilitySlot struct {
 	} `json:"charges"`
 }
 
-func decode[T any](reader *zip.Reader, name string, add func(*T)) error {
-	file, err := reader.Open(name)
+func decode[T any](dir string, table string, add func(*T)) error {
+	file, err := os.Open(filepath.Join(dir, table+".jsonl.gz"))
 	if err != nil {
-		return fmt.Errorf("%s: %w", name, err)
+		return err
 	}
 	defer file.Close()
 
-	decoder := json.NewDecoder(file)
+	reader, err := gzip.NewReader(file)
+	if err != nil {
+		return fmt.Errorf("%s: %w", table, err)
+	}
+	defer reader.Close()
+
+	decoder := json.NewDecoder(reader)
 	for {
 		var entry T
 		if err := decoder.Decode(&entry); err == io.EOF {
 			return nil
 		} else if err != nil {
-			return fmt.Errorf("%s: %w", name, err)
+			return fmt.Errorf("%s: %w", table, err)
 		}
 		add(&entry)
 	}

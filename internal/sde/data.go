@@ -40,7 +40,7 @@ type TypeFighterAbility struct {
 }
 
 type FighterAbility struct {
-	Key         int32     `json:"_key"`
+	Key         int32     `json:"fighterAbilityID"`
 	DisplayName Localized `json:"displayName"`
 
 	// Set by patches/fighterAbilities.yaml.
@@ -48,7 +48,7 @@ type FighterAbility struct {
 }
 
 type Type struct {
-	Key                   int32     `json:"_key"`
+	Key                   int32     `json:"typeID"`
 	Name                  Localized `json:"name"`
 	GroupID               int32     `json:"groupID"`
 	Published             bool      `json:"published"`
@@ -92,31 +92,31 @@ func (t *Type) Fields() map[int32]float64 {
 }
 
 type Group struct {
-	Key        int32     `json:"_key"`
+	Key        int32     `json:"groupID"`
 	Name       Localized `json:"name"`
 	CategoryID int32     `json:"categoryID"`
 	Published  bool      `json:"published"`
 }
 
 type Category struct {
-	Key       int32     `json:"_key"`
+	Key       int32     `json:"categoryID"`
 	Name      Localized `json:"name"`
 	Published bool      `json:"published"`
 }
 
 type MarketGroup struct {
-	Key           int32     `json:"_key"`
+	Key           int32     `json:"marketGroupID"`
 	Name          Localized `json:"name"`
 	ParentGroupID int32     `json:"parentGroupID"`
 }
 
 type MetaGroup struct {
-	Key  int32     `json:"_key"`
+	Key  int32     `json:"metaGroupID"`
 	Name Localized `json:"name"`
 }
 
 type DogmaAttribute struct {
-	Key            int32     `json:"_key"`
+	Key            int32     `json:"attributeID"`
 	Name           string    `json:"name"`
 	DisplayName    Localized `json:"displayName"`
 	DefaultValue   float64   `json:"defaultValue"`
@@ -134,13 +134,13 @@ type DogmaAttribute struct {
 }
 
 type DogmaUnit struct {
-	Key         int32     `json:"_key"`
+	Key         int32     `json:"unitID"`
 	Name        string    `json:"name"`
 	DisplayName Localized `json:"displayName"`
 }
 
 type DogmaAttributeCategory struct {
-	Key  int32  `json:"_key"`
+	Key  int32  `json:"categoryID"`
 	Name string `json:"name"`
 }
 
@@ -208,7 +208,7 @@ func (m *Modifier) UnmarshalJSON(data []byte) error {
 }
 
 type DogmaEffect struct {
-	Key                           int32      `json:"_key"`
+	Key                           int32      `json:"effectID"`
 	Name                          string     `json:"name"`
 	DisplayName                   Localized  `json:"displayName"`
 	EffectCategoryID              int32      `json:"effectCategoryID"`
@@ -271,7 +271,7 @@ func (d *DbuffCollection) UnmarshalJSON(data []byte) error {
 		SkillID          int32 `json:"skillID"`
 	}
 	var raw struct {
-		Key                            int32      `json:"_key"`
+		Key                            int32      `json:"dbuffCollectionID"`
 		DisplayName                    Localized  `json:"displayName"`
 		AggregateMode                  string     `json:"aggregateMode"`
 		OperationName                  string     `json:"operationName"`
@@ -340,7 +340,7 @@ func (d *DbuffCollection) UnmarshalJSON(data []byte) error {
 }
 
 type MutaplasmidAttribute struct {
-	AttributeID int32   `json:"_key"`
+	AttributeID int32   `json:"attributeID"`
 	Min         float64 `json:"min"`
 	Max         float64 `json:"max"`
 }
@@ -351,7 +351,7 @@ type MutaplasmidMapping struct {
 }
 
 type Mutaplasmid struct {
-	Key        int32                  `json:"_key"`
+	Key        int32                  `json:"typeID"`
 	Attributes []MutaplasmidAttribute `json:"attributeIDs"`
 	Mappings   []MutaplasmidMapping   `json:"inputOutputMapping"`
 }
@@ -364,13 +364,13 @@ type TypeBonus struct {
 }
 
 type TypeBonusSkill struct {
-	SkillTypeID int32       `json:"_key"`
-	Bonuses     []TypeBonus `json:"_value"`
+	SkillTypeID int32       `json:"typeID"`
+	Bonuses     []TypeBonus `json:"bonuses"`
 }
 
 // TypeBonuses is the bonus text EVE shows for a ship.
 type TypeBonuses struct {
-	Key         int32            `json:"_key"`
+	Key         int32            `json:"typeID"`
 	Skills      []TypeBonusSkill `json:"types"`
 	RoleBonuses []TypeBonus      `json:"roleBonuses"`
 	MiscBonuses []TypeBonus      `json:"miscBonuses"`
