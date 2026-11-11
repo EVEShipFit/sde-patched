@@ -7,115 +7,174 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
-const (
-	latestURL   = "https://developers.eveonline.com/static-data/%s/latest.jsonl"
-	downloadURL = "https://developers.eveonline.com/static-data/%s/eve-online-static-data-%d-jsonl.zip"
-)
+var baseURL = "https://sde.evetech.net"
 
 var client = &http.Client{Timeout: 30 * time.Minute}
 
-// LatestBuild returns the build number of the SDE currently on the given server.
-func LatestBuild(server string) (int32, error) {
-	url := fmt.Sprintf(latestURL, server)
-	resp, err := client.Get(url)
-	if err != nil {
-		return 0, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return 0, fmt.Errorf("%s: %s", url, resp.Status)
-	}
-
-	decoder := json.NewDecoder(resp.Body)
-	for {
-		var record struct {
-			Key         string `json:"_key"`
-			BuildNumber int32  `json:"buildNumber"`
-		}
-		if err := decoder.Decode(&record); err == io.EOF {
-			break
-		} else if err != nil {
-			return 0, err
-		}
-
-		if record.Key == "sde" {
-			return record.BuildNumber, nil
-		}
-	}
-	return 0, fmt.Errorf("%s: no record with key 'sde'", url)
+type release struct {
+	BuildNumber int32 `json:"buildNumber"`
+	Tables      map[string]struct {
+		JSONL struct {
+			URL string `json:"url"`
+		} `json:"jsonl"`
+	} `json:"tables"`
 }
 
-// Download fetches the JSONL SDE of the given build and server into dir, and
-// returns the path to it. An already downloaded build is not fetched again.
-func Download(dir string, server string, build int32) (string, error) {
-	filename := filepath.Join(dir, fmt.Sprintf("eve-online-static-data-%d-jsonl.zip", build))
+// LatestBuild returns the build number of the SDE currently on the given server.
+func LatestBuild(server string) (int32, error) {
+	var latest release
+	if err := getJSON(fmt.Sprintf("%s/%s/latest/", baseURL, server), &latest); err != nil {
+		return 0, err
+	}
+	if latest.BuildNumber == 0 {
+		return 0, fmt.Errorf("%s: no latest build", server)
+	}
+	return latest.BuildNumber, nil
+}
 
-	if _, err := os.Stat(filename); err == nil {
-		return filename, nil
+// Download fetches the tables of a build into dir/<build>, unless already there, and returns that path.
+func Download(dir string, server string, build int32) (string, error) {
+	target := filepath.Join(dir, strconv.Itoa(int(build)))
+
+	if _, err := os.Stat(target); err == nil {
+		return target, nil
+	}
+
+	found, err := findRelease(server, build)
+	if err != nil {
+		return "", err
 	}
 
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", err
 	}
 
-	url := fmt.Sprintf(downloadURL, server, build)
-	resp, err := client.Get(url)
+	// Download into a temporary directory first, so an interrupted download is
+	// never mistaken for a complete one.
+	tmp, err := os.MkdirTemp(dir, ".download-*")
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer os.RemoveAll(tmp)
 
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("%s: %s", url, resp.Status)
-	}
-
-	// Write to a temporary file first, so an interrupted download is never
-	// mistaken for a complete one.
-	tmp, err := os.CreateTemp(dir, ".download-*")
-	if err != nil {
-		return "", err
-	}
-	defer os.Remove(tmp.Name())
-
-	if _, err := io.Copy(tmp, resp.Body); err != nil {
-		tmp.Close()
-		return "", err
-	}
-	if err := tmp.Close(); err != nil {
-		return "", err
+	for _, table := range tables {
+		url := found.Tables[table].JSONL.URL
+		if url == "" {
+			return "", fmt.Errorf("build %d has no table %s", build, table)
+		}
+		if err := fetch(url, filepath.Join(tmp, table+".jsonl.gz")); err != nil {
+			return "", err
+		}
 	}
 
-	// CreateTemp makes the file private; the SDE is not a secret.
-	if err := os.Chmod(tmp.Name(), 0o644); err != nil {
+	// MkdirTemp makes the directory private; the SDE is not a secret.
+	if err := os.Chmod(tmp, 0o755); err != nil {
 		return "", err
 	}
-	if err := os.Rename(tmp.Name(), filename); err != nil {
+	if err := os.Rename(tmp, target); err != nil {
+		if _, statErr := os.Stat(target); statErr == nil {
+			return target, nil
+		}
 		return "", err
 	}
-	return filename, nil
+	return target, nil
 }
 
 // LocalBuild returns the build number of the newest SDE in dir, or zero if
 // there is none.
 func LocalBuild(dir string) int32 {
-	matches, err := filepath.Glob(filepath.Join(dir, "eve-online-static-data-*-jsonl.zip"))
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return 0
 	}
 
 	var newest int32
-	for _, match := range matches {
-		var build int32
-		if _, err := fmt.Sscanf(filepath.Base(match), "eve-online-static-data-%d-jsonl.zip", &build); err != nil {
+	for _, entry := range entries {
+		if !entry.IsDir() {
 			continue
 		}
-		if build > newest {
-			newest = build
+		build, err := strconv.ParseInt(entry.Name(), 10, 32)
+		if err != nil {
+			continue
+		}
+		if int32(build) > newest {
+			newest = int32(build)
 		}
 	}
 	return newest
+}
+
+// findRelease returns the newest release of the given build.
+func findRelease(server string, build int32) (*release, error) {
+	var index struct {
+		Releases []struct {
+			ReleaseURL string `json:"releaseUrl"`
+		} `json:"releases"`
+	}
+	if err := getJSON(fmt.Sprintf("%s/%s/", baseURL, server), &index); err != nil {
+		return nil, err
+	}
+
+	for _, entry := range index.Releases {
+		var candidate release
+		if err := getJSON(entry.ReleaseURL, &candidate); err != nil {
+			return nil, err
+		}
+		if candidate.BuildNumber == build {
+			return &candidate, nil
+		}
+	}
+	return nil, fmt.Errorf("no release of build %d on %s", build, server)
+}
+
+func getJSON(url string, v any) error {
+	resp, err := client.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("%s: %s", url, resp.Status)
+	}
+	if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
+		return fmt.Errorf("%s: %w", url, err)
+	}
+	return nil
+}
+
+// fetch stores the body of url in filename as it is sent: gzip-compressed.
+func fetch(url string, filename string) error {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept-Encoding", "gzip")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("%s: %s", url, resp.Status)
+	}
+	if encoding := resp.Header.Get("Content-Encoding"); encoding != "gzip" {
+		return fmt.Errorf("%s: expected gzip, got %q", url, encoding)
+	}
+
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(file, resp.Body); err != nil {
+		file.Close()
+		return fmt.Errorf("%s: %w", url, err)
+	}
+	return file.Close()
 }

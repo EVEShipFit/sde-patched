@@ -225,13 +225,13 @@ func download() (string, int32, error) {
 		build = latest
 	}
 
-	filename, err := sde.Download(*sdeDir, *server, build)
+	path, err := sde.Download(*sdeDir, *server, build)
 	if err != nil {
 		return "", 0, err
 	}
 
 	fmt.Fprintf(os.Stderr, "using SDE build %d\n", build)
-	return filename, build, nil
+	return path, build, nil
 }
 
 // load uses the SDE already on disk when there is one, so that building does
@@ -243,16 +243,16 @@ func load() (*sde.Data, error) {
 	}
 
 	if build == 0 {
-		filename, downloaded, err := download()
+		path, downloaded, err := download()
 		if err != nil {
 			return nil, err
 		}
-		return sde.Load(filename, downloaded)
+		return sde.Load(path, downloaded)
 	}
 
-	filename, err := sde.Download(*sdeDir, *server, build)
+	path, err := sde.Download(*sdeDir, *server, build)
 	if err != nil {
 		return nil, err
 	}
-	return sde.Load(filename, build)
+	return sde.Load(path, build)
 }

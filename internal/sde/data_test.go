@@ -9,7 +9,7 @@ import (
 
 func TestDbuffCollectionUnmarshal(t *testing.T) {
 	raw := `{
-		"_key": 11,
+		"dbuffCollectionID": 11,
 		"aggregateMode": "Minimum",
 		"displayName": {"en": "Shield Repair Modules"},
 		"itemModifiers": [{"dogmaAttributeID": 263}],
@@ -58,14 +58,14 @@ func TestDbuffCollectionUnmarshal(t *testing.T) {
 
 func TestDbuffCollectionUnmarshalUnknownOperation(t *testing.T) {
 	var buff DbuffCollection
-	if err := json.Unmarshal([]byte(`{"_key": 1, "aggregateMode": "Maximum", "operationName": "Nope", "showOutputValueInUI": "ShowNormal"}`), &buff); err == nil {
+	if err := json.Unmarshal([]byte(`{"dbuffCollectionID": 1, "aggregateMode": "Maximum", "operationName": "Nope", "showOutputValueInUI": "ShowNormal"}`), &buff); err == nil {
 		t.Error("an unknown operation should not load")
 	}
 }
 
 func TestDbuffCollectionUnmarshalUnknownDisplay(t *testing.T) {
 	var buff DbuffCollection
-	if err := json.Unmarshal([]byte(`{"_key": 1, "aggregateMode": "Maximum", "operationName": "ModAdd", "showOutputValueInUI": "Nope"}`), &buff); err == nil {
+	if err := json.Unmarshal([]byte(`{"dbuffCollectionID": 1, "aggregateMode": "Maximum", "operationName": "ModAdd", "showOutputValueInUI": "Nope"}`), &buff); err == nil {
 		t.Error("an unknown display should not load")
 	}
 }
